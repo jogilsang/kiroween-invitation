@@ -3,18 +3,33 @@
 One task at a time. Write the failing test first, make it pass, then stop.
 Each task names how it's verified. `[ ]` todo, `[x]` done.
 
-- [x] **T1** Scaffold: folders, git, MIT LICENSE, README, `.gitignore` (.omc excluded, .kiro kept), package.json. — repo builds, `node --test` runs (no tests yet).
-- [x] **T2** Steering docs (product, tech, principles). — present in `.kiro/steering/`.
-- [x] **T3** Spec (requirements, design, tasks). — present in `.kiro/specs/ascii-invite/`.
-- [x] **T4** `engine/invite.js`: `normalizeConfig` + `buildInviteText` (R3–R7). — tests: `test_purpose_templates`, `test_year_is_variable`, `test_reject_invalid_year`, `test_sanitize_nick`, `test_unknown_key_falls_back`.
-- [x] **T5** `engine/compose.js`: `resolveParts` + `compositeLayers` (R8/R9). — tests: `test_layer_order_fixed`, `test_mutually_exclusive_parts`.
-- [x] **T6** `assets/`: build-time SVG→grid sampler, write `assets/grids.json`; placeholder grids so engine tests run without a browser.
-- [x] **T7** `engine/ascii.js`: `renderAscii` + `deriveSeed` (R1/R2/R10/R11/R12). — tests: `test_deterministic_bytes`, `test_same_config_same_output`, `test_density_levels`, `test_dark_theme_contrast`, `test_monospace_grid_consistent`.
-- [x] **T8** `engine/share.js` + `engine/scan.js` (R15–R18). — tests: `test_share_link_roundtrip`, `test_open_shared_link_restores`, `test_corrupt_share_param_safe`, `test_share_content_scan`, `test_config_roundtrip`.
-- [x] **T9** `app/`: index.html + main.js + style.css. Controls, live preview, dark theme, noscript, aria. Calls engine only (R20/R21).
-- [x] **T10** Save + PNG export (R13/R14) in app; engine `serializeConfig`/`deserializeConfig` tested by `test_config_roundtrip`.
-- [x] **T11** PBT (`tests/pbt.test.js`): ≥3 properties — (1) same config = same ASCII, (2) unknown/corrupt input never throws & state-safe, (3) encode→decode is identity for valid configs.
-- [x] **T12** Hooks (`.kiro/hooks/`): test-on-save, pre-commit secret/.omc scan, spec-change reminder.
-- [x] **T13** Red team (`docs/RED_TEAM.md`): 20 deceptive inputs, expected vs actual, honest gaps.
-- [x] **T14** Deploy (captain / us-east-1, S3 + CloudFront OAC), tags, cost note. Prepared as IaC + script; actual deploy gated on CEO go.
-- [x] **T15** Submission kit: video script (step 10), Kiro write-up (step 11), pre-submit audit (step 12).
+## ASCII build (done, then superseded by the SVG pivot)
+
+- [x] T1 Scaffold (git, MIT LICENSE, README, .gitignore, package.json).
+- [x] T2 Steering docs.
+- [x] T3 Spec (requirements/design/tasks).
+- [x] T4 engine/invite.js (validation + templates).
+- [x] T5 engine/compose.js (layer order + mutual exclusion).
+- [x] T6 assets grids (ASCII) — removed in pivot.
+- [x] T7 engine/ascii.js — removed in pivot.
+- [x] T8 engine/share.js + scan.js.
+- [x] T9 app (ASCII) — replaced in pivot.
+- [x] T10 save + PNG export (ASCII) — replaced in pivot.
+- [x] T11 PBT (ASCII) — replaced in pivot.
+- [x] T12 hooks (test-on-save, secret scan, spec-change).
+- [x] T13 red team (ASCII) — re-run for SVG in P8.
+- [x] T14 deploy pipeline (S3 + CloudFront OAC) — re-run in P9.
+
+## SVG pivot (2026-11-05)
+
+- [ ] P1 Spec rewritten for SVG (this file + requirements + design, changelog). — docs present.
+- [ ] P2 steering/tech.md → deterministic SVG, no ASCII. — doc updated.
+- [ ] P3 engine/invite.js + compose.js extended: InviteConfig gains mood/palette/glow; validation + fallbacks (R5/R6/R7); escapeXml added. — tests: `test_reject_invalid_year`, `test_sanitize_nick`, `test_unknown_key_falls_back`, `test_escape_xml`.
+- [ ] P4 engine/svg.js new (ascii.js removed): `renderSvg`, `deriveSeed` (R1/R2/R10/R11/R12). — tests: `test_deterministic_bytes`, `test_same_config_same_output`, `test_mood_variants_differ`, `test_palette_variants_differ`, `test_svg_wellformed`, `test_dark_background_contract`, `test_svg_has_title`, `test_svg_escapes_nick`.
+- [ ] P5 engine/share.js + scan.js reused; tests adjusted to SVG. — `test_share_link_roundtrip`, `test_open_shared_link_restores`, `test_corrupt_share_param_safe`, `test_share_content_scan`, `test_config_roundtrip`.
+- [ ] P6 PBT rewritten: determinism, junk-safe, encode→decode identity, SVG well-formed for any config. — `tests/pbt.test.js`.
+- [ ] P7 agents re-defined: svg-engine (was ascii-engine), art-tuner → SVG parts.
+- [ ] P8 app rewritten to render SVG + PNG export + live combos; noscript/aria. Red team re-run on SVG path (nick escaping). — browser-verified + `docs/RED_TEAM.md`.
+- [ ] P9 redeploy to captain; verify live render (headless capture).
+- [ ] P10 KIRO_EVIDENCE / README / PRE_SUBMIT / video script / Kiro write-up updated for the pivot.
+- [ ] P11 (follow-up) Kiro Crew re-implementation for a CLI-vs-Crew comparison writeup. Not a prize entry.
