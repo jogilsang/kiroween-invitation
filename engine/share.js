@@ -70,10 +70,10 @@ export function serializeConfig(config) {
     p: config.purpose,
     y: config.year,
     n: config.nick,
-    f: config.ghost.face,
     pa: config.ghost.parts,
-    t: config.ghost.theme,
-    d: config.density,
+    m: config.mood,
+    c: config.palette,
+    g: config.glow,
   });
 }
 
@@ -88,8 +88,10 @@ function deserializeRaw(json) {
     purpose: o.p,
     year: o.y,
     nick: o.n,
-    ghost: { face: o.f, parts: o.pa, theme: o.t },
-    density: o.d,
+    ghost: { parts: o.pa },
+    mood: o.m,
+    palette: o.c,
+    glow: o.g,
   };
 }
 

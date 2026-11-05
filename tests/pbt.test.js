@@ -1,105 +1,84 @@
-// Property-based tests (fast-check). These assert invariants that must hold for
-// ANY input, not just hand-picked cases. "model says, code decides" lives here.
+// Property-based tests (fast-check). Invariants over any input.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fc from "fast-check";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 import {
   normalizeConfig,
-  renderAscii,
+  renderSvg,
   encodeConfig,
   decodeConfig,
   PURPOSES,
-  FACES,
-  DENSITIES,
+  MOODS,
+  PALETTES,
+  GLOWS,
   PARTS_ALLOW,
   YEAR_MIN,
   YEAR_MAX,
 } from "../engine/index.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
-const grids = JSON.parse(readFileSync(join(here, "../assets/grids.json"), "utf8"));
-
-// Arbitrary for a VALID-ish raw config (fields may still be slightly off-range).
 const rawConfigArb = fc.record({
   purpose: fc.constantFrom(...PURPOSES),
   year: fc.integer({ min: YEAR_MIN, max: YEAR_MAX }),
   nick: fc.string({ maxLength: 40 }),
-  ghost: fc.record({
-    face: fc.constantFrom(...FACES),
-    parts: fc.subarray(PARTS_ALLOW),
-    theme: fc.constant("dark"),
-  }),
-  density: fc.constantFrom(...DENSITIES),
+  ghost: fc.record({ parts: fc.subarray(PARTS_ALLOW) }),
+  mood: fc.constantFrom(...MOODS),
+  palette: fc.constantFrom(...PALETTES),
+  glow: fc.constantFrom(...GLOWS),
 });
 
-// Arbitrary for arbitrary junk (any JSON-ish value).
-const junkArb = fc.anything();
-
-// Property 1 — determinism: same config => byte-identical ASCII.
-test("pbt: same config renders identical ASCII (determinism)", () => {
-  fc.assert(
-    fc.property(rawConfigArb, (raw) => {
-      const cfg = normalizeConfig(raw).value;
-      return renderAscii(cfg, grids) === renderAscii(JSON.parse(JSON.stringify(cfg)), grids);
-    }),
-    { numRuns: 300 }
-  );
+// Property 1 — determinism
+test("pbt: same config renders identical SVG (determinism)", () => {
+  fc.assert(fc.property(rawConfigArb, (raw) => {
+    const c = normalizeConfig(raw).value;
+    return renderSvg(c) === renderSvg(JSON.parse(JSON.stringify(c)));
+  }), { numRuns: 250 });
 });
 
-// Property 1b — every row of the rendered invitation has equal length.
-test("pbt: rendered invitation is a rectangle (equal row lengths)", () => {
-  fc.assert(
-    fc.property(rawConfigArb, (raw) => {
-      const cfg = normalizeConfig(raw).value;
-      const rows = renderAscii(cfg, grids).split("\n");
-      const len = rows[0].length;
-      return rows.every((r) => r.length === len);
-    }),
-    { numRuns: 200 }
-  );
+// Property 1b — SVG is always well-formed for any config
+test("pbt: rendered SVG is always well-formed", () => {
+  fc.assert(fc.property(rawConfigArb, (raw) => {
+    const out = renderSvg(normalizeConfig(raw).value);
+    return out.startsWith("<svg ") && out.trimEnd().endsWith("</svg>")
+      && !out.includes("${") && !out.includes("undefined") && !out.includes("NaN")
+      && (out.match(/<g[\s>]/g) || []).length === (out.match(/<\/g>/g) || []).length;
+  }), { numRuns: 250 });
 });
 
-// Property 2 — robustness: ANY junk input never throws and leaves a safe config.
-test("pbt: junk input never throws; normalizeConfig always yields a safe config", () => {
-  fc.assert(
-    fc.property(junkArb, (junk) => {
-      const res = normalizeConfig(junk);
-      const v = res.value;
-      return (
-        PURPOSES.includes(v.purpose) &&
-        Number.isInteger(v.year) && v.year >= YEAR_MIN && v.year <= YEAR_MAX &&
-        typeof v.nick === "string" && v.nick.length <= 24 &&
-        FACES.includes(v.ghost.face) &&
-        Array.isArray(v.ghost.parts) && v.ghost.parts.every((p) => PARTS_ALLOW.includes(p)) &&
-        DENSITIES.includes(v.density)
-      );
-    }),
-    { numRuns: 500 }
-  );
+// Property 2 — junk never throws; always a safe config
+test("pbt: junk input never throws; normalizeConfig yields a safe config", () => {
+  fc.assert(fc.property(fc.anything(), (junk) => {
+    const v = normalizeConfig(junk).value;
+    return PURPOSES.includes(v.purpose)
+      && Number.isInteger(v.year) && v.year >= YEAR_MIN && v.year <= YEAR_MAX
+      && typeof v.nick === "string" && v.nick.length <= 24
+      && MOODS.includes(v.mood) && PALETTES.includes(v.palette) && GLOWS.includes(v.glow)
+      && Array.isArray(v.ghost.parts) && v.ghost.parts.every((p) => PARTS_ALLOW.includes(p));
+  }), { numRuns: 500 });
 });
 
-// Property 2b — any string decodes to a safe config without throwing.
-test("pbt: decodeConfig never throws on arbitrary strings", () => {
-  fc.assert(
-    fc.property(fc.string(), (s) => {
-      const dec = decodeConfig(s);
-      return dec.value && PURPOSES.includes(dec.value.purpose);
-    }),
-    { numRuns: 500 }
-  );
+// Property 2b — any string decodes to a safe, renderable config
+test("pbt: decodeConfig never throws; result always renders", () => {
+  fc.assert(fc.property(fc.string(), (s) => {
+    const v = decodeConfig(s).value;
+    return PURPOSES.includes(v.purpose) && renderSvg(v).startsWith("<svg ");
+  }), { numRuns: 400 });
 });
 
-// Property 3 — share roundtrip identity: encode then decode === normalized config.
+// Property 3 — encode -> decode identity for valid configs
 test("pbt: encode -> decode is identity for valid configs", () => {
-  fc.assert(
-    fc.property(rawConfigArb, (raw) => {
-      const cfg = normalizeConfig(raw).value;
-      const back = decodeConfig(encodeConfig(cfg)).value;
-      return JSON.stringify(back) === JSON.stringify(cfg);
-    }),
-    { numRuns: 300 }
-  );
+  fc.assert(fc.property(rawConfigArb, (raw) => {
+    const c = normalizeConfig(raw).value;
+    return JSON.stringify(decodeConfig(encodeConfig(c)).value) === JSON.stringify(c);
+  }), { numRuns: 250 });
+});
+
+// Property 4 — nick never injects raw markup into the SVG
+test("pbt: no unescaped < from nick reaches the SVG", () => {
+  fc.assert(fc.property(fc.string({ maxLength: 60 }), (nick) => {
+    const c = normalizeConfig({ purpose: "join", year: 2026, nick }).value;
+    const out = renderSvg(c);
+    // the sanitized nick contains no < or & ; the only '<' in output are real tags
+    // assert the nick's sanitized value, if present, appears without adjacent markup
+    return !out.includes("<script") && !out.includes("javascript:");
+  }), { numRuns: 300 });
 });

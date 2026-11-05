@@ -1,16 +1,15 @@
 // engine/compose.js — layer ordering and composition rules. Pure.
-// Code decides the layer order and which mutually-exclusive part wins.
+// Code decides the SVG layer order and which mutually-exclusive part wins.
 
-// Fixed bottom-to-top layer order. Parts are slotted into their layer.
-export const LAYER_ORDER = ["background", "pumpkin", "ghost", "face", "decoration"];
+// Fixed bottom-to-top SVG layer order (R8).
+export const LAYER_ORDER = ["background", "fog", "moon", "bats", "ghost", "pumpkin", "frame", "text"];
 
 // Parts that cannot coexist. If both are selected, the one listed FIRST wins,
 // and the decision is recorded. (hat vs horns = headwear slot)
 const EXCLUSIVE_GROUPS = [["hat", "horns"]];
 
-// Which decoration parts map into which layer. Everything here is a decoration
-// layer part except the structural ghost/face/pumpkin/background.
-export const DECORATION_PARTS = ["hat", "horns", "cobweb", "bats", "candle"];
+// Decoration parts in their stable, deterministic order (not user click order).
+export const DECORATION_PARTS = ["hat", "horns", "moon", "bats"];
 
 /**
  * Resolve the active parts for a normalized config, enforcing mutual exclusion.
@@ -37,32 +36,4 @@ export function resolveParts(config) {
   // Stable, deterministic order: keep allow-list order, not user click order.
   const ordered = DECORATION_PARTS.filter((p) => selected.includes(p));
   return { parts: ordered, decisions };
-}
-
-/**
- * Composite a list of layer grids (bottom-first) into one grid.
- * Each grid is a 2D array of numbers (brightness 0..1) or null = transparent.
- * Upper non-null cells overwrite lower cells; null keeps the layer below.
- * All grids must share dimensions (caller guarantees via asset sampler).
- * @param {Array<Array<Array<number|null>>>} layers bottom-first
- * @returns {Array<Array<number|null>>}
- */
-export function compositeLayers(layers) {
-  const real = layers.filter((g) => Array.isArray(g) && g.length > 0);
-  if (real.length === 0) return [];
-  const h = real[0].length;
-  const w = real[0][0].length;
-  const out = Array.from({ length: h }, () => Array.from({ length: w }, () => null));
-  for (const g of real) {
-    if (g.length !== h || g[0].length !== w) {
-      throw new Error("compositeLayers: layer dimension mismatch");
-    }
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        const cell = g[y][x];
-        if (cell !== null && cell !== undefined) out[y][x] = cell;
-      }
-    }
-  }
-  return out;
 }

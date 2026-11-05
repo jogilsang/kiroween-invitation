@@ -1,11 +1,14 @@
-// engine/invite.js — purpose/year/nick -> invitation text, with validation.
-// Pure: no DOM, no network, no clock, no Math.random. Model says, code decides.
+// engine/invite.js — purpose/year/nick + look options -> invitation text, with
+// validation. Pure: no DOM, no network, no clock, no Math.random.
+// Model says, code decides.
 
 export const PURPOSES = ["join", "notice", "recruit"];
-export const FACES = ["mischief", "spooky", "cute"];
-export const THEMES = ["dark"];
-export const DENSITIES = ["low", "mid", "high"];
-export const PARTS_ALLOW = ["hat", "horns", "cobweb", "bats", "candle"];
+export const MOODS = ["uneasy", "screaming", "hollow"];
+export const PALETTES = ["deeppurple", "magenta", "indigo"];
+export const GLOWS = ["soft", "strong"];
+// Decoration parts the SVG renderer understands. hat/horns are kept because the
+// mutual-exclusion rule (R9) is specified over them; moon/bats are drawn.
+export const PARTS_ALLOW = ["hat", "horns", "moon", "bats"];
 
 export const YEAR_MIN = 2000;
 export const YEAR_MAX = 2100;
@@ -18,9 +21,25 @@ const DEFAULTS = Object.freeze({
   purpose: "join",
   year: 2026,
   nick: "",
-  ghost: { face: "mischief", parts: [], theme: "dark" },
-  density: "mid",
+  ghost: { parts: [] },
+  mood: "screaming",
+  palette: "magenta",
+  glow: "strong",
 });
+
+/**
+ * XML-escape a value before it is placed into SVG text/attributes.
+ * Defense in depth: nick is already sanitized, but anything dynamic that
+ * reaches the SVG goes through this too.
+ * @param {unknown} v
+ * @returns {string}
+ */
+export function escapeXml(v) {
+  const s = typeof v === "string" ? v : v == null ? "" : String(v);
+  return s.replace(/[<>&"']/g, (c) => (
+    { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c]
+  ));
+}
 
 /**
  * Sanitize a nickname: coerce to string, strip disallowed chars, collapse
@@ -54,7 +73,7 @@ export function normalizeConfig(raw) {
   if (purpose !== r.purpose) reasons.push(`purpose fell back to "${purpose}"`);
 
   let year = r.year;
-  let yearOk = Number.isInteger(year) && year >= YEAR_MIN && year <= YEAR_MAX;
+  const yearOk = Number.isInteger(year) && year >= YEAR_MIN && year <= YEAR_MAX;
   if (!yearOk) {
     reasons.push(`year "${r.year}" invalid; using default ${DEFAULTS.year}`);
     year = DEFAULTS.year;
@@ -64,22 +83,25 @@ export function normalizeConfig(raw) {
   if (nick.changed) reasons.push("nick sanitized");
 
   const g = r.ghost && typeof r.ghost === "object" ? r.ghost : {};
-  const face = pickEnum(g.face, FACES, DEFAULTS.ghost.face);
-  if (face !== g.face) reasons.push(`face fell back to "${face}"`);
-  const theme = pickEnum(g.theme, THEMES, DEFAULTS.ghost.theme);
   const partsRaw = Array.isArray(g.parts) ? g.parts : [];
   const parts = partsRaw.filter((p) => PARTS_ALLOW.includes(p));
   if (parts.length !== partsRaw.length) reasons.push("unknown parts dropped");
 
-  const density = pickEnum(r.density, DENSITIES, DEFAULTS.density);
-  if (density !== r.density) reasons.push(`density fell back to "${density}"`);
+  const mood = pickEnum(r.mood, MOODS, DEFAULTS.mood);
+  if (mood !== r.mood) reasons.push(`mood fell back to "${mood}"`);
+  const palette = pickEnum(r.palette, PALETTES, DEFAULTS.palette);
+  if (palette !== r.palette) reasons.push(`palette fell back to "${palette}"`);
+  const glow = pickEnum(r.glow, GLOWS, DEFAULTS.glow);
+  if (glow !== r.glow) reasons.push(`glow fell back to "${glow}"`);
 
   const value = {
     purpose,
     year,
     nick: nick.value,
-    ghost: { face, parts, theme },
-    density,
+    ghost: { parts },
+    mood,
+    palette,
+    glow,
   };
   return { ok: reasons.length === 0, value, reasons };
 }
@@ -88,14 +110,14 @@ const TEMPLATES = {
   join: {
     title: "YOU ARE SUMMONED",
     body: (c) => [
-      `${c.nick || "A brave soul"} is entering Kiroween ${c.year}.`,
+      `${c.nick || "A brave soul"} enters Kiroween ${c.year}.`,
       "Join the ritual. Build something wicked.",
     ],
   },
   notice: {
-    title: "A HAUNTING IS ANNOUNCED",
+    title: "A HAUNTING IS CALLED",
     body: (c) => [
-      `Kiroween ${c.year} gathering — all spirits welcome.`,
+      `Kiroween ${c.year} — all spirits welcome.`,
       `Summoned by ${c.nick || "the host"}.`,
     ],
   },
