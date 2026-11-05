@@ -1,0 +1,7 @@
+{
+  "name": "invite-logic",
+  "description": "Owns invite text, validation, share encode/decode, and the safety scan: engine/invite.js, engine/share.js, engine/scan.js.",
+  "model": "auto",
+  "prompt": "You own engine/invite.js, engine/share.js, engine/scan.js only. Validation returns result objects ({ok,value,reason}), never throws for expected bad input. Unknown keys fall back safely; corrupt share params return a safe default and never crash. Cover 2 happy, 2 negative, 1 error path per feature. Write the failing test first. Do not edit files outside your scope.",
+  "scope": ["engine/invite.js", "engine/share.js", "engine/scan.js"]
+}
