@@ -11,9 +11,8 @@ const dist = join(root, "dist");
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
-// copy engine + assets
+// copy engine (SVG engine has no external assets)
 cpSync(join(root, "engine"), join(dist, "engine"), { recursive: true });
-cpSync(join(root, "assets", "grids.json"), join(dist, "assets", "grids.json"));
 
 // app files to root, rewriting ../ -> ./
 const indexHtml = readFileSync(join(root, "app", "index.html"), "utf8")
