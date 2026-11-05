@@ -1,37 +1,47 @@
 # Pre-submission review — ASCII Invite (step 12)
 
-Date: 2026-11-05. Three perspectives + the mechanical audit
-(`docs/audit_submission.sh`, 17/17 PASS). Deadline: KST 2026-12-05 07:00.
+Date: 2026-11-05 (updated after the ASCII → SVG pivot). Three perspectives + the
+mechanical audit (`docs/audit_submission.sh`, 17/17 PASS). Deadline: KST
+2026-12-05 07:00.
+
+> Pivot note: the render engine changed from ASCII glyphs to deterministic SVG
+> for a grotesque, glowing look. Spec/steering/engine/app/tests/deploy all
+> realigned; the project keeps the name `ascii-invite` for continuity. Detail in
+> `docs/KIRO_EVIDENCE.md`.
 
 ## Mechanical audit: 17/17 PASS
 
 LICENSE at root, `.kiro/` present and not gitignored, `.omc/` excluded and not
 tracked, full spec + steering + hooks + agents present, README judge-try,
-write-up, video script, red-team doc, 29 tests green, secret scan clean.
+write-up, video script, red-team doc, 30 tests green, secret scan clean.
 
 ## Perspective 1 — Judge (Costume Contest, 4 criteria × 20%)
 
-- Design: dark neon theme, live preview, PNG export, share link, noscript, aria.
-  The haunting UI *is* the function (ASCII result is the product). Strong.
+- Design: dark neon SVG, glowing grotesque ghost + pumpkin, live preview, PNG
+  export, share link, noscript, aria. The haunting UI *is* the function. Strong
+  (clearly stronger than the ASCII version it replaced).
 - Technological Implementation: spec + 3 hooks + 5 agents + PBT + MCP browser
-  verification, all with dated evidence. Strong.
-- Innovation: moderate. ASCII conversion is common; the differentiator is the
-  trio (determinism + variable year + URL-only share) and its completeness. The
-  video's first 18s must sell the result, not the tech.
-- Presentation: script is ready and follows a single person's scene; needs the
-  actual recording (human).
+  verification + a documented render-engine pivot absorbed via the spec — all
+  with dated evidence. Strong.
+- Innovation: improved by the pivot. The differentiator is the combination
+  generator (purpose × year × mood × palette × glow × parts) that always renders
+  a distinct, deterministic, shareable poster. The video's first 18s sells the
+  result.
+- Presentation: script ready, follows one person's scene; needs the recording (human).
 
 ## Perspective 2 — Real user
 
-- Works end-to-end in a real browser (verified). Live update is snappy.
+- Works end-to-end in a real browser and on the live CloudFront URL (verified via
+  headless render). Live update is snappy.
 - Limitation to be honest about in the listing: non-Latin nicknames sanitize to
-  empty (documented in RED_TEAM G1). A Korean/Japanese user's handle disappears.
+  empty (RED_TEAM G1). A Korean/Japanese handle disappears.
 - Share link carries everything in the URL; no account needed. Good.
 
 ## Perspective 3 — Engineer / security
 
-- Engine is pure and deterministic; 1,800 PBT cases hold. 20 red-team inputs all
-  safe. Pre-commit hook blocks secrets/.omc and is wired into real git.
+- Engine is pure and deterministic; ~2,000 PBT cases hold. 22 red-team inputs all
+  safe, including SVG tag injection via nickname. Pre-commit hook blocks
+  secrets/.omc and is wired into real git.
 - No secret, account id, or customer name in tracked files (scan clean).
 - Deploy is least-privilege (private bucket, OAC, scoped bucket policy).
 

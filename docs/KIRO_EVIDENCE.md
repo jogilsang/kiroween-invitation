@@ -118,3 +118,40 @@ allow-list before it can reach the grid. Known limitation, recorded plainly:
 a non-Latin nickname currently sanitizes to empty rather than rendering in its
 own script. That is a deliberate safety/ratio trade-off, not a bug, and it is a
 candidate follow-up (per-script width handling) if time allows.
+
+## 2026-11-05 — PIVOT: ASCII → SVG (spec-driven pivot in action)
+
+The honest story, because it is the best evidence of why the spec-driven setup
+paid off.
+
+- Why: ASCII glyph rendering could not express the "grotesque but cool" glowing
+  purple look the project wanted (confirmed by rendering real prototypes and
+  looking at them). The render target was changed to deterministic SVG.
+- What the spec/steering did: because requirements were EARS with the render
+  rules isolated (R10 density, R11 dark-invert, R12 monospace), the pivot was a
+  **surgical, documented edit** — those three were replaced by SVG equivalents
+  (mood/palette/glow combinations, well-formed SVG, dark-background contract) in
+  the requirements changelog, and the rest (R1-R9, R13-R21: determinism,
+  validation, composition, share, safety, a11y) carried over unchanged. The
+  tasks file gained a P1-P11 "SVG pivot" block instead of being rewritten.
+- What was reused vs replaced:
+  - Reused: `invite.js` (validation/templates, +mood/palette/glow, +escapeXml),
+    `compose.js` (layer order + hat/horns mutual exclusion), `share.js`,
+    `scan.js`. The "model says, code decides" principle and all negative-path
+    tests transferred directly.
+  - Replaced: `ascii.js` → `svg.js` (deterministic SVG string, no DOM). The
+    ASCII asset pipeline (`assets/grids.json`, `build_grids.mjs`) was deleted.
+  - The app changed from a `<pre>` monospace block to an inline `<svg>` preview
+    and SVG→canvas PNG export.
+- Determinism survived the pivot: `renderSvg` uses an FNV-1a seed from the config
+  for fog/bat jitter; no `Math.random`, no clock. `test_deterministic_bytes` and
+  the PBT determinism property both pass on the new engine.
+- Tests after pivot: 30 (24 unit + 6 PBT), all green. Verified in a real browser
+  and on the live CloudFront URL via headless render.
+- New safety surface handled: SVG tag injection via nickname. The red-team probe
+  A2 (`"/><rect .../>`) is neutralized by `sanitizeNick`, with `escapeXml` as a
+  second line (A22). See `docs/RED_TEAM.md`.
+
+This is the write-up's strongest point: a spec-first project absorbed a full
+render-engine pivot without losing its guarantees, because the guarantees lived
+in the spec and the tests, not in the renderer.

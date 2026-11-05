@@ -1,9 +1,25 @@
 # How Kiro built ASCII Invite
 
-Every number here is checkable against this repo: 7 commits, 21 EARS
-requirements, 29 passing tests (24 unit + 5 property-based), ~500 lines of pure
-engine, 5 custom agents, 3 hooks. Nothing below is claimed that the `.kiro/`
+Every number here is checkable against this repo: 21 EARS requirements, 30
+passing tests (24 unit + 6 property-based), ~550 lines of pure engine, 5 custom
+agents, 3 hooks, and one mid-project render-engine pivot (ASCII → SVG) absorbed
+without losing a single guarantee. Nothing below is claimed that the `.kiro/`
 folder, the commit log, or `node --test` does not show.
+
+## The pivot that proves the method (read this first)
+
+Midway, the ASCII renderer could not deliver the grotesque, glowing purple look
+the project needed, so the render target was changed to deterministic SVG. This
+is the single best piece of evidence for spec-driven development over vibe
+coding: the guarantees lived in the spec and the tests, not in the renderer, so
+the pivot was surgical. The three ASCII-specific requirements (density, dark
+invert, monospace grid) were replaced by SVG equivalents in the requirements
+*changelog*; the other eighteen (determinism, validation, composition, share,
+safety, accessibility) carried over unchanged, as did every negative-path test.
+`ascii.js` became `svg.js`; `invite.js`, `compose.js`, `share.js`, `scan.js`
+were reused. 30 tests stayed green. A vibe-coded project would have had to
+rediscover its own invariants; this one read them off the spec. Full detail with
+dates in `docs/KIRO_EVIDENCE.md`.
 
 ## Kiro CLI with a custom conductor agent
 
@@ -57,18 +73,21 @@ guard that blocks you until you're honest about the exception is doing its job.
 ## Property-based testing
 
 `tests/pbt.test.js` asserts invariants across random inputs: same config →
-byte-identical ASCII; any junk → a safe config that never throws; encode→decode
-is identity. It confirmed the headline claim ("model says, code decides") holds
-for 1,800 generated cases. Honest note: PBT did not find a new crash here,
-because the spec-first approach front-loaded the defenses. What it did find, via
-an adversarial probe, is a documented limitation: non-Latin nicknames sanitize to
-empty. We wrote that down rather than hiding it.
+byte-identical SVG; any junk → a safe config that never throws; encode→decode
+is identity; and the rendered SVG is always well-formed. It confirmed the
+headline claim ("model says, code decides") holds across ~1,950 generated cases.
+Honest note: PBT did not find a new crash, because the spec-first approach
+front-loaded the defenses. What it did find, via an adversarial probe, is a
+documented limitation: non-Latin nicknames sanitize to empty. We wrote that down
+rather than hiding it.
 
 ## MCP
 
 The browser was driven through the chrome-devtools MCP to verify the app in a
-real Chrome: it confirmed the invitation renders (1,311 chars of ASCII), the live
-preview updates on purpose/nickname/parts changes, and the only console error was
+real Chrome, and headless Chrome was used to render the engine's SVG to PNG for a
+true look at the filtered output: it confirmed the invitation renders, the live
+preview updates on purpose/mood/palette/glow/parts changes, and the only console
+error was
 a missing favicon. That verification-in-the-real-browser is something a unit test
 can't give, and MCP is what made it part of the build loop.
 
