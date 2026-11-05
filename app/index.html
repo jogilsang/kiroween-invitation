@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASCII Invite — Kiroween 2026</title>
+  <meta name="description" content="Generate a haunted ASCII Halloween invitation. Deterministic, client-only, shareable by link." />
+  <meta property="og:title" content="ASCII Invite — Kiroween 2026" />
+  <meta property="og:description" content="Make a haunted ASCII Halloween invitation and share it by link." />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <noscript>
+    <div class="noscript">
+      <h1>ASCII Invite</h1>
+      <p>This is a haunted ASCII Halloween invitation generator for Kiroween 2026.
+         It needs JavaScript to render the invitation in your browser. No data is
+         sent to any server — everything runs locally.</p>
+      <pre aria-hidden="true">
+   .-.
+  (o o)   KIROWEEN 2026
+  | O |   Enable JavaScript to summon your invitation.
+   '-'
+      </pre>
+    </div>
+  </noscript>
+
+  <main class="layout" id="app" hidden>
+    <section class="controls" aria-label="Invitation controls">
+      <h1 class="brand">ASCII&nbsp;Invite <span class="sub">Kiroween 2026</span></h1>
+
+      <label>Purpose
+        <div class="seg" role="radiogroup" id="purpose">
+          <button type="button" role="radio" data-val="join">Join</button>
+          <button type="button" role="radio" data-val="notice">Notice</button>
+          <button type="button" role="radio" data-val="recruit">Recruit</button>
+        </div>
+      </label>
+
+      <label>Year
+        <input type="number" id="year" min="2000" max="2100" step="1" value="2026" />
+      </label>
+
+      <label>Nickname
+        <input type="text" id="nick" maxlength="40" placeholder="your handle" />
+      </label>
+
+      <label>Face
+        <select id="face">
+          <option value="mischief">mischief</option>
+          <option value="spooky">spooky</option>
+          <option value="cute">cute</option>
+        </select>
+      </label>
+
+      <label>Density
+        <select id="density">
+          <option value="low">low</option>
+          <option value="mid" selected>mid</option>
+          <option value="high">high</option>
+        </select>
+      </label>
+
+      <fieldset class="parts">
+        <legend>Decorations</legend>
+        <label><input type="checkbox" value="hat" /> hat</label>
+        <label><input type="checkbox" value="horns" /> horns</label>
+        <label><input type="checkbox" value="cobweb" /> cobweb</label>
+        <label><input type="checkbox" value="bats" /> bats</label>
+        <label><input type="checkbox" value="candle" /> candle</label>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" id="savePng">Save as image</button>
+        <button type="button" id="copyLink">Copy share link</button>
+        <button type="button" id="saveCfg">Save config</button>
+      </div>
+      <p class="hint" id="hint" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="preview" aria-label="Invitation preview">
+      <pre id="art" class="art" aria-label="ASCII Halloween invitation" tabindex="0"></pre>
+      <p class="alt" id="alt"></p>
+    </section>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
