@@ -4,24 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ASCII Invite — Kiroween 2026</title>
-  <meta name="description" content="Generate a haunted ASCII Halloween invitation. Deterministic, client-only, shareable by link." />
+  <meta name="description" content="Generate a haunted, glowing SVG Halloween invitation. Deterministic, client-only, shareable by link." />
   <meta property="og:title" content="ASCII Invite — Kiroween 2026" />
-  <meta property="og:description" content="Make a haunted ASCII Halloween invitation and share it by link." />
+  <meta property="og:description" content="Make a haunted Halloween invitation and share it by link." />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <noscript>
     <div class="noscript">
       <h1>ASCII Invite</h1>
-      <p>This is a haunted ASCII Halloween invitation generator for Kiroween 2026.
-         It needs JavaScript to render the invitation in your browser. No data is
-         sent to any server — everything runs locally.</p>
-      <pre aria-hidden="true">
-   .-.
-  (o o)   KIROWEEN 2026
-  | O |   Enable JavaScript to summon your invitation.
-   '-'
-      </pre>
+      <p>A haunted Halloween invitation generator for Kiroween 2026. It renders
+         an SVG invitation in your browser — no data is sent to any server.
+         Please enable JavaScript to summon your invitation.</p>
     </div>
   </noscript>
 
@@ -45,29 +39,35 @@
         <input type="text" id="nick" maxlength="40" placeholder="your handle" />
       </label>
 
-      <label>Face
-        <select id="face">
-          <option value="mischief">mischief</option>
-          <option value="spooky">spooky</option>
-          <option value="cute">cute</option>
+      <label>Mood
+        <select id="mood">
+          <option value="screaming">screaming</option>
+          <option value="uneasy">uneasy</option>
+          <option value="hollow">hollow</option>
         </select>
       </label>
 
-      <label>Density
-        <select id="density">
-          <option value="low">low</option>
-          <option value="mid" selected>mid</option>
-          <option value="high">high</option>
+      <label>Palette
+        <select id="palette">
+          <option value="magenta">magenta</option>
+          <option value="deeppurple">deep purple</option>
+          <option value="indigo">indigo</option>
+        </select>
+      </label>
+
+      <label>Glow
+        <select id="glow">
+          <option value="strong">strong</option>
+          <option value="soft">soft</option>
         </select>
       </label>
 
       <fieldset class="parts">
         <legend>Decorations</legend>
+        <label><input type="checkbox" value="moon" /> moon</label>
+        <label><input type="checkbox" value="bats" /> bats</label>
         <label><input type="checkbox" value="hat" /> hat</label>
         <label><input type="checkbox" value="horns" /> horns</label>
-        <label><input type="checkbox" value="cobweb" /> cobweb</label>
-        <label><input type="checkbox" value="bats" /> bats</label>
-        <label><input type="checkbox" value="candle" /> candle</label>
       </fieldset>
 
       <div class="actions">
@@ -79,8 +79,7 @@
     </section>
 
     <section class="preview" aria-label="Invitation preview">
-      <pre id="art" class="art" aria-label="ASCII Halloween invitation" tabindex="0"></pre>
-      <p class="alt" id="alt"></p>
+      <div id="art" class="art" role="img" aria-label="Halloween invitation"></div>
     </section>
   </main>
 
