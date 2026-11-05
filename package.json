@@ -1,0 +1,16 @@
+{
+  "name": "ascii-invite",
+  "version": "0.1.0",
+  "description": "ASCII Halloween invitation generator for Kiroween 2026 (Costume Contest). Deterministic ASCII art engine: model says, code decides.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "test:pbt": "node --test tests/pbt.test.js",
+    "serve": "node --version && python3 -m http.server 8137 --directory app"
+  },
+  "devDependencies": {
+    "fast-check": "^3.23.1"
+  }
+}

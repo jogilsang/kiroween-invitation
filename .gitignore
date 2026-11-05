@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output (engine/app are hand-written ESM, nothing to transpile)
+dist/
+*.tmp
+
+# OS
+.DS_Store
+
+# Agent state — never publish (2026-11-02 policy). NOT .kiro.
+.omc/
+
+# Local env / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# NOTE: .kiro/ is intentionally NOT ignored. Kiroween requires /.kiro at repo
+# root (specs, hooks, steering, agents). Adding it here would risk disqualification.
