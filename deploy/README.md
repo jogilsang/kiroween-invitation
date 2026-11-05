@@ -30,9 +30,12 @@ alongside, `../` paths rewritten to `./`). `deploy.sh` deploys the stack, syncs
 
 ## Status (2026-11-05)
 
-- Template structurally validated offline (4 resources, 3 outputs; private
-  bucket + OAC + CloudFront + scoped bucket policy).
+- Template structurally validated offline, then validated live against captain
+  (no IAM capabilities needed).
 - `stage.mjs` verified: produces a correct flat `dist/` with rewritten paths.
-- **Not yet deployed.** AWS `validate-template` and the real deploy need a live
-  captain session (it was expired at build time) and are gated on CEO go, since
-  deploying creates real AWS resources. Run the two commands above when ready.
+- **DEPLOYED and live:** https://d3hl6g932302kb.cloudfront.net
+  - Stack `ascii-invite` created in captain / us-east-1.
+  - Bucket is private; served only via CloudFront OAC.
+  - Verified in a real browser: HTTP 200, no console errors, invitation renders
+    (1,311 chars, KIROWEEN banner), all engine/assets paths return 200.
+  - Judges can use it with no login. Teardown anytime with `deploy/teardown.sh`.

@@ -39,8 +39,10 @@ write-up, video script, red-team doc, 29 tests green, secret scan clean.
 
 These are gated by policy to the user; the agent has prepared everything up to them.
 
-1. **Deploy** — re-auth captain (`aws login`), run `AWS_PROFILE=captain bash deploy/deploy.sh`.
-   Get the live https URL. (Template validated offline; real deploy creates resources.)
+1. **Deploy** — DONE (2026-11-05). Live: https://d3hl6g932302kb.cloudfront.net
+   Stack `ascii-invite` in captain/us-east-1, private bucket + CloudFront OAC,
+   verified in a real browser (200, no console errors, renders). Teardown:
+   `AWS_PROFILE=captain bash deploy/teardown.sh`.
 2. **Record + upload the 3-min video** to YouTube (public/unlisted); put the link
    at the top of the Devpost body. Script: `docs/video/SHOTLIST.md`.
 3. **Create the PUBLIC GitHub repo** and sync `ascii-invite/` (without `.omc/`).

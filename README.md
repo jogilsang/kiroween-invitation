@@ -10,7 +10,9 @@
 
 ## Judge's 1-minute try
 
-1. Open the live URL (see submission) — or run locally (below).
+**Live:** https://d3hl6g932302kb.cloudfront.net (no login needed)
+
+1. Open the live URL — or run locally (below).
 2. Pick a purpose (**Join / Notice / Recruit**), a year, and a nickname. Decorate the ghost.
 3. Watch the ASCII invitation render live in the dark neon theme.
 4. Click **Save as image** (PNG) or **Copy share link** — open the link and the exact same invitation comes back.
