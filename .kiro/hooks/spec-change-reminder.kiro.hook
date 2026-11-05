@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "spec-change-reminder",
+  "description": "When requirements or design change, remind to update tasks.md and KIRO_EVIDENCE. Why: spec drift silently breaks the EARS<->task<->test chain.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".kiro/specs/ascii-invite/requirements.md",
+      ".kiro/specs/ascii-invite/design.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "requirements.md or design.md changed. Check that tasks.md still matches (each requirement has a task and a named test), update it if needed, and add a dated line to docs/KIRO_EVIDENCE.md describing the spec change."
+  }
+}

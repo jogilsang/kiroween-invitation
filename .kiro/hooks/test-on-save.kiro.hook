@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "test-on-save",
+  "description": "Run engine tests when an engine or test file is saved. Why: determinism and validation rules must stay green.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "engine/**/*.js",
+      "tests/**/*.js"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "bash .kiro/hooks/run_tests.sh"
+  }
+}
