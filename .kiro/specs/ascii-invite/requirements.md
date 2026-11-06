@@ -96,3 +96,12 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 
 - **R34** THE SYSTEM SHALL render the same invitation in three sizes: `square` (1080x1080), `story` (1080x1920) and `wide` (1920x1080). Square SHALL be the default and SHALL remain byte-identical to before. An unknown format SHALL fall back to square. — `test_format_dimensions`, `test_square_is_default_and_unchanged`, `test_unknown_format_falls_back`
 - **R35** story and wide SHALL contain the complete square artwork unmodified (nothing cropped or rescaled below 100%), centered, with the remaining space filled by a palette-matched backdrop; ids SHALL NOT collide, so the SVG stays well-formed. — `test_wide_story_contain_whole_artwork`, `test_formats_wellformed_and_deterministic`
+
+## Calendar file (added 2026-11-05, WBS P2)
+
+> Changelog: competitors collect RSVPs on a server. We stay serverless, so the
+> closest useful thing is a downloadable calendar entry made on the device.
+
+- **R36** THE SYSTEM SHALL turn the event date and time into a calendar date ONLY when it can read them unambiguously: `Oct 31`, `October 31`, `31 Oct`, `10/31`, `10.31`, `2026-10-31`, `10월 31일`; times `7:00 PM`, `7 PM`, `19:00`, `7:30pm`. A missing time SHALL mean an all-day event. Anything it cannot read, or an impossible date (Feb 30, month 13), SHALL give no calendar entry rather than a guess. The year SHALL come from the config unless the date text carries its own. — `test_parse_event_date_formats`, `test_unreadable_dates_give_nothing`, `test_impossible_dates_rejected`
+- **R37** THE SYSTEM SHALL build a valid iCalendar (RFC 5545) text for a readable event: CRLF line endings, lines folded at 75 octets, `,` `;` `\` and newlines escaped in text values, a UID that is a stable function of the config (no clock, no randomness), floating local time (no time zone is invented), and a 2-hour default length. — `test_ics_structure`, `test_ics_is_deterministic`, `test_ics_line_folding`
+- **R38** THE SYSTEM SHALL NOT allow any user text to inject extra iCalendar lines (header injection). — `test_ics_cannot_be_injected`

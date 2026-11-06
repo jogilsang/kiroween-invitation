@@ -9,6 +9,7 @@ import {
   scanRaw,
   buildInviteText,
   remixConfig,
+  buildIcs,
   formatSize,
   PARTS_ALLOW,
   SWATCHES,
@@ -105,7 +106,16 @@ function render() {
   $("art").innerHTML = renderSvg(cfg, { format });
   const meta = buildInviteText(cfg).meta;
   $("art").setAttribute("aria-label", `${meta.purpose} invitation, ${meta.banner}${cfg.nick ? ", " + cfg.nick : ""}`);
+  syncIcsButton(cfg);
   return cfg;
+}
+
+// The calendar button is enabled only when the date (and time, if given) can be read.
+function syncIcsButton(cfg) {
+  const ok = buildIcs(cfg) !== null;
+  const btn = $("saveIcs");
+  btn.disabled = !ok;
+  btn.title = ok ? "Download a calendar entry" : "Enter a date such as Oct 31, 10/31 or 10월 31일 (and a time like 7:00 PM) to enable";
 }
 
 let debounce;
@@ -154,6 +164,18 @@ function remix() {
   setHint("New look. Copy the share link to keep this exact one.");
 }
 
+function saveIcs() {
+  const cfg = readUi();
+  if (!scanRaw(readRaw()).ok) { setHint("Blocked: the text contains an email, phone number or unsafe content."); return; }
+  const text = buildIcs(cfg);
+  if (!text) { setHint("Could not read that date. Try Oct 31, 10/31 or 10월 31일."); return; }
+  const url = URL.createObjectURL(new Blob([text], { type: "text/calendar;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = `kiroween-${cfg.year}.ics`; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setHint("Calendar file saved.");
+}
+
 function saveCfg() {
   localStorage.setItem(LS_KEY, encodeConfig(readUi()));
   setHint("Config saved on this device.");
@@ -199,6 +221,7 @@ function boot() {
   $("savePng").addEventListener("click", savePng);
   $("copyLink").addEventListener("click", copyLink);
   $("saveCfg").addEventListener("click", saveCfg);
+  $("saveIcs").addEventListener("click", saveIcs);
   $("remix").addEventListener("click", remix);
 
   writeUi(initialConfig());

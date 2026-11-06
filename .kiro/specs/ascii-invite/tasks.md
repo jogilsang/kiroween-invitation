@@ -54,3 +54,4 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] W1.2 Scenes (R31, R33): graveyard, haunted house, forest, behind the fog.
 - [x] W1.4 Remix covers costume and scene.
 - [x] W2.1 Export sizes (R34, R35): square, story 9:16, wide 16:9; artwork never cropped; edge feathered into the backdrop. Found by a real XML parser (not by the regex tests): `data-artwork` had no value, which would have broken PNG export; now guarded by `test_formats_are_valid_xml`.
+- [x] W2.2 Calendar file (R36-R38): `engine/ics.js`, reads only unambiguous dates (never guesses), RFC 5545 output with CRLF, octet folding and escaping, injection-proof. Mutation-tested: disabling the injection defense, the date validation and the folding each make a test fail. A first version of the folding test passed even with folding off (inputs never got long enough), so folding is now tested directly.

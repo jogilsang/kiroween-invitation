@@ -5,3 +5,4 @@ export * from "./svg.js";
 export * from "./share.js";
 export * from "./scan.js";
 export * from "./remix.js";
+export * from "./ics.js";
