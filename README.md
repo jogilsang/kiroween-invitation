@@ -42,6 +42,8 @@ python3 -m http.server 8137 --directory app
 
 ## Kiro usage
 
+Built with Kiro (spec, steering, hooks, custom agents, property-based tests) and independently reviewed by Kiro Crew; its findings and how they were closed are in `docs/KIRO_AND_CREW_STORY.md`.
+
 See `docs/KIRO_EVIDENCE.md` for dated evidence of specs, hooks, steering, custom agents, and property-based testing.
 
 ## License

@@ -155,3 +155,27 @@ paid off.
 This is the write-up's strongest point: a spec-first project absorbed a full
 render-engine pivot without losing its guarantees, because the guarantees lived
 in the spec and the tests, not in the renderer.
+
+## 2026-11-05 — Independent review by Kiro Crew, and the fixes it drove
+
+- Setup: Kiro (CLI + custom agents) built the product. Kiro Crew was then given a
+  written brief (`docs/CREW_RESEARCH_BRIEF.md`) as an independent reviewer:
+  investigate and propose only, no code changes, output to
+  `docs/CREW_FINDINGS.md`. Crew read the specs and code, re-ran `node --test`,
+  diffed `dist/` against `app/`, curled the live URL, and ran its own probes.
+- What it caught that our 30 tests had not: hat/horns drew nothing (only the fog
+  seed changed 24 to 71), nickname maxlength 40 vs engine 24, no keyboard
+  navigation on the purpose radiogroup, and unchecked tasks.md boxes. Root cause
+  of the first one also surfaced: the fog seed depended on decoration parts.
+- Closed test-first: `tests/crew_findings.test.js` (7 tests, each named for a
+  finding) failed 6 of 7 before the fix, then all passed. Suite is now 37/37.
+  Hat and horns were rendered to PNG and checked by eye; the arrow-key
+  navigation was verified in headless Chrome (join, notice, recruit, wrap, back).
+- Still open (reported by Crew as unverified, not verified by us either):
+  Safari/Firefox/mobile rendering of SVG filters and PNG export, WCAG contrast,
+  non-Latin nicknames. Tracked as P16 in tasks.md.
+- Tooling note: switching Crew's `approval_mode` to `auto` did not remove its
+  per-read permission prompts on version 0.11.2, so reads were approved by hand
+  and anything that writes, runs git or deploys was held for a human. The config
+  change was left in place and is documented rather than hidden.
+- Full narrative: `docs/KIRO_AND_CREW_STORY.md`.

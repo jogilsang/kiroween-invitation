@@ -21,6 +21,23 @@ were reused. 30 tests stayed green. A vibe-coded project would have had to
 rediscover its own invariants; this one read them off the spec. Full detail with
 dates in `docs/KIRO_EVIDENCE.md`.
 
+## Kiro builds, Kiro Crew reviews
+
+Two Kiro products, two roles. Kiro (CLI + custom agents) built the product from
+a spec. Kiro Crew was then used as an **independent reviewer**: handed a written
+brief, read-only in spirit (investigate and propose, no code changes), with its
+findings written to `docs/CREW_FINDINGS.md`. It re-ran our tests, diffed the
+deployed build against the source, called the live site and wrote its own
+probes. It caught defects our 30 green tests had missed: the hat/horns options
+drew nothing (the tests only checked the exclusion rule, not that anything was
+drawn), a nickname limit mismatch (UI 40 vs engine 24), no keyboard navigation
+on the purpose selector, and stale task checkboxes. Kiro closed each one
+test-first (`tests/crew_findings.test.js`, 6 of 7 failing before the fix, 37/37
+after). Crew also flagged what it could not verify (Safari/Firefox/mobile
+rendering, PNG export on Safari, WCAG contrast); those remain open and are listed
+rather than hidden. We did not rebuild the product in Crew, so we claim a
+comparison of roles, not of speed. Story and evidence: `docs/KIRO_AND_CREW_STORY.md`.
+
 ## Kiro CLI with a custom conductor agent
 
 This project was driven through the Kiro CLI, not a GUI. A custom agent named

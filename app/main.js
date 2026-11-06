@@ -30,7 +30,9 @@ function readUi() {
 
 function writeUi(cfg) {
   for (const b of document.querySelectorAll("#purpose button")) {
-    b.setAttribute("aria-checked", String(b.dataset.val === cfg.purpose));
+    const on = b.dataset.val === cfg.purpose;
+    b.setAttribute("aria-checked", String(on));
+    b.setAttribute("tabindex", on ? "0" : "-1"); // roving tabindex (radiogroup)
   }
   $("year").value = cfg.year;
   $("nick").value = cfg.nick;
@@ -107,11 +109,23 @@ function initialConfig() {
 
 function boot() {
   $("app").hidden = false;
-  for (const b of document.querySelectorAll("#purpose button")) {
-    b.addEventListener("click", () => {
-      for (const o of document.querySelectorAll("#purpose button")) o.setAttribute("aria-checked", "false");
-      b.setAttribute("aria-checked", "true");
-      render();
+  const radios = [...document.querySelectorAll("#purpose button")];
+  const select = (b, focus) => {
+    for (const o of radios) { o.setAttribute("aria-checked", "false"); o.setAttribute("tabindex", "-1"); }
+    b.setAttribute("aria-checked", "true");
+    b.setAttribute("tabindex", "0");
+    if (focus) b.focus();
+    render();
+  };
+  for (const b of radios) {
+    b.addEventListener("click", () => select(b, false));
+    // Keyboard navigation for the radiogroup (found by the Crew review).
+    b.addEventListener("keydown", (e) => {
+      const i = radios.indexOf(b);
+      let next = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") next = radios[(i + 1) % radios.length];
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = radios[(i - 1 + radios.length) % radios.length];
+      if (next) { e.preventDefault(); select(next, true); }
     });
   }
   for (const el of ["year", "nick", "mood", "palette", "glow"]) $(el).addEventListener("input", onInput);

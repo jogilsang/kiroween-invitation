@@ -131,6 +131,28 @@ function bats(rand) {
   return out;
 }
 
+// --- Headwear (hat / horns). Drawn on top of the ghost's head. Pure shapes. ---
+// Ghost head top is at cy - 250*s. Tips stay below the banner text (y ~ 104).
+function hat(cx, headTopY, pal) {
+  const tipY = headTopY - 52;
+  const brimY = headTopY + 22;
+  return `<g data-part="hat">
+      <path d="M ${cx - 74} ${brimY} L ${cx - 12} ${tipY + 6} Q ${cx + 8} ${tipY - 6} ${cx + 34} ${tipY + 26}
+               L ${cx + 74} ${brimY} Z" fill="#0b0414" stroke="${pal.glow}" stroke-opacity="0.55" stroke-width="2"/>
+      <rect x="${cx - 82}" y="${brimY - 6}" width="164" height="14" rx="7" fill="#0b0414" stroke="${pal.glow}" stroke-opacity="0.55" stroke-width="2"/>
+      <rect x="${cx - 62}" y="${brimY - 22}" width="124" height="12" fill="${pal.accent}" opacity="0.85"/>
+    </g>`;
+}
+
+function horns(cx, headTopY, pal) {
+  const y0 = headTopY + 34;
+  const side = (sign) => `<path d="M ${cx + sign * 58} ${y0}
+      C ${cx + sign * 84} ${y0 - 6}, ${cx + sign * 96} ${y0 - 44}, ${cx + sign * 78} ${y0 - 84}
+      C ${cx + sign * 74} ${y0 - 50}, ${cx + sign * 56} ${y0 - 30}, ${cx + sign * 34} ${y0 - 14} Z"
+      fill="#12061c" stroke="${pal.glow}" stroke-opacity="0.6" stroke-width="2"/>`;
+  return `<g data-part="horns">${side(-1)}${side(1)}</g>`;
+}
+
 function moon(cx, cy, r, pal) {
   return `<g filter="url(#moonGlow)">
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="#e9dcff" opacity="0.92"/>
@@ -154,7 +176,12 @@ export function renderSvg(cfg) {
 
   const moonSVG = has("moon") ? moon(W - 230, 250, 96, pal) : "";
   const batsSVG = has("bats") ? bats(rand) : "";
-  const fogSeed = deriveSeed(cfg) % 100;
+  // Fog seed must NOT depend on decoration parts: toggling a part may not
+  // reshuffle the whole fog (found by the independent Crew review).
+  const fogSeed = deriveSeed({ ...cfg, ghost: { parts: [] } }) % 100;
+  const ghostCy = 430, ghostS = 1.05;
+  const headTopY = ghostCy - 250 * ghostS;
+  const headwearSVG = has("hat") ? hat(W / 2, headTopY, pal) : has("horns") ? horns(W / 2, headTopY, pal) : "";
 
   const banner = escapeXml(t.meta.banner);
   const title = escapeXml(t.title);
@@ -205,7 +232,8 @@ export function renderSvg(cfg) {
   <rect y="${H * 0.45}" width="${W}" height="${H * 0.55}" filter="url(#fog)" opacity="0.9"/>
   ${moonSVG}
   ${batsSVG}
-  ${ghost(W / 2, 430, 1.05, rand, cfg.mood)}
+  ${ghost(W / 2, ghostCy, ghostS, rand, cfg.mood)}
+  ${headwearSVG}
   ${pumpkin(W / 2, 760, 1.05)}
   <rect width="${W}" height="${H}" fill="url(#vignette)"/>
   <rect width="${W}" height="${H}" filter="url(#grain)" opacity="0.5"/>
