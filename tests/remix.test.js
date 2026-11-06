@@ -55,7 +55,7 @@ test("test_remix_uses_assets_and_colors: remixes pick several assets and some co
     maxAssets = Math.max(maxAssets, r.ghost.parts.length);
   }
   assert.ok(withTints >= 20, `tinted in only ${withTints}/40`);
-  assert.ok(minAssets >= 2 && maxAssets <= 8, `asset count ${minAssets}..${maxAssets}`);
+  assert.ok(minAssets >= 4 && maxAssets <= 6, `asset count ${minAssets}..${maxAssets}`);
 });
 
 test("test_remix_survives_share_link: the remixed look is reproduced exactly from the link", () => {

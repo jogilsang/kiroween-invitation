@@ -3,7 +3,7 @@
 // caller passes one in, and the share link reproduces the result exactly. (R27-R29)
 import { normalizeConfig, MOODS, PALETTES, GLOWS, PARTS_ALLOW, SWATCH_KEYS } from "./invite.js";
 
-const MIN_ASSETS = 3;
+const MIN_ASSETS = 4;
 const MAX_ASSETS = 6;
 
 // mulberry32, seeded
