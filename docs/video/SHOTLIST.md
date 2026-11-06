@@ -12,8 +12,8 @@
 | Time | On screen | Narration (one person) |
 |---|---|---|
 | 0:00–0:18 | A single dark editor at night; cut to the app's dark neon title. | "It's 1 a.m., you're coding alone, and you want to tell your friends: I'm doing Kiroween this year — who's in? ASCII Invite turns that into a haunted invitation." |
-| 0:18–0:35 | Pick purpose = Recruit, type a nickname, set year 2026, mood/palette/glow. The invitation updates live. | "Pick a purpose — join, announce, or recruit — a year, your handle, and a look: mood, palette, glow. The ghost and pumpkin render live." |
-| 0:35–1:05 | Switch mood to hollow, add moon + bats + hat. Tick horns too: the hat stays and the horns do not appear. | "Decorate it. And watch this: hat and horns can't both win. Tick the horns and the hat stays. The code picks one and records the decision. The model never decides the outcome; the code does." |
+| 0:18–0:35 | Pick purpose = Recruit, type a Korean nickname, fill date, time and place. The invitation updates live. | "Pick a purpose, a year, your handle, even in Korean, and when and where. The ghost and pumpkin render live." |
+| 0:35–1:05 | Tick cat, skull, candle, tombstone, crow. Change the skull to blood red and the cat to orange. Tick hat then horns: the hat stays. Then press **Remix the look** three times. | "Eleven Halloween assets, each with its own color. Hat and horns can't both win, the code picks one. And one button reinvents the whole look. Your name and details never change." |
 | 1:05–1:30 | Click Save as image → PNG opens. Click Copy share link. | "Save it as an image for your chat. Or copy a share link — no server, no account. The whole invitation lives in the URL." |
 | 1:30–1:55 | Paste the link in a fresh tab → the exact same invitation appears. | "Open the link and the exact same invitation comes back, byte for byte. Same settings in, same SVG out — always." |
 | 1:55–2:10 | Terminal: `node --test` (37 tests) green; flash RED_TEAM.md table. | "Property-based tests prove determinism across about two thousand random inputs, and a red-team pass throws 22 deceptive inputs at it. All rejected or sanitized." |

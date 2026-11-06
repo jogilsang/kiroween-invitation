@@ -179,3 +179,23 @@ in the spec and the tests, not in the renderer.
   and anything that writes, runs git or deploys was held for a human. The config
   change was left in place and is documented rather than hidden.
 - Full narrative: `docs/KIRO_AND_CREW_STORY.md`.
+
+## 2026-11-05 — Market research, customization depth, Remix
+
+- Research: Canva, Evite and Paperless Post were the most-named invitation tools
+  in 2026 comparison articles (no single source gives a hard market-share ranking,
+  so this is "most cited", not "ranked"). They are template pickers with manual
+  editing. Gaps found in ours: no date/time/place, shallow customization.
+- Built spec-first and test-first (`.kiro/specs/.../requirements.md` R22-R29,
+  tasks Q1-Q8): 11 Halloween assets, per-asset colors from six fixed swatches,
+  event details, Unicode names, and a seeded Remix of the look. Suite 30 -> 61.
+- Caught by looking at the render, not by the tests: the ghost hem ran off to the
+  right (an earlier "verified" claim only checked its length, not its direction).
+  Now pinned by `test_ghost_hem_stays_under_body`, which walks the path.
+- Caught by reasoning about the design: sanitizing turned `a@b.com` into `ab.com`
+  and hid the intent, so PII is now scanned on the raw text (`scanRaw`).
+- Own mistake, found and fixed in the same session: a BSD `sed -i` failed silently
+  and a change was committed without being applied; re-applied and the test
+  tightened so it can no longer pass by accident.
+- Still unverified: Safari/Firefox/mobile rendering, CJK glyphs on devices
+  without a CJK font, WCAG contrast.

@@ -71,16 +71,21 @@ export function tombstone(x, y, s, c) {
     <path d="M -22 36 l 10 -10 l 8 12 l 10 -14" fill="none" stroke="${c}" stroke-opacity="0.5" stroke-width="2"/>`);
 }
 
-// --- crow on a branch: dark body, the tint colors the eye and the rim ---
+// --- crow perched on a branch: slim body leaning forward, long tail, heavy beak.
+// Dark silhouette; the tint colors the eye and the rim light. ---
 export function crow(x, y, s, c) {
   return wrap("crow", x, y, s, `
-    <path d="M -100 44 C -50 38 20 46 100 30" fill="none" stroke="#120a1a" stroke-width="8" stroke-linecap="round"/>
-    <path d="M -10 36 L -10 46 M 12 36 L 12 46" stroke="#07030c" stroke-width="3"/>
-    <ellipse cx="2" cy="6" rx="46" ry="27" transform="rotate(-8 2 6)" fill="#07030c" stroke="${c}" stroke-opacity="0.6" stroke-width="2"/>
-    <polygon points="40,10 92,30 74,14 96,10 70,2" fill="#07030c"/>
-    <circle cx="-34" cy="-22" r="17" fill="#07030c" stroke="${c}" stroke-opacity="0.6" stroke-width="2"/>
-    <polygon points="-48,-26 -80,-16 -48,-12" fill="#2a1a10"/>
-    <circle cx="-36" cy="-27" r="4" fill="${c}"/>`);
+    <path d="M -104 46 C -54 40 24 48 104 32" fill="none" stroke="#120a1a" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 70 40 L 92 22 M 52 44 L 66 24" stroke="#120a1a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 26 16 L 100 50 L 92 56 L 84 52 L 78 58 L 66 50 L 18 34 Z" fill="#07030c"/>
+    <path d="M -30 -8 C -28 -34 -4 -40 18 -28 C 36 -18 44 2 36 18 C 22 38 -10 38 -24 20 C -30 12 -30 2 -30 -8 Z"
+          fill="#07030c" stroke="${c}" stroke-opacity="0.65" stroke-width="2"/>
+    <path d="M -6 -4 C 18 -8 44 6 72 38 C 40 34 4 28 -6 -4 Z" fill="#0f0718" stroke="${c}" stroke-opacity="0.35" stroke-width="1.5"/>
+    <circle cx="-28" cy="-30" r="13.5" fill="#07030c" stroke="${c}" stroke-opacity="0.65" stroke-width="2"/>
+    <path d="M -41 -34 C -54 -35 -66 -30 -76 -22 C -62 -22 -50 -20 -41 -23 Z" fill="#150a1c" stroke="${c}" stroke-opacity="0.5" stroke-width="1.5"/>
+    <circle cx="-32" cy="-33" r="3.6" fill="${c}"/>
+    <circle cx="-33" cy="-34" r="1.3" fill="#fff"/>
+    <path d="M -6 40 L -8 50 M 14 40 L 12 50" stroke="#07030c" stroke-width="3" stroke-linecap="round"/>`);
 }
 
 // --- mini pumpkin patch: three small pumpkins in the tint color ---
