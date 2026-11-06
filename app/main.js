@@ -6,26 +6,60 @@ import {
   renderSvg,
   encodeConfig,
   decodeConfig,
-  scanConfig,
+  scanRaw,
   buildInviteText,
+  PARTS_ALLOW,
+  SWATCHES,
   CANVAS,
 } from "../engine/index.js";
 
 const LS_KEY = "ascii-invite:config";
 const $ = (id) => document.getElementById(id);
 
+// The raw (not yet sanitized) text the user typed. Scanned BEFORE sanitizing so
+// an email or markup is blocked instead of being silently rewritten.
+function readRaw() {
+  return { nick: $("nick").value, date: $("evDate").value, time: $("evTime").value, place: $("evPlace").value };
+}
+
 function readUi() {
   const purpose = document.querySelector('#purpose button[aria-checked="true"]')?.dataset.val || "join";
-  const parts = [...document.querySelectorAll(".parts input:checked")].map((c) => c.value);
+  const parts = [...document.querySelectorAll("#assets input[type=checkbox]:checked")].map((c) => c.value);
+  const tints = {};
+  for (const sel of document.querySelectorAll("#assets select")) if (sel.value) tints[sel.dataset.asset] = sel.value;
   return normalizeConfig({
     purpose,
     year: parseInt($("year").value, 10),
     nick: $("nick").value,
+    event: { date: $("evDate").value, time: $("evTime").value, place: $("evPlace").value },
     ghost: { parts },
+    tints,
     mood: $("mood").value,
     palette: $("palette").value,
     glow: $("glow").value,
   }).value;
+}
+
+// Build one row per asset from the engine's allow-list: checkbox + swatch select.
+function buildAssetRows() {
+  const box = $("assets");
+  for (const id of PARTS_ALLOW) {
+    const row = document.createElement("div");
+    row.className = "asset";
+    const label = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.value = id;
+    label.append(cb, " " + id);
+    const sel = document.createElement("select");
+    sel.dataset.asset = id;
+    sel.setAttribute("aria-label", `${id} color`);
+    sel.add(new Option("default", ""));
+    for (const k of Object.keys(SWATCHES)) sel.add(new Option(k, k));
+    row.append(label, sel);
+    box.append(row);
+    cb.addEventListener("change", render);
+    sel.addEventListener("change", render);
+  }
 }
 
 function writeUi(cfg) {
@@ -39,9 +73,13 @@ function writeUi(cfg) {
   $("mood").value = cfg.mood;
   $("palette").value = cfg.palette;
   $("glow").value = cfg.glow;
-  for (const c of document.querySelectorAll(".parts input")) {
+  for (const c of document.querySelectorAll("#assets input[type=checkbox]")) {
     c.checked = cfg.ghost.parts.includes(c.value);
   }
+  for (const sel of document.querySelectorAll("#assets select")) sel.value = cfg.tints[sel.dataset.asset] || "";
+  $("evDate").value = cfg.event.date;
+  $("evTime").value = cfg.event.time;
+  $("evPlace").value = cfg.event.place;
 }
 
 function setHint(msg) { $("hint").textContent = msg || ""; }
@@ -61,7 +99,7 @@ function onInput() { clearTimeout(debounce); debounce = setTimeout(render, 60); 
 // Rasterize the current SVG to PNG via an Image + canvas.
 function savePng() {
   const cfg = readUi();
-  if (!scanConfig(cfg).ok) { setHint("Blocked: nickname contains unsafe content."); return; }
+  if (!scanRaw(readRaw()).ok) { setHint("Blocked: the text contains an email, phone number or unsafe content."); return; }
   const svg = renderSvg(cfg);
   const blob = new Blob([svg], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
@@ -84,7 +122,7 @@ function savePng() {
 
 async function copyLink() {
   const cfg = readUi();
-  if (!scanConfig(cfg).ok) { setHint("Blocked: nickname contains unsafe content."); return; }
+  if (!scanRaw(readRaw()).ok) { setHint("Blocked: the text contains an email, phone number or unsafe content."); return; }
   const link = `${location.origin}${location.pathname}?i=${encodeConfig(cfg)}`;
   try { await navigator.clipboard.writeText(link); setHint("Share link copied."); }
   catch { setHint("Copy this link: " + link); }
@@ -128,8 +166,8 @@ function boot() {
       if (next) { e.preventDefault(); select(next, true); }
     });
   }
-  for (const el of ["year", "nick", "mood", "palette", "glow"]) $(el).addEventListener("input", onInput);
-  for (const c of document.querySelectorAll(".parts input")) c.addEventListener("change", render);
+  buildAssetRows();
+  for (const el of ["year", "nick", "evDate", "evTime", "evPlace", "mood", "palette", "glow"]) $(el).addEventListener("input", onInput);
   $("savePng").addEventListener("click", savePng);
   $("copyLink").addEventListener("click", copyLink);
   $("saveCfg").addEventListener("click", saveCfg);

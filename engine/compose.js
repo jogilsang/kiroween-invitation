@@ -2,14 +2,17 @@
 // Code decides the SVG layer order and which mutually-exclusive part wins.
 
 // Fixed bottom-to-top SVG layer order (R8).
-export const LAYER_ORDER = ["background", "fog", "moon", "bats", "ghost", "pumpkin", "frame", "text"];
+export const LAYER_ORDER = ["background", "fog", "moon", "bats", "props", "ghost", "pumpkin", "frame", "text"];
 
 // Parts that cannot coexist. If both are selected, the one listed FIRST wins,
 // and the decision is recorded. (hat vs horns = headwear slot)
 const EXCLUSIVE_GROUPS = [["hat", "horns"]];
 
 // Decoration parts in their stable, deterministic order (not user click order).
-export const DECORATION_PARTS = ["hat", "horns", "moon", "bats"];
+export const DECORATION_PARTS = [
+  "hat", "horns", "moon", "bats", "cobweb", "crow", "cat",
+  "tombstone", "skull", "candle", "pumpkins",
+];
 
 /**
  * Resolve the active parts for a normalized config, enforcing mutual exclusion.

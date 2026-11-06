@@ -8,14 +8,28 @@ export const PALETTES = ["deeppurple", "magenta", "indigo"];
 export const GLOWS = ["soft", "strong"];
 // Decoration parts the SVG renderer understands. hat/horns are kept because the
 // mutual-exclusion rule (R9) is specified over them; moon/bats are drawn.
-export const PARTS_ALLOW = ["hat", "horns", "moon", "bats"];
+export const PARTS_ALLOW = [
+  "hat", "horns", "moon", "bats", "cobweb", "crow", "cat",
+  "tombstone", "skull", "candle", "pumpkins",
+];
+// Fixed color swatches an asset can be tinted with (R23). Never free-form.
+export const SWATCHES = Object.freeze({
+  orange: "#ff7a18", purple: "#b14bff", green: "#5bd16a",
+  bone: "#efe6d0", blood: "#e0203f", ice: "#7fd6ff",
+});
+export const SWATCH_KEYS = Object.keys(SWATCHES);
+export const EVENT_MAX = Object.freeze({ date: 16, time: 12, place: 32 });
 
 export const YEAR_MIN = 2000;
 export const YEAR_MAX = 2100;
 export const NICK_MAX = 24;
-// Allow letters, digits, space, and a small safe punctuation set. Everything
-// else (including <, >, &, quotes, control chars) is stripped by sanitizeNick.
-const NICK_ALLOWED = /[^0-9A-Za-z \-_.!?]/g;
+// Nickname: letters, numbers and combining marks from ANY script (so Korean and
+// Japanese names work), plus space and - _ . ! ? . Everything else (markup,
+// symbols, emoji, control chars) is stripped. (R25)
+const NICK_DISALLOWED = /[^\p{L}\p{N}\p{M} \-_.!?]/gu;
+// Event text allows a little more punctuation for dates, times and places.
+// Still no < > & " ' ` or brackets that could form markup.
+const TEXT_DISALLOWED = /[^\p{L}\p{N}\p{M} \-_.,!?:/#()]/gu;
 
 const DEFAULTS = Object.freeze({
   purpose: "join",
@@ -47,11 +61,21 @@ export function escapeXml(v) {
  * @param {unknown} raw
  * @returns {{ value: string, changed: boolean }}
  */
-export function sanitizeNick(raw) {
+function cleanText(raw, disallowed, max) {
   const s = typeof raw === "string" ? raw : raw == null ? "" : String(raw);
-  const stripped = s.replace(NICK_ALLOWED, "").replace(/\s+/g, " ").trim();
-  const clamped = stripped.slice(0, NICK_MAX);
+  const stripped = s.normalize("NFC").replace(disallowed, "").replace(/\s+/g, " ").trim();
+  // Truncate by code point so a surrogate pair is never split (R25).
+  const clamped = Array.from(stripped).slice(0, max).join("");
   return { value: clamped, changed: clamped !== s };
+}
+
+export function sanitizeNick(raw) {
+  return cleanText(raw, NICK_DISALLOWED, NICK_MAX);
+}
+
+/** Sanitize an event text field (date / time / place). */
+export function sanitizeEventText(raw, max) {
+  return cleanText(raw, TEXT_DISALLOWED, max);
 }
 
 function pickEnum(raw, allow, fallback) {
@@ -87,6 +111,24 @@ export function normalizeConfig(raw) {
   const parts = partsRaw.filter((p) => PARTS_ALLOW.includes(p));
   if (parts.length !== partsRaw.length) reasons.push("unknown parts dropped");
 
+  // Per-asset color (R23): only known assets with known swatches survive.
+  const tintsRaw = r.tints && typeof r.tints === "object" ? r.tints : {};
+  const tints = {};
+  for (const id of PARTS_ALLOW) {
+    if (Object.prototype.hasOwnProperty.call(tintsRaw, id) && SWATCH_KEYS.includes(tintsRaw[id])) {
+      tints[id] = tintsRaw[id];
+    }
+  }
+  if (Object.keys(tintsRaw).length !== Object.keys(tints).length) reasons.push("unknown tints dropped");
+
+  // Event details (R24).
+  const evRaw = r.event && typeof r.event === "object" ? r.event : {};
+  const event = {
+    date: sanitizeEventText(evRaw.date, EVENT_MAX.date).value,
+    time: sanitizeEventText(evRaw.time, EVENT_MAX.time).value,
+    place: sanitizeEventText(evRaw.place, EVENT_MAX.place).value,
+  };
+
   const mood = pickEnum(r.mood, MOODS, DEFAULTS.mood);
   if (mood !== r.mood) reasons.push(`mood fell back to "${mood}"`);
   const palette = pickEnum(r.palette, PALETTES, DEFAULTS.palette);
@@ -99,6 +141,8 @@ export function normalizeConfig(raw) {
     year,
     nick: nick.value,
     ghost: { parts },
+    tints,
+    event,
     mood,
     palette,
     glow,
@@ -144,6 +188,8 @@ export function buildInviteText(config) {
       banner: `KIROWEEN ${config.year}`,
       purpose: config.purpose,
       year: config.year,
+      details: [config.event && config.event.date, config.event && config.event.time, config.event && config.event.place]
+        .filter(Boolean).join(" \u00b7 "),
     },
   };
 }

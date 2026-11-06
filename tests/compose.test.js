@@ -4,7 +4,7 @@ import { resolveParts, LAYER_ORDER, DECORATION_PARTS } from "../engine/compose.j
 
 // R8 — fixed SVG layer order
 test("test_layer_order_fixed: layer order is the documented SVG order", () => {
-  assert.deepEqual(LAYER_ORDER, ["background", "fog", "moon", "bats", "ghost", "pumpkin", "frame", "text"]);
+  assert.deepEqual(LAYER_ORDER, ["background", "fog", "moon", "bats", "props", "ghost", "pumpkin", "frame", "text"]);
 });
 
 // R8 — parts in stable allow-list order regardless of input order

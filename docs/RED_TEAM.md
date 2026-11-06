@@ -41,9 +41,15 @@
 
 ## Gaps and honest limitations
 
-- **G1 (non-Latin names vanish):** non-Latin / emoji nicks sanitize to empty
-  rather than rendering in their own script. Safety/ratio choice; keeps the SVG
-  text clean. Candidate follow-up: per-script support.
+- **G1 (updated 2026-11-05):** letters, numbers and combining marks from any
+  script are now allowed (Korean and Japanese names render); emoji and symbols
+  are still stripped. NOT verified: how the glyphs look on devices without a
+  CJK font (they may show as empty boxes). Truncation is by code point, so a
+  surrogate pair is never split (`test_truncation_never_splits_surrogate`).
+- **G3 (PII is scanned on the RAW text):** sanitizing turns `a@b.com` into
+  `ab.com`, which would hide the intent. The app therefore runs `scanRaw` on
+  the text as typed, before sanitizing, and blocks save/share if it finds an
+  email, phone number or markup (`test_event_scan_blocks_pii`).
 - **G2 (silent join):** `a\nb` → `ab` with no notice. Safe but silent.
 - **Palette/color is never free-form.** `palette` is an enum; a raw color string
   falls back. There is no path for user input to set an SVG color/attribute, so
@@ -57,3 +63,13 @@
 defaulted; none injects markup into the SVG, and every forged/garbage input
 still renders a safe default. SVG-specific tag injection (A2) is blocked by
 sanitize, with escapeXml as a second line (A22). Limitations G1/G2 documented.
+
+## Added 2026-11-05 (customization depth)
+
+New inputs (event date/time/place, per-asset color, 11 assets) were added to the
+attack surface. Covered by `tests/assets.test.js`: markup and over-long text in
+every event field cannot reach the SVG (`test_event_details_sanitized`), unknown
+swatches or asset keys are dropped (`test_unknown_tint_dropped`), colors can only
+be chosen from six fixed swatches (never free-form, so no color/attribute
+injection), and the SVG stays well-formed with every asset on and Korean text
+(checked with `xmllint`).

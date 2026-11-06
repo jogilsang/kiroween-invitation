@@ -40,6 +40,24 @@ export function scanText(s) {
  * @returns {{ ok: boolean, hits: string[] }}
  */
 export function scanConfig(config) {
-  // Only `nick` is free text; everything else is enum/int from normalizeConfig.
-  return scanText(config?.nick ?? "");
+  // Free-text fields: nickname and each event field, scanned one by one so the
+  // digits of a date and a time are never read as one phone-number-like run.
+  const fields = [config?.nick, config?.event?.date, config?.event?.time, config?.event?.place];
+  const hits = [];
+  for (const f of fields) hits.push(...scanText(f ?? "").hits);
+  return { ok: hits.length === 0, hits };
+}
+
+/**
+ * Scan the RAW user input (before sanitizing). Sanitizing strips characters like
+ * "@" and "<", which would hide the user's intent (an email address becomes
+ * "ab.com"). The app calls this on the raw fields so PII or markup is blocked
+ * instead of being silently rewritten into a shareable link.
+ * @param {{nick?: unknown, date?: unknown, time?: unknown, place?: unknown}} raw
+ * @returns {{ ok: boolean, hits: string[] }}
+ */
+export function scanRaw(raw) {
+  const hits = [];
+  for (const k of ["nick", "date", "time", "place"]) hits.push(...scanText(raw?.[k] ?? "").hits);
+  return { ok: hits.length === 0, hits };
 }

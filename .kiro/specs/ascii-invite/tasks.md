@@ -38,3 +38,13 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] P14 purpose radiogroup keyboard navigation (roving tabindex + arrows). — `crew_purpose_keyboard_nav` + headless-Chrome keyboard check.
 - [x] P15 tasks.md checkboxes reconciled with reality (Crew finding).
 - [ ] P16 (open, from Crew) cross-browser check (Safari/Firefox/mobile) of SVG filters and PNG export; WCAG contrast measurement; non-Latin nicknames (G1).
+
+## Customization depth (2026-11-05, 1-hour block)
+
+- [x] Q1 Tests first: `tests/assets.test.js` (R22-R26). Expect red.
+- [x] Q2 invite.js: asset allow-list (11), swatches, tints, event fields, Unicode sanitize (R23-R25).
+- [x] Q3 svg.js: 7 new assets + tint on all, event line, independent seed streams (R22, R26).
+- [x] Q4 share.js / scan.js: carry tints + event; scan each event field (R24).
+- [x] Q5 app: asset list with per-asset swatch select, event inputs.
+- [x] Q6 Visual check (all assets, default and tinted), xmllint well-formedness, full suite, audit, redeploy. Also found and fixed a real bug: the ghost hem ran off to the right (`test_ghost_hem_stays_under_body`).
+- [ ] Q7 (WBS, later) slots/placement, Remix button, background scenes, export sizes, .ics, costume assets (Dracula, mummy), presets.

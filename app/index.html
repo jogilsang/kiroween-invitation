@@ -62,12 +62,16 @@
         </select>
       </label>
 
-      <fieldset class="parts">
-        <legend>Decorations</legend>
-        <label><input type="checkbox" value="moon" /> moon</label>
-        <label><input type="checkbox" value="bats" /> bats</label>
-        <label><input type="checkbox" value="hat" /> hat</label>
-        <label><input type="checkbox" value="horns" /> horns</label>
+      <fieldset class="event">
+        <legend>Event details (optional)</legend>
+        <label>Date <input type="text" id="evDate" maxlength="16" placeholder="Oct 31" /></label>
+        <label>Time <input type="text" id="evTime" maxlength="12" placeholder="7:00 PM" /></label>
+        <label>Place <input type="text" id="evPlace" maxlength="32" placeholder="Where?" /></label>
+      </fieldset>
+
+      <fieldset class="parts" id="assets">
+        <legend>Assets and colors</legend>
+        <!-- rows are generated from the engine's asset list and swatches (see main.js) -->
       </fieldset>
 
       <div class="actions">

@@ -56,3 +56,16 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 
 - **R20** IF JavaScript is disabled, THE APP SHALL show a `<noscript>` explanation and a static fallback (no blank page). — verified in demo.
 - **R21** THE APP SHALL provide a text alternative (title / purpose / year) for the SVG invitation so a screen reader can read it (SVG `<title>` / `aria-label`). — `test_svg_has_title`, app verified in demo.
+
+## Customization depth (added 2026-11-05 after market research)
+
+> Changelog: market research (Canva, Evite, Paperless Post) showed our options
+> were too thin and that an invitation without date/time/place is incomplete.
+> R22-R26 add a Halloween asset library, per-asset color, event details and
+> Unicode names. Determinism, validation, share and safety rules still apply.
+
+- **R22** THE SYSTEM SHALL offer these selectable assets, each drawn only when selected: hat, horns, moon, bats, cobweb, crow, cat, tombstone, skull, candle, pumpkins. Unselected assets SHALL NOT appear in the SVG. — `test_every_asset_is_drawn`, `test_no_assets_by_default`
+- **R23** WHEN a swatch (orange, purple, green, bone, blood, ice) is chosen for an asset, THE SYSTEM SHALL draw that asset in that color. IF the swatch or asset key is unknown, THE SYSTEM SHALL drop it. A tint for an unselected asset SHALL NOT change the output. — `test_tint_changes_asset`, `test_unknown_tint_dropped`, `test_tint_of_unselected_asset_is_inert`
+- **R24** THE SYSTEM SHALL accept event details (date, time, place; max 16/12/32 characters), sanitize them, and print them on the invitation; WHEN all are empty, no details line SHALL be printed. Each field SHALL be scanned for PII/script content before share or export. — `test_event_details_rendered`, `test_event_details_sanitized`, `test_event_scan_blocks_pii`
+- **R25** THE SYSTEM SHALL accept letters, numbers and combining marks from any script in the nickname and event text (so Korean and Japanese names work), SHALL still strip markup, symbols and emoji, SHALL normalize to NFC, and SHALL truncate by code point so no lone surrogate is ever produced. — `test_unicode_nick_allowed`, `test_truncation_never_splits_surrogate`
+- **R26** WHEN an asset or tint is toggled, THE SYSTEM SHALL NOT change the ghost body shape or the fog (independent seeded streams). — `test_toggle_does_not_change_ghost_body`, `crew_parts_do_not_reshuffle_fog`

@@ -2,7 +2,8 @@
 // No DOM, no network, no Math.random, no Date.now. Same config -> same bytes.
 // Model says, code decides: colors, layout, glow are all code constants.
 
-import { buildInviteText, escapeXml } from "./invite.js";
+import { buildInviteText, escapeXml, SWATCHES } from "./invite.js";
+import { skull, cat, cobweb, candle, tombstone, crow, pumpkins } from "./assets.js";
 import { resolveParts } from "./compose.js";
 
 export const CANVAS = 1080;
@@ -28,6 +29,12 @@ export function deriveSeed(cfg) {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
   return h >>> 0;
+}
+
+// Seed from the fields that define the "look" only. Assets, tints and event text
+// are deliberately excluded so toggling them never reshapes the ghost or the fog.
+function baseSeed(cfg) {
+  return deriveSeed({ ...cfg, ghost: { parts: [] }, tints: {}, event: {} });
 }
 
 // mulberry32 PRNG seeded from the config — deterministic positions.
@@ -58,7 +65,9 @@ function ghost(cx, cy, s, rand, mood) {
   let hem = "";
   for (let i = 0; i < drips; i++) {
     const d = (48 + rand() * 70) * s;
-    hem += ` q ${step * 0.25} ${d} ${step * 0.5} ${d * 0.45} q ${step * 0.25} ${-d} ${step * 0.5} ${-d * 0.45}`;
+    // The body path arrives at the RIGHT hem corner, so the hem must run back
+    // LEFT (negative dx) and end exactly at the left corner, where Z closes it.
+    hem += ` q ${-step * 0.25} ${d} ${-step * 0.5} ${d * 0.45} q ${-step * 0.25} ${-d} ${-step * 0.5} ${-d * 0.45}`;
   }
   const body = `
     M ${cx - halfW} ${hemY}
@@ -90,7 +99,7 @@ function ghost(cx, cy, s, rand, mood) {
   }
   return `
     <g filter="url(#ghostGlow)">
-      <path d="${body}" fill="url(#ghostFill)" stroke="#efe6ff" stroke-opacity="0.28" stroke-width="2"/>
+      <path id="ghostBody" d="${body}" fill="url(#ghostFill)" stroke="#efe6ff" stroke-opacity="0.28" stroke-width="2"/>
       ${eye(cx - 42 * s, 17 * s, 46 * s, -10)}
       ${eye(cx + 42 * s, 15 * s, 40 * s, 12)}
       ${maw}
@@ -120,42 +129,42 @@ function pumpkin(cx, cy, s) {
     </g>`;
 }
 
-function bats(rand) {
+function bats(rand, c) {
   let out = "";
   for (let i = 0; i < 6; i++) {
     const x = 90 + rand() * (CANVAS - 180), y = 110 + rand() * 300, s = 0.5 + rand() * 0.9;
     out += `<path transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${s.toFixed(3)})"
       d="M0 0 q -16 -14 -30 -5 q 12 -2 14 9 q 9 -11 16 -2 q 7 -9 16 2 q 2 -11 14 -9 q -14 -9 -30 5 q -7 7 -14 2 q -7 5 -16 -2 Z"
-      fill="#070311" opacity="0.9"/>`;
+      fill="#070311" stroke="${c}" stroke-opacity="${c === "none" ? 0 : 0.7}" stroke-width="1.6" opacity="0.9"/>`;
   }
-  return out;
+  return `<g data-part="bats">${out}</g>`;
 }
 
 // --- Headwear (hat / horns). Drawn on top of the ghost's head. Pure shapes. ---
 // Ghost head top is at cy - 250*s. Tips stay below the banner text (y ~ 104).
-function hat(cx, headTopY, pal) {
+function hat(cx, headTopY, pal, c) {
   const tipY = headTopY - 52;
   const brimY = headTopY + 22;
   return `<g data-part="hat">
       <path d="M ${cx - 74} ${brimY} L ${cx - 12} ${tipY + 6} Q ${cx + 8} ${tipY - 6} ${cx + 34} ${tipY + 26}
                L ${cx + 74} ${brimY} Z" fill="#0b0414" stroke="${pal.glow}" stroke-opacity="0.55" stroke-width="2"/>
       <rect x="${cx - 82}" y="${brimY - 6}" width="164" height="14" rx="7" fill="#0b0414" stroke="${pal.glow}" stroke-opacity="0.55" stroke-width="2"/>
-      <rect x="${cx - 62}" y="${brimY - 22}" width="124" height="12" fill="${pal.accent}" opacity="0.85"/>
+      <rect x="${cx - 62}" y="${brimY - 22}" width="124" height="12" fill="${c}" opacity="0.85"/>
     </g>`;
 }
 
-function horns(cx, headTopY, pal) {
+function horns(cx, headTopY, pal, c) {
   const y0 = headTopY + 34;
   const side = (sign) => `<path d="M ${cx + sign * 58} ${y0}
       C ${cx + sign * 84} ${y0 - 6}, ${cx + sign * 96} ${y0 - 44}, ${cx + sign * 78} ${y0 - 84}
       C ${cx + sign * 74} ${y0 - 50}, ${cx + sign * 56} ${y0 - 30}, ${cx + sign * 34} ${y0 - 14} Z"
-      fill="#12061c" stroke="${pal.glow}" stroke-opacity="0.6" stroke-width="2"/>`;
+      fill="#12061c" stroke="${c}" stroke-opacity="0.8" stroke-width="2"/>`;
   return `<g data-part="horns">${side(-1)}${side(1)}</g>`;
 }
 
-function moon(cx, cy, r, pal) {
-  return `<g filter="url(#moonGlow)">
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="#e9dcff" opacity="0.92"/>
+function moon(cx, cy, r, pal, c) {
+  return `<g data-part="moon" filter="url(#moonGlow)">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" opacity="0.92"/>
       <circle cx="${cx + r * 0.3}" cy="${cy - r * 0.12}" r="${r}" fill="${pal.bg0}" opacity="0.92"/>
     </g>`;
 }
@@ -168,26 +177,56 @@ function moon(cx, cy, r, pal) {
 export function renderSvg(cfg) {
   const pal = PALETTES[cfg.palette] || PALETTES.magenta;
   const strong = cfg.glow === "strong";
-  const rand = rng(deriveSeed(cfg));
+  // Independent seeded streams (R26): the ghost hem, the bats and the fog each
+  // get their own stream derived from the stable "look" seed, so toggling any
+  // asset or tint can never reshape the ghost or reshuffle the fog.
+  const seed = baseSeed(cfg);
+  const hemRand = rng(seed ^ 0x1111);
+  const batRand = rng(seed ^ 0x2222);
   const t = buildInviteText(cfg);
   const { parts } = resolveParts(cfg);
   const has = (p) => parts.includes(p);
   const W = CANVAS, H = CANVAS;
 
-  const moonSVG = has("moon") ? moon(W - 230, 250, 96, pal) : "";
-  const batsSVG = has("bats") ? bats(rand) : "";
-  // Fog seed must NOT depend on decoration parts: toggling a part may not
-  // reshuffle the whole fog (found by the independent Crew review).
-  const fogSeed = deriveSeed({ ...cfg, ghost: { parts: [] } }) % 100;
+  // Color for an asset: the chosen swatch, else that asset's default (R23).
+  const DEFAULT_COLOR = {
+    moon: "#e9dcff", bats: "none", hat: pal.accent, horns: pal.glow,
+    skull: SWATCHES.bone, cat: SWATCHES.green, cobweb: SWATCHES.bone,
+    candle: SWATCHES.orange, tombstone: SWATCHES.purple, crow: SWATCHES.blood,
+    pumpkins: SWATCHES.orange,
+  };
+  const tints = cfg.tints || {};
+  const col = (id) => (tints[id] && SWATCHES[tints[id]]) || DEFAULT_COLOR[id];
+
+  const moonSVG = has("moon") ? moon(W - 230, 250, 96, pal, col("moon")) : "";
+  const batsSVG = has("bats") ? bats(batRand, col("bats")) : "";
+  const fogSeed = seed % 100;
   const ghostCy = 430, ghostS = 1.05;
   const headTopY = ghostCy - 250 * ghostS;
-  const headwearSVG = has("hat") ? hat(W / 2, headTopY, pal) : has("horns") ? horns(W / 2, headTopY, pal) : "";
+  const headwearSVG = has("hat") ? hat(W / 2, headTopY, pal, col("hat"))
+    : has("horns") ? horns(W / 2, headTopY, pal, col("horns")) : "";
+
+  // Props: fixed slots chosen so nothing overlaps the ghost, the pumpkin or the text.
+  const propsSVG = [
+    has("cobweb") ? cobweb(36, 36, 1, col("cobweb")) : "",
+    has("crow") ? crow(190, 395, 1, col("crow")) : "",
+    has("cat") ? cat(230, 745, 1.1, col("cat")) : "",
+    has("skull") ? skull(372, 815, 0.9, col("skull")) : "",
+    has("candle") ? candle(715, 790, 1, col("candle")) : "",
+    has("tombstone") ? tombstone(838, 725, 1.1, col("tombstone")) : "",
+    has("pumpkins") ? pumpkins(948, 852, 0.8, col("pumpkins")) : "",
+  ].join("\n  ");
 
   const banner = escapeXml(t.meta.banner);
   const title = escapeXml(t.title);
   const sub = escapeXml(t.lines[0]);
   const foot = escapeXml(`${cfg.palette.toUpperCase()} · ${cfg.glow.toUpperCase()} GLOW · ${cfg.mood.toUpperCase()}`);
   const ariaTitle = escapeXml(`${t.title} — ${t.meta.banner}`);
+  // Event line (R24): replaces the style footer when present.
+  const details = t.meta.details;
+  const detailsSVG = details
+    ? `<text data-part="details" x="${W / 2}" y="${H - 50}" text-anchor="middle" fill="#efe6ff" font-size="24" letter-spacing="1">${escapeXml(details)}</text>`
+    : `<text x="${W / 2}" y="${H - 54}" text-anchor="middle" fill="#efe6ff" font-size="16" opacity="0.55" letter-spacing="3">${foot}</text>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Georgia, 'Times New Roman', serif" role="img" aria-label="${ariaTitle}">
   <title>${ariaTitle}</title>
@@ -217,6 +256,10 @@ export function renderSvg(cfg) {
       <feColorMatrix in="b" type="matrix" values="0 0 0 0 1  0 0 0 0 0.5  0 0 0 0 0.08  0 0 0 0.95 0" result="g"/>
       <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <filter id="propGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${strong ? 9 : 5}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <filter id="moonGlow" x="-90%" y="-90%" width="280%" height="280%">
       <feGaussianBlur stdDeviation="22"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
@@ -232,7 +275,8 @@ export function renderSvg(cfg) {
   <rect y="${H * 0.45}" width="${W}" height="${H * 0.55}" filter="url(#fog)" opacity="0.9"/>
   ${moonSVG}
   ${batsSVG}
-  ${ghost(W / 2, ghostCy, ghostS, rand, cfg.mood)}
+  ${propsSVG}
+  ${ghost(W / 2, ghostCy, ghostS, hemRand, cfg.mood)}
   ${headwearSVG}
   ${pumpkin(W / 2, 760, 1.05)}
   <rect width="${W}" height="${H}" fill="url(#vignette)"/>
@@ -242,6 +286,6 @@ export function renderSvg(cfg) {
   <text x="${W / 2}" y="104" text-anchor="middle" fill="${pal.accent}" font-size="28" letter-spacing="12" opacity="0.9">${banner}</text>
   <text x="${W / 2}" y="930" text-anchor="middle" fill="#ffffff" font-size="56" letter-spacing="3" font-weight="bold" filter="url(#ghostGlow)">${title}</text>
   <text x="${W / 2}" y="982" text-anchor="middle" fill="${pal.glow}" font-size="25">${sub}</text>
-  <text x="${W / 2}" y="${H - 54}" text-anchor="middle" fill="#efe6ff" font-size="16" opacity="0.55" letter-spacing="3">${foot}</text>
+  ${detailsSVG}
 </svg>`;
 }
