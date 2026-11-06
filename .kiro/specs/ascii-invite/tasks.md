@@ -48,3 +48,8 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] Q5 app: asset list with per-asset swatch select, event inputs.
 - [x] Q6 Visual check (all assets, default and tinted), xmllint well-formedness, full suite, audit, redeploy. Also found and fixed a real bug: the ghost hem ran off to the right (`test_ghost_hem_stays_under_body`).
 - [ ] Q7 (WBS, later) slots/placement, Remix button, background scenes, export sizes, .ics, costume assets (Dracula, mummy), presets.
+
+## WBS P1 (done 2026-11-05)
+- [x] W1.1 Costumes (R30, R32, R33): dracula, mummy, pirate, skeleton, clipped to the ghost body; 14 tests; rendered and checked by eye (found and fixed a dracula collar covering the mouth).
+- [x] W1.2 Scenes (R31, R33): graveyard, haunted house, forest, behind the fog.
+- [x] W1.4 Remix covers costume and scene.

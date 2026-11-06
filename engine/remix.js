@@ -1,7 +1,7 @@
 // engine/remix.js — invent a new look from a seed. Pure and deterministic.
 // The engine never picks a random seed itself (no Math.random, no clock): the
 // caller passes one in, and the share link reproduces the result exactly. (R27-R29)
-import { normalizeConfig, MOODS, PALETTES, GLOWS, PARTS_ALLOW, SWATCH_KEYS } from "./invite.js";
+import { normalizeConfig, MOODS, PALETTES, GLOWS, PARTS_ALLOW, SWATCH_KEYS, COSTUMES, SCENES } from "./invite.js";
 
 const MIN_ASSETS = 4;
 const MAX_ASSETS = 6;
@@ -37,6 +37,8 @@ export function remixConfig(cfg, seed) {
   const mood = pick(r, MOODS);
   const palette = pick(r, PALETTES);
   const glow = pick(r, GLOWS);
+  const costume = pick(r, COSTUMES);
+  const scene = pick(r, SCENES);
 
   // Choose MIN..MAX assets by a seeded shuffle of the allow-list.
   const pool = [...PARTS_ALLOW];
@@ -54,6 +56,7 @@ export function remixConfig(cfg, seed) {
   // About half of the chosen assets get a color from the fixed swatches.
   const tints = {};
   for (const p of parts) if (r() < 0.55) tints[p] = pick(r, SWATCH_KEYS);
+  if (costume !== "none" && r() < 0.55) tints[costume] = pick(r, SWATCH_KEYS);
 
   return normalizeConfig({
     purpose: cfg.purpose,
@@ -62,6 +65,6 @@ export function remixConfig(cfg, seed) {
     event: cfg.event,
     ghost: { parts },
     tints,
-    mood, palette, glow,
+    mood, palette, glow, costume, scene,
   }).value;
 }

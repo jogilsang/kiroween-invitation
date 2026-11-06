@@ -28,6 +28,7 @@ function readUi() {
   const parts = [...document.querySelectorAll("#assets input[type=checkbox]:checked")].map((c) => c.value);
   const tints = {};
   for (const sel of document.querySelectorAll("#assets select")) if (sel.value) tints[sel.dataset.asset] = sel.value;
+  if ($("costume").value !== "none" && $("costumeTint").value) tints[$("costume").value] = $("costumeTint").value;
   return normalizeConfig({
     purpose,
     year: parseInt($("year").value, 10),
@@ -38,10 +39,16 @@ function readUi() {
     mood: $("mood").value,
     palette: $("palette").value,
     glow: $("glow").value,
+    costume: $("costume").value,
+    scene: $("scene").value,
   }).value;
 }
 
 // Build one row per asset from the engine's allow-list: checkbox + swatch select.
+function buildCostumeTint() {
+  for (const k of Object.keys(SWATCHES)) $("costumeTint").add(new Option(k, k));
+}
+
 function buildAssetRows() {
   const box = $("assets");
   for (const id of PARTS_ALLOW) {
@@ -78,6 +85,9 @@ function writeUi(cfg) {
     c.checked = cfg.ghost.parts.includes(c.value);
   }
   for (const sel of document.querySelectorAll("#assets select")) sel.value = cfg.tints[sel.dataset.asset] || "";
+  $("costume").value = cfg.costume;
+  $("scene").value = cfg.scene;
+  $("costumeTint").value = cfg.costume !== "none" ? (cfg.tints[cfg.costume] || "") : "";
   $("evDate").value = cfg.event.date;
   $("evTime").value = cfg.event.time;
   $("evPlace").value = cfg.event.place;
@@ -177,6 +187,8 @@ function boot() {
     });
   }
   buildAssetRows();
+  buildCostumeTint();
+  for (const el of ["costume", "costumeTint", "scene"]) $(el).addEventListener("change", render);
   for (const el of ["year", "nick", "evDate", "evTime", "evPlace", "mood", "palette", "glow"]) $(el).addEventListener("input", onInput);
   $("savePng").addEventListener("click", savePng);
   $("copyLink").addEventListener("click", copyLink);

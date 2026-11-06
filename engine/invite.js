@@ -6,6 +6,9 @@ export const PURPOSES = ["join", "notice", "recruit"];
 export const MOODS = ["uneasy", "screaming", "hollow"];
 export const PALETTES = ["deeppurple", "magenta", "indigo"];
 export const GLOWS = ["soft", "strong"];
+// One costume at a time (R30) and one backdrop scene (R31).
+export const COSTUMES = ["none", "dracula", "mummy", "pirate", "skeleton"];
+export const SCENES = ["sky", "graveyard", "house", "forest"];
 // Decoration parts the SVG renderer understands. hat/horns are kept because the
 // mutual-exclusion rule (R9) is specified over them; moon/bats are drawn.
 export const PARTS_ALLOW = [
@@ -39,6 +42,8 @@ const DEFAULTS = Object.freeze({
   mood: "screaming",
   palette: "magenta",
   glow: "strong",
+  costume: "none",
+  scene: "sky",
 });
 
 /**
@@ -114,7 +119,7 @@ export function normalizeConfig(raw) {
   // Per-asset color (R23): only known assets with known swatches survive.
   const tintsRaw = r.tints && typeof r.tints === "object" ? r.tints : {};
   const tints = {};
-  for (const id of PARTS_ALLOW) {
+  for (const id of [...PARTS_ALLOW, ...COSTUMES.filter((c) => c !== "none")]) {
     if (Object.prototype.hasOwnProperty.call(tintsRaw, id) && SWATCH_KEYS.includes(tintsRaw[id])) {
       tints[id] = tintsRaw[id];
     }
@@ -135,6 +140,10 @@ export function normalizeConfig(raw) {
   if (palette !== r.palette) reasons.push(`palette fell back to "${palette}"`);
   const glow = pickEnum(r.glow, GLOWS, DEFAULTS.glow);
   if (glow !== r.glow) reasons.push(`glow fell back to "${glow}"`);
+  const costume = pickEnum(r.costume, COSTUMES, DEFAULTS.costume);
+  if (costume !== r.costume && r.costume !== undefined) reasons.push(`costume fell back to "${costume}"`);
+  const scene = pickEnum(r.scene, SCENES, DEFAULTS.scene);
+  if (scene !== r.scene && r.scene !== undefined) reasons.push(`scene fell back to "${scene}"`);
 
   const value = {
     purpose,
@@ -146,6 +155,8 @@ export function normalizeConfig(raw) {
     mood,
     palette,
     glow,
+    costume,
+    scene,
   };
   return { ok: reasons.length === 0, value, reasons };
 }

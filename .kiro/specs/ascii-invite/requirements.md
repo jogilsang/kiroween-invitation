@@ -80,3 +80,14 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R27** WHEN given a config and an integer seed, THE SYSTEM SHALL return a new valid config whose look (mood, palette, glow, assets, asset colors) is determined solely by the seed, SHALL keep the user's own content (purpose, year, nickname, event details) unchanged, and SHALL return the identical result for the same inputs. — `test_remix_deterministic`, `test_remix_keeps_user_content`
 - **R28** THE SYSTEM SHALL ensure a remixed config is always valid (enums in range, hat and horns never both selected) and renders a well-formed SVG, for ANY integer seed including negative, huge or non-integer values (which fall back to a safe seed). — `test_remix_always_valid`, `pbt: remix`
 - **R29** DIFFERENT seeds SHALL produce visibly different looks: across 60 seeds at least 40 distinct SVGs. — `test_remix_variety`
+
+## Costumes and scenes (added 2026-11-05, WBS P1)
+
+> Changelog: the ghost can now wear a popular Halloween costume and stand in one
+> of four scenes. Both are plain enums on the config, so they ride the share
+> link, are covered by Remix, and cannot change the ghost's shape or the fog.
+
+- **R30** THE SYSTEM SHALL support a `costume` of none, dracula, mummy, pirate or skeleton. Exactly one costume SHALL be worn at a time; an unknown value SHALL fall back to none. A costume SHALL be clipped to the ghost's body so no part of it spills outside. — `test_costume_is_drawn`, `test_unknown_costume_falls_back`, `test_costume_is_clipped_to_body`
+- **R31** THE SYSTEM SHALL support a `scene` of sky, graveyard, house or forest, drawn behind the fog. An unknown value SHALL fall back to sky. — `test_scene_is_drawn`, `test_unknown_scene_falls_back`
+- **R32** Costumes SHALL accept a color from the same six swatches (`tints` keyed by the costume id). A tint for a costume that is not worn SHALL NOT change the output. — `test_costume_tint`, `test_costume_tint_inert_when_not_worn`
+- **R33** Changing the costume or the scene SHALL NOT change the ghost body shape or the fog; both SHALL survive the share link and be chosen by Remix. — `test_costume_scene_do_not_reshape_ghost`, `test_share_roundtrip_costume_scene`, `test_remix_covers_costume_and_scene`

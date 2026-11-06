@@ -76,6 +76,8 @@ export function serializeConfig(config) {
     m: config.mood,
     c: config.palette,
     g: config.glow,
+    k: config.costume,
+    s: config.scene,
   });
 }
 
@@ -96,6 +98,8 @@ function deserializeRaw(json) {
     mood: o.m,
     palette: o.c,
     glow: o.g,
+    costume: o.k,
+    scene: o.s,
   };
 }
 

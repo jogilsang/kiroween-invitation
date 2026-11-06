@@ -4,6 +4,8 @@
 
 import { buildInviteText, escapeXml, SWATCHES } from "./invite.js";
 import { skull, cat, cobweb, candle, tombstone, crow, pumpkins } from "./assets.js";
+import { COSTUME_DRAW } from "./costumes.js";
+import { SCENE_DRAW } from "./scenes.js";
 import { resolveParts } from "./compose.js";
 
 export const CANVAS = 1080;
@@ -97,13 +99,14 @@ function ghost(cx, cy, s, rand, mood) {
              q ${20 * s} ${26 * s} ${36 * s} ${6 * s} q ${12 * s} ${-13 * s} ${24 * s} ${4 * s}
              q ${-10 * s} ${28 * s} ${-28 * s} ${28 * s} q ${-22 * s} 0 ${-32 * s} ${-38 * s} Z" fill="#050208"/>`;
   }
-  return `
+  const svg = `
     <g filter="url(#ghostGlow)">
       <path id="ghostBody" d="${body}" fill="url(#ghostFill)" stroke="#efe6ff" stroke-opacity="0.28" stroke-width="2"/>
       ${eye(cx - 42 * s, 17 * s, 46 * s, -10)}
       ${eye(cx + 42 * s, 15 * s, 40 * s, 12)}
       ${maw}
     </g>`;
+  return { svg, body };
 }
 
 // --- Twisted jack-o'-pumpkin with jagged grin and inner fire glow ---
@@ -196,6 +199,7 @@ export function renderSvg(cfg) {
     pumpkins: SWATCHES.orange,
   };
   const tints = cfg.tints || {};
+  const COSTUME_COLOR = { dracula: "#9b1b30", mummy: SWATCHES.bone, pirate: "#e8e8f0", skeleton: SWATCHES.bone };
   const col = (id) => (tints[id] && SWATCHES[tints[id]]) || DEFAULT_COLOR[id];
 
   const moonSVG = has("moon") ? moon(W - 230, 250, 96, pal, col("moon")) : "";
@@ -205,6 +209,15 @@ export function renderSvg(cfg) {
   const headTopY = ghostCy - 250 * ghostS;
   const headwearSVG = has("hat") ? hat(W / 2, headTopY, pal, col("hat"))
     : has("horns") ? horns(W / 2, headTopY, pal, col("horns")) : "";
+
+  // Ghost first: we need its body path for the costume clip (R30).
+  const ghostParts = ghost(W / 2, ghostCy, ghostS, hemRand, cfg.mood);
+  const costumeId = cfg.costume && cfg.costume !== "none" ? cfg.costume : null;
+  const costumeSVG = costumeId
+    ? COSTUME_DRAW[costumeId](W / 2, ghostCy, ghostS, (tints[costumeId] && SWATCHES[tints[costumeId]]) || COSTUME_COLOR[costumeId])
+    : "";
+  const sceneDraw = SCENE_DRAW[cfg.scene];
+  const sceneSVG = sceneDraw ? sceneDraw(pal.accent) : "";
 
   // Props: fixed slots chosen so nothing overlaps the ghost, the pumpkin or the text.
   const propsSVG = [
@@ -256,6 +269,7 @@ export function renderSvg(cfg) {
       <feColorMatrix in="b" type="matrix" values="0 0 0 0 1  0 0 0 0 0.5  0 0 0 0 0.08  0 0 0 0.95 0" result="g"/>
       <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    ${costumeId ? `<clipPath id="ghostClip"><path d="${ghostParts.body}"/></clipPath>` : ""}
     <filter id="propGlow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="${strong ? 9 : 5}" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -272,11 +286,13 @@ export function renderSvg(cfg) {
   </defs>
 
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
+  ${sceneSVG}
   <rect y="${H * 0.45}" width="${W}" height="${H * 0.55}" filter="url(#fog)" opacity="0.9"/>
   ${moonSVG}
   ${batsSVG}
   ${propsSVG}
-  ${ghost(W / 2, ghostCy, ghostS, hemRand, cfg.mood)}
+  ${ghostParts.svg}
+  ${costumeSVG}
   ${headwearSVG}
   ${pumpkin(W / 2, 760, 1.05)}
   <rect width="${W}" height="${H}" fill="url(#vignette)"/>
