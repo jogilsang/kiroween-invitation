@@ -91,3 +91,8 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R31** THE SYSTEM SHALL support a `scene` of sky, graveyard, house or forest, drawn behind the fog. An unknown value SHALL fall back to sky. — `test_scene_is_drawn`, `test_unknown_scene_falls_back`
 - **R32** Costumes SHALL accept a color from the same six swatches (`tints` keyed by the costume id). A tint for a costume that is not worn SHALL NOT change the output. — `test_costume_tint`, `test_costume_tint_inert_when_not_worn`
 - **R33** Changing the costume or the scene SHALL NOT change the ghost body shape or the fog; both SHALL survive the share link and be chosen by Remix. — `test_costume_scene_do_not_reshape_ghost`, `test_share_roundtrip_costume_scene`, `test_remix_covers_costume_and_scene`
+
+## Export sizes (added 2026-11-05, WBS P2)
+
+- **R34** THE SYSTEM SHALL render the same invitation in three sizes: `square` (1080x1080), `story` (1080x1920) and `wide` (1920x1080). Square SHALL be the default and SHALL remain byte-identical to before. An unknown format SHALL fall back to square. — `test_format_dimensions`, `test_square_is_default_and_unchanged`, `test_unknown_format_falls_back`
+- **R35** story and wide SHALL contain the complete square artwork unmodified (nothing cropped or rescaled below 100%), centered, with the remaining space filled by a palette-matched backdrop; ids SHALL NOT collide, so the SVG stays well-formed. — `test_wide_story_contain_whole_artwork`, `test_formats_wellformed_and_deterministic`

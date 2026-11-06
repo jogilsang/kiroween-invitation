@@ -177,7 +177,7 @@ function moon(cx, cy, r, pal, c) {
  * @param {object} cfg normalized config (from normalizeConfig().value)
  * @returns {string} an SVG document string
  */
-export function renderSvg(cfg) {
+function renderSquare(cfg) {
   const pal = PALETTES[cfg.palette] || PALETTES.magenta;
   const strong = cfg.glow === "strong";
   // Independent seeded streams (R26): the ghost hem, the bats and the fog each
@@ -303,5 +303,67 @@ export function renderSvg(cfg) {
   <text x="${W / 2}" y="930" text-anchor="middle" fill="#ffffff" font-size="56" letter-spacing="3" font-weight="bold" filter="url(#ghostGlow)">${title}</text>
   <text x="${W / 2}" y="982" text-anchor="middle" fill="${pal.glow}" font-size="25">${sub}</text>
   ${detailsSVG}
+</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// Export sizes (R34, R35). The square artwork is never cropped or rescaled; the
+// story and wide formats place it, whole, in the middle of a larger canvas whose
+// remaining space is filled with a palette-matched backdrop.
+// ---------------------------------------------------------------------------
+export const FORMATS = ["square", "story", "wide"];
+const SIZES = { square: [1080, 1080], story: [1080, 1920], wide: [1920, 1080] };
+
+/** @param {string} format @returns {{width:number,height:number}} */
+export function formatSize(format) {
+  const [width, height] = SIZES[format] || SIZES.square;
+  return { width, height };
+}
+
+/**
+ * Render the invitation as a deterministic SVG string.
+ * @param {object} cfg normalized config
+ * @param {{format?: string}} [opts] format: square (default) | story | wide
+ * @returns {string}
+ */
+export function renderSvg(cfg, opts = {}) {
+  const square = renderSquare(cfg);
+  const format = opts && FORMATS.includes(opts.format) ? opts.format : "square";
+  if (format === "square") return square;
+
+  const { width: W, height: H } = formatSize(format);
+  const pal = PALETTES[cfg.palette] || PALETTES.magenta;
+  const x = (W - CANVAS) / 2;
+  const y = (H - CANVAS) / 2;
+  // Nested artwork keeps its own ids; the backdrop uses a "bk-" prefix so they never collide.
+  const nested = square.replace(/^<svg [^>]*>/, (open) =>
+    open
+      .replace(/ role="img" aria-label="[^"]*"/, "")
+      .replace(/^<svg /, `<svg data-artwork="square" x="${x}" y="${y}" `));
+  const fogSeed = baseSeed(cfg) % 100;
+  const strong = cfg.glow === "strong";
+  const label = escapeXml(`${buildInviteText(cfg).title} — ${buildInviteText(cfg).meta.banner}`);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Georgia, 'Times New Roman', serif" role="img" aria-label="${label}">
+  <title>${label}</title>
+  <defs>
+    <radialGradient id="bk-bg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="${pal.bg1}"/><stop offset="62%" stop-color="${pal.bg0}"/><stop offset="100%" stop-color="#030109"/>
+    </radialGradient>
+    <filter id="bk-fog" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01 0.016" numOctaves="3" seed="${fogSeed}" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 ${hexChan(pal.mist, 0)}  0 0 0 0 ${hexChan(pal.mist, 1)}  0 0 0 0 ${hexChan(pal.mist, 2)}  0 0 0 ${strong ? 0.42 : 0.28} 0"/>
+    </filter>
+    <filter id="bk-blur" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="16"/></filter>
+    <mask id="bk-feather" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">
+      <rect x="${x + 22}" y="${y + 22}" width="${CANVAS - 44}" height="${CANVAS - 44}" rx="28" fill="#ffffff" filter="url(#bk-blur)"/>
+    </mask>
+    <radialGradient id="bk-vignette" cx="50%" cy="50%" r="72%">
+      <stop offset="55%" stop-color="#000000" stop-opacity="0"/><stop offset="100%" stop-color="#000000" stop-opacity="0.75"/>
+    </radialGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#bk-bg)"/>
+  <rect width="${W}" height="${H}" filter="url(#bk-fog)" opacity="0.85"/>
+  <g mask="url(#bk-feather)">${nested}</g>
+  <rect width="${W}" height="${H}" fill="url(#bk-vignette)" pointer-events="none"/>
 </svg>`;
 }

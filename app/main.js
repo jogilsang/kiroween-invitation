@@ -9,6 +9,7 @@ import {
   scanRaw,
   buildInviteText,
   remixConfig,
+  formatSize,
   PARTS_ALLOW,
   SWATCHES,
   CANVAS,
@@ -97,8 +98,11 @@ function setHint(msg) { $("hint").textContent = msg || ""; }
 
 function render() {
   const cfg = readUi();
-  const svg = renderSvg(cfg);
-  $("art").innerHTML = svg;
+  const format = $("format").value;
+  const { width, height } = formatSize(format);
+  $("art").style.aspectRatio = `${width} / ${height}`;
+  $("art").style.maxWidth = format === "story" ? "304px" : format === "wide" ? "760px" : "540px";
+  $("art").innerHTML = renderSvg(cfg, { format });
   const meta = buildInviteText(cfg).meta;
   $("art").setAttribute("aria-label", `${meta.purpose} invitation, ${meta.banner}${cfg.nick ? ", " + cfg.nick : ""}`);
   return cfg;
@@ -111,19 +115,21 @@ function onInput() { clearTimeout(debounce); debounce = setTimeout(render, 60); 
 function savePng() {
   const cfg = readUi();
   if (!scanRaw(readRaw()).ok) { setHint("Blocked: the text contains an email, phone number or unsafe content."); return; }
-  const svg = renderSvg(cfg);
+  const format = $("format").value;
+  const { width, height } = formatSize(format);
+  const svg = renderSvg(cfg, { format });
   const blob = new Blob([svg], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
   const img = new Image();
   img.onload = () => {
     const canvas = document.createElement("canvas");
-    canvas.width = CANVAS; canvas.height = CANVAS;
+    canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0, CANVAS, CANVAS);
+    ctx.drawImage(img, 0, 0, width, height);
     URL.revokeObjectURL(url);
     const a = document.createElement("a");
     a.href = canvas.toDataURL("image/png");
-    a.download = `kiroween-${cfg.year}-${cfg.purpose}.png`;
+    a.download = `kiroween-${cfg.year}-${cfg.purpose}-${format}.png`;
     a.click();
     setHint("Saved PNG.");
   };
@@ -188,7 +194,7 @@ function boot() {
   }
   buildAssetRows();
   buildCostumeTint();
-  for (const el of ["costume", "costumeTint", "scene"]) $(el).addEventListener("change", render);
+  for (const el of ["costume", "costumeTint", "scene", "format"]) $(el).addEventListener("change", render);
   for (const el of ["year", "nick", "evDate", "evTime", "evPlace", "mood", "palette", "glow"]) $(el).addEventListener("input", onInput);
   $("savePng").addEventListener("click", savePng);
   $("copyLink").addEventListener("click", copyLink);
