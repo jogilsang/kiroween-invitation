@@ -4,3 +4,4 @@ export * from "./compose.js";
 export * from "./svg.js";
 export * from "./share.js";
 export * from "./scan.js";
+export * from "./remix.js";

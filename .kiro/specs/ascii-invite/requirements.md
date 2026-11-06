@@ -69,3 +69,14 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R24** THE SYSTEM SHALL accept event details (date, time, place; max 16/12/32 characters), sanitize them, and print them on the invitation; WHEN all are empty, no details line SHALL be printed. Each field SHALL be scanned for PII/script content before share or export. — `test_event_details_rendered`, `test_event_details_sanitized`, `test_event_scan_blocks_pii`
 - **R25** THE SYSTEM SHALL accept letters, numbers and combining marks from any script in the nickname and event text (so Korean and Japanese names work), SHALL still strip markup, symbols and emoji, SHALL normalize to NFC, and SHALL truncate by code point so no lone surrogate is ever produced. — `test_unicode_nick_allowed`, `test_truncation_never_splits_surrogate`
 - **R26** WHEN an asset or tint is toggled, THE SYSTEM SHALL NOT change the ghost body shape or the fog (independent seeded streams). — `test_toggle_does_not_change_ghost_body`, `crew_parts_do_not_reshuffle_fog`
+
+## Remix (added 2026-11-05)
+
+> Changelog: Canva, Evite and Paperless Post are template pickers. A Remix button
+> that invents a new look from a seed, and whose result is reproduced exactly by
+> the share link, is our differentiator. The engine stays pure: it takes a seed
+> as an input; only the app chooses a random seed.
+
+- **R27** WHEN given a config and an integer seed, THE SYSTEM SHALL return a new valid config whose look (mood, palette, glow, assets, asset colors) is determined solely by the seed, SHALL keep the user's own content (purpose, year, nickname, event details) unchanged, and SHALL return the identical result for the same inputs. — `test_remix_deterministic`, `test_remix_keeps_user_content`
+- **R28** THE SYSTEM SHALL ensure a remixed config is always valid (enums in range, hat and horns never both selected) and renders a well-formed SVG, for ANY integer seed including negative, huge or non-integer values (which fall back to a safe seed). — `test_remix_always_valid`, `pbt: remix`
+- **R29** DIFFERENT seeds SHALL produce visibly different looks: across 60 seeds at least 40 distinct SVGs. — `test_remix_variety`

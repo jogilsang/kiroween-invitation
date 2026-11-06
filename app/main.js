@@ -8,6 +8,7 @@ import {
   decodeConfig,
   scanRaw,
   buildInviteText,
+  remixConfig,
   PARTS_ALLOW,
   SWATCHES,
   CANVAS,
@@ -128,6 +129,15 @@ async function copyLink() {
   catch { setHint("Copy this link: " + link); }
 }
 
+// Remix: the ENGINE is pure and takes a seed; only the app picks a random one.
+// The result is an ordinary config, so the share link reproduces it exactly.
+function remix() {
+  const seed = crypto.getRandomValues(new Uint32Array(1))[0];
+  writeUi(remixConfig(readUi(), seed));
+  render();
+  setHint("New look. Copy the share link to keep this exact one.");
+}
+
 function saveCfg() {
   localStorage.setItem(LS_KEY, encodeConfig(readUi()));
   setHint("Config saved on this device.");
@@ -171,6 +181,7 @@ function boot() {
   $("savePng").addEventListener("click", savePng);
   $("copyLink").addEventListener("click", copyLink);
   $("saveCfg").addEventListener("click", saveCfg);
+  $("remix").addEventListener("click", remix);
 
   writeUi(initialConfig());
   render();

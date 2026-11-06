@@ -91,3 +91,5 @@ input:focus, select:focus, button:focus { outline: 2px solid var(--neon2); outli
 
 .preview { position: sticky; top: 18px; align-self: start; }
 @media (max-width: 760px) { .preview { position: static; } }
+
+.actions .remix { flex: 1 1 100%; background: linear-gradient(180deg, #ff7a18, #c2410c); color: #190a02; font-weight: 800; }
