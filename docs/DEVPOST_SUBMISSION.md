@@ -23,7 +23,7 @@ kiro, kiro-cli, kiro-crew, javascript, svg, fast-check, amazon-cloudfront, amazo
 ## Try it out links
 - Live app: https://kiroween-invitation.chogilsang.net
 - Code: [GITHUB_URL]
-- Demo video: [YOUTUBE_URL]
+- Demo video: https://youtu.be/AadKYAwkzdI
 
 ## Project story (paste into "About the project")
 
