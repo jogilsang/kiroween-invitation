@@ -199,3 +199,12 @@ in the spec and the tests, not in the renderer.
   tightened so it can no longer pass by accident.
 - Still unverified: Safari/Firefox/mobile rendering, CJK glyphs on devices
   without a CJK font, WCAG contrast.
+
+## 2026-11-05 (evening) - blocks E, F, G
+
+- Presets (R40-R42) and contrast (R39). Measured first: texts passed, two button gradients failed (3.95 and 3.74 against 4.5). Failing tests, then the fix.
+- Red team round 2 (B1-B20, `docs/redteam_probe.mjs`): two real bugs (text field given an object became "object Objec"; `__proto__` export format threw). Fixed test-first (R43, R44).
+- Kiro Crew round 2 (`CREW_RESEARCH_BRIEF_R2.md` -> `CREW_FINDINGS_R2.md`): verdict GO with fixes. In a real Chrome it found `Buffer is not defined` (calendar button dead) and duplicate SVG ids (all palettes looked alike) that 117 passing Node tests could not see. Eight findings fixed (R45-R50), 127 tests.
+- Tool-approval note: while approving Crew's read prompts from the shell, our loop re-read a stale screen and sent a few stray "a" keystrokes to Crew's input and approved one localhost-only command (start and stop of a local http.server plus curl to 127.0.0.1) that our own filter should have held. Nothing wrote outside the reviewer's file and its scratch folder; the loop was rewritten to act only when the final line of the screen is an empty prompt.
+- Redeployed to CloudFront and checked on the live URL: new modules served as JavaScript, 6 presets, 0 duplicate ids. Crew had pointed out the old build was still live.
+- Still unverified: Safari, Firefox, mobile, PNG save on Safari, calendar import into real apps.

@@ -55,14 +55,33 @@ move on", so every gap has to be written down as evidence.
 Result: 30 tests became 37, and every new test names the finding it closes
 (`tests/crew_findings.test.js`).
 
+## Round 2 (2026-11-05, after costumes, scenes, sizes, calendar and presets)
+
+Crew was briefed again with only the changes (`CREW_RESEARCH_BRIEF_R2.md`) and
+wrote `CREW_FINDINGS_R2.md`. Verdict: GO with fixes. This time it opened the app
+in a real Chrome, which our Node tests never did, and found:
+
+| Crew finding | Why 117 green tests missed it | How it was closed |
+|---|---|---|
+| `Buffer is not defined`: the calendar button never switched on in a browser | tests run in Node, where `Buffer` exists | `TextEncoder`; a test deletes `globalThis.Buffer` first |
+| Seven inline SVGs shared element ids, so every palette looked like the first | the engine output is correct; the page assembled it wrongly | thumbnails as `<img>`; 0 duplicate ids counted in headless Chrome |
+| Full-width digits passed the phone-number scan; a place could carry a link | scan tests used ASCII digits only | `\p{Nd}` digits and link patterns, tested |
+| `오후 7시` not read; long Korean lines left the frame | tests used English dates and short text | Korean readers, text fit, tested |
+| Live site was still the old build | n/a | redeployed and checked (modules return JavaScript, 6 presets, no duplicate ids) |
+
+The same day our own red-team round found two more bugs the same way (a text
+field given an object, a `__proto__` format key). The pattern repeats from round
+1: green tests are necessary and not sufficient; a second tool looking at the
+real thing is what finds the rest. Open after round 2: Safari, Firefox, mobile,
+PNG save on Safari, and calendar import into real calendar apps.
+
 ## The honest parts (kept in the story on purpose)
 
 - **Kiro's own gap:** hat/horns existed in the spec and the UI but not in the
   renderer. That was our miss; the independent review is what exposed it.
 - **Still open after Crew's review (P16):** Safari / Firefox / mobile rendering
-  of the SVG filters and the PNG export, WCAG contrast measurement, and
-  non-Latin nicknames (they sanitize to empty; the UI now says "letters and
-  digits" so users are not surprised). Crew reported these as unverified and we
+  of the SVG filters and the PNG export. (Contrast is now tested against the
+  palette colors, and non-Latin nicknames work since R25.) Crew reported these as unverified and we
   have not verified them either.
 - **Crew's tool approvals:** Crew asked for permission on every read. We tried
   switching its `approval_mode` to `auto`; it did not remove the prompts on this

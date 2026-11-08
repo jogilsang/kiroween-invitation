@@ -1,6 +1,6 @@
 # Pre-submission review — ASCII Invite (step 12)
 
-Date: 2026-11-05 (updated after the ASCII → SVG pivot). Three perspectives + the
+Date: 2026-11-05 (updated after the ASCII → SVG pivot and the second Crew review). Three perspectives + the
 mechanical audit (`docs/audit_submission.sh`, 17/17 PASS). Deadline: KST
 2026-12-05 07:00.
 
@@ -13,7 +13,7 @@ mechanical audit (`docs/audit_submission.sh`, 17/17 PASS). Deadline: KST
 
 LICENSE at root, `.kiro/` present and not gitignored, `.omc/` excluded and not
 tracked, full spec + steering + hooks + agents present, README judge-try,
-write-up, video script, red-team doc, 30 tests green, secret scan clean.
+write-up, video script, red-team doc, 127 tests green, secret scan clean.
 
 ## Perspective 1 — Judge (Costume Contest, 4 criteria × 20%)
 
@@ -33,13 +33,14 @@ write-up, video script, red-team doc, 30 tests green, secret scan clean.
 
 - Works end-to-end in a real browser and on the live CloudFront URL (verified via
   headless render). Live update is snappy.
-- Limitation to be honest about in the listing: non-Latin nicknames sanitize to
-  empty (RED_TEAM G1). A Korean/Japanese handle disappears.
+- Korean and other non-Latin handles now work (R25). Not verified: how the glyphs
+  look on a device without a CJK font; Safari, Firefox and mobile; PNG save on
+  Safari; calendar import into Google/Apple/Outlook.
 - Share link carries everything in the URL; no account needed. Good.
 
 ## Perspective 3 — Engineer / security
 
-- Engine is pure and deterministic; ~2,000 PBT cases hold. 22 red-team inputs all
+- Engine is pure and deterministic; ~2,000 PBT cases hold. two red-team rounds (42 inputs) all
   safe, including SVG tag injection via nickname. Pre-commit hook blocks
   secrets/.omc and is wired into real git.
 - No secret, account id, or customer name in tracked files (scan clean).

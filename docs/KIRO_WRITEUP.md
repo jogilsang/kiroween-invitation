@@ -1,9 +1,10 @@
 # How Kiro built ASCII Invite
 
-Every number here is checkable against this repo: 21 EARS requirements, 30
-passing tests (24 unit + 6 property-based), ~550 lines of pure engine, 5 custom
-agents, 3 hooks, and one mid-project render-engine pivot (ASCII → SVG) absorbed
-without losing a single guarantee. Nothing below is claimed that the `.kiro/`
+Every number here is checkable against this repo: 50 requirements (R1-R50,
+EARS style, each naming its test), 127 passing tests (including six
+property-based tests, 1,950 generated cases), about 1,400 lines of pure engine,
+5 custom agents, 3 hooks, and one mid-project render-engine pivot (ASCII → SVG)
+absorbed without losing a single guarantee. Nothing below is claimed that the `.kiro/`
 folder, the commit log, or `node --test` does not show.
 
 ## The pivot that proves the method (read this first)
@@ -17,25 +18,43 @@ invert, monospace grid) were replaced by SVG equivalents in the requirements
 *changelog*; the other eighteen (determinism, validation, composition, share,
 safety, accessibility) carried over unchanged, as did every negative-path test.
 `ascii.js` became `svg.js`; `invite.js`, `compose.js`, `share.js`, `scan.js`
-were reused. 30 tests stayed green. A vibe-coded project would have had to
+were reused. The 30 tests of that moment stayed green. A vibe-coded project would have had to
 rediscover its own invariants; this one read them off the spec. Full detail with
 dates in `docs/KIRO_EVIDENCE.md`.
 
-## Kiro builds, Kiro Crew reviews
+## Kiro builds, Kiro Crew reviews (twice)
 
 Two Kiro products, two roles. Kiro (CLI + custom agents) built the product from
-a spec. Kiro Crew was then used as an **independent reviewer**: handed a written
-brief, read-only in spirit (investigate and propose, no code changes), with its
-findings written to `docs/CREW_FINDINGS.md`. It re-ran our tests, diffed the
-deployed build against the source, called the live site and wrote its own
-probes. It caught defects our 30 green tests had missed: the hat/horns options
-drew nothing (the tests only checked the exclusion rule, not that anything was
-drawn), a nickname limit mismatch (UI 40 vs engine 24), no keyboard navigation
-on the purpose selector, and stale task checkboxes. Kiro closed each one
-test-first (`tests/crew_findings.test.js`, 6 of 7 failing before the fix, 37/37
-after). Crew also flagged what it could not verify (Safari/Firefox/mobile
-rendering, PNG export on Safari, WCAG contrast); those remain open and are listed
-rather than hidden. We did not rebuild the product in Crew, so we claim a
+a spec. Kiro Crew was used as an **independent reviewer**: handed a written
+brief, told to investigate and propose and not to change code, with its findings
+written to a file.
+
+Round 1 (`docs/CREW_FINDINGS.md`) caught what 30 green tests had missed: the
+hat/horns options drew nothing (the tests only checked the exclusion rule), a
+nickname limit mismatch (UI 40 vs engine 24), no keyboard navigation on the
+purpose selector, and stale task checkboxes. Each was closed test-first
+(`tests/crew_findings.test.js`).
+
+Round 2 (`docs/CREW_FINDINGS_R2.md`, after costumes, scenes, export sizes, the
+calendar file and presets were added) was the stronger result. With 117 tests
+passing, Crew opened the app in a real Chrome and found two defects no Node test
+could see: (S1) the calendar feature called `Buffer`, which exists only in Node,
+so in a browser the "Add to calendar" button never switched on; (S2) the six
+preset thumbnails were inlined SVGs that shared element ids with the main
+preview, so every palette looked like the first one. It also found that a
+full-width phone number passed the privacy scan, that a place could carry a
+clickable link into a calendar entry, that Korean times such as `오후 7시` were
+not read, that very long Korean lines could leave the frame, and that the README
+run command gave a blank page. Every finding was fixed test-first
+(`tests/crew_r2.test.js`) or, for S2, checked in headless Chrome (0 duplicate
+ids); the table of what was fixed and what stays open is at the bottom of
+`CREW_FINDINGS_R2.md`. Our red-team pass the same day (`RED_TEAM.md`, round 2)
+found two other bugs of its own (an object typed into a text field became the
+words "object Objec"; a format key like `__proto__` threw), also fixed test-first.
+
+What Crew could not check is listed, not hidden: Safari/Firefox/mobile
+rendering, saving a PNG on Safari, importing the calendar file into Google or
+Apple Calendar. We did not rebuild the product in Crew, so we claim a
 comparison of roles, not of speed. Story and evidence: `docs/KIRO_AND_CREW_STORY.md`.
 
 ## Kiro CLI with a custom conductor agent
@@ -53,11 +72,10 @@ document.
 
 Under `.kiro/agents/`: `kiroween` (conductor, owns app/ and deploy), `ascii-engine`
 (owns the deterministic renderer), `invite-logic` (owns validation/share/scan),
-`art-tuner` (owns the SVG→grid assets), and `red-team` (independent adversary,
+`art-tuner` (owns the artwork parts), and `red-team` (independent adversary,
 forbidden from editing engine/app code — it only files findings and a GO/NO-GO).
 The scope boundaries matter: the red-team agent being unable to touch the code it
-judges is the same independent-verification pattern that caught regressions in a
-prior hackathon. It is why the red-team pass in `docs/RED_TEAM.md` is credible.
+judges is the same independent-verification pattern we used before, kept here for the same reason. It is why the red-team pass in `docs/RED_TEAM.md` is credible.
 
 ## Spec-driven vs vibe coding
 
@@ -67,7 +85,7 @@ with a reason and change no state." Each requirement names its test
 (`test_reject_invalid_year`). The payoff over vibe coding showed up immediately:
 because the spec forced the negative paths up front, `normalizeConfig` was built
 to clamp/sanitize/fall back from the start, so the property-based tests found no
-crash on 1,800 random inputs. We didn't retrofit safety; the spec made it the
+crash on their generated inputs. We didn't retrofit safety; the spec made it the
 default. The tasks file is sized so each task is one verifiable unit with a test
 named before the code is written.
 
@@ -100,13 +118,12 @@ rather than hiding it.
 
 ## MCP
 
-The browser was driven through the chrome-devtools MCP to verify the app in a
-real Chrome, and headless Chrome was used to render the engine's SVG to PNG for a
-true look at the filtered output: it confirmed the invitation renders, the live
-preview updates on purpose/mood/palette/glow/parts changes, and the only console
-error was
-a missing favicon. That verification-in-the-real-browser is something a unit test
-can't give, and MCP is what made it part of the build loop.
+The chrome-devtools MCP and headless Chrome were used to look at the real
+output: render the engine's SVG to PNG, check that the live preview updates,
+count duplicate element ids in the page, and open the deployed CloudFront URL.
+Kiro Crew's own Chrome session is what found the `Buffer` and duplicate-id bugs.
+Seeing the real browser is something a unit test can't give, and it is why the
+build loop includes it.
 
 ## Steering
 
@@ -119,7 +136,9 @@ all constants with tests rather than scattered conditionals.
 ## What we would not claim
 
 - We did not use Kiro Crew's App Kit; there is no Crew app in this submission.
-- The site was not yet deployed at write time (the captain AWS session was
-  expired); the IaC and scripts are validated offline and ready.
+- Not verified: Safari, Firefox and mobile rendering; PNG save on Safari; the
+  calendar file imported into Google/Apple/Outlook. WCAG contrast is tested
+  against the palette colors, not by sampling rendered pixels, and the text-fit
+  rule estimates width instead of measuring a real font.
 - The demo video is recorded by a person; this repo contains the script, not the
   upload.
