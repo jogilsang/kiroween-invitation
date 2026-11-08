@@ -8,6 +8,10 @@ import {
   encodeConfig,
   scanText,
   scanConfig,
+  buildIcs,
+  formatSize,
+  remixConfig,
+  applyPreset,
 } from "../engine/index.js";
 
 const cases = [
@@ -48,6 +52,35 @@ const cases = [
     return { nick: c.nick, svgWellFormed: svg.startsWith("<svg ") && !svg.includes("${") };
   }],
 ];
+
+// Round 2 (2026-11-05): costume, scene, tints, event, export format, .ics, remix, preset.
+const b64 = (o) => encodeConfig(normalizeConfig(o).value);
+const ok = (svg) => svg.startsWith("<svg ") && !svg.includes("<script") && !svg.includes("${");
+cases.push(
+  ["B1", "costume '__proto__' / '<x>' / 'DRACULA'", () => ["__proto__", "<x>", "DRACULA"].map((v) => normalizeConfig({ costume: v }).value.costume)],
+  ["B2", "scene 'constructor' / 'GRAVEYARD'", () => ["constructor", "GRAVEYARD"].map((v) => normalizeConfig({ scene: v }).value.scene)],
+  ["B3", "tints with __proto__ key and 'constructor' swatch", () => {
+    const c = normalizeConfig(JSON.parse('{"tints":{"__proto__":"orange","moon":"constructor","bats":{"a":1}}}')).value;
+    return { tints: c.tints, polluted: ({}).orange !== undefined, renders: ok(renderSvg(c)) };
+  }],
+  ["B4", "tints for an asset that is not selected", () => normalizeConfig({ ghost: { parts: ["moon"] }, tints: { skull: "blood" } }).value.tints],
+  ["B5", "event string instead of object", () => normalizeConfig({ event: "Oct 31" }).value.event],
+  ["B6", "event fields as number / object / array", () => normalizeConfig({ event: { date: 1031, time: { a: 1 }, place: [1] } }).value.event],
+  ["B7", ".ics header injection through date", () => { const t = buildIcs(normalizeConfig({ year: 2026, event: { date: "Oct 31\r\nBEGIN:VEVENT", time: "7 PM", place: "x" } }).value); return t === null ? "null (no entry)" : t.split("\r\n").filter((l) => l.startsWith("BEGIN:VEVENT")).length; }],
+  ["B8", ".ics injection through place", () => { const t = buildIcs(normalizeConfig({ year: 2026, event: { date: "Oct 31", time: "7 PM", place: "x\r\nATTENDEE:evil" } }).value); return t.includes("\r\nATTENDEE"); }],
+  ["B9", ".ics impossible date Feb 30 / month 13 / 31 Apr", () => ["Feb 30", "13/1", "Apr 31"].map((d) => buildIcs(normalizeConfig({ year: 2026, event: { date: d } }).value))],
+  ["B10", "export format '__proto__' / '../x' / null / 7", () => ["__proto__", "../x", null, 7].map((f) => { const z = formatSize(f); return `${z.width}x${z.height}`; })],
+  ["B11", "renderSvg with unknown format option", () => ok(renderSvg(normalizeConfig({}).value, { format: "<script>" }))],
+  ["B12", "share param: 1 MB of garbage", () => { const d = decodeConfig("A".repeat(1_000_000)); return { ok: d.ok, renders: ok(renderSvg(d.value)) }; }],
+  ["B13", "share param: JSON with __proto__ payload", () => { const d = decodeConfig(Buffer.from('{"__proto__":{"polluted":1},"nick":"x"}').toString("base64url")); return { polluted: ({}).polluted !== undefined, nick: d.value.nick }; }],
+  ["B14", "share param: 5000 parts", () => { const d = decodeConfig(Buffer.from(JSON.stringify({ ghost: { parts: Array(5000).fill("moon") } })).toString("base64url")); return d.value.ghost.parts.length; }],
+  ["B15", "remix with NaN / Infinity / object / string seed", () => [NaN, Infinity, {}, "x", null].map((sd) => ok(renderSvg(remixConfig(normalizeConfig({}).value, sd))))],
+  ["B16", "remix keeps nick/year/event", () => { const c = normalizeConfig({ nick: "민아", year: 2031, event: { date: "Oct 31" } }).value; const r = remixConfig(c, 7); return r.nick === c.nick && r.year === c.year && r.event.date === "Oct 31"; }],
+  ["B17", "preset id '__proto__' / 'constructor' / object", () => ["__proto__", "constructor", {}].map((id) => applyPreset(normalizeConfig({}).value, id) !== undefined)],
+  ["B18", "RTL override and zero-width chars in nick", () => JSON.stringify(normalizeConfig({ nick: "a\u202Eb\u200Bc" }).value.nick)],
+  ["B19", "hat + horns + dracula all at once", () => { const c = normalizeConfig({ ghost: { parts: ["hat", "horns"] }, costume: "dracula" }).value; return { parts: c.ghost.parts, renders: ok(renderSvg(c)) }; }],
+  ["B20", "every asset + every swatch + long Korean event, all formats", () => { const c = normalizeConfig({ nick: "가나다라마바사아자차카타파하".repeat(3), ghost: { parts: ["moon", "bats", "cobweb", "crow", "cat", "tombstone", "skull", "candle", "pumpkins", "hat"] }, event: { date: "10월 31일", time: "오후 7시", place: "서울 마포구 합정동 어딘가 지하 클럽" } }).value; return ["square", "story", "wide"].map((f) => ok(renderSvg(c, { format: f }))); }],
+);
 
 for (const [id, desc, fn] of cases) {
   let actual;

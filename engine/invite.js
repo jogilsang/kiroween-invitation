@@ -67,7 +67,9 @@ export function escapeXml(v) {
  * @returns {{ value: string, changed: boolean }}
  */
 function cleanText(raw, disallowed, max) {
-  const s = typeof raw === "string" ? raw : raw == null ? "" : String(raw);
+  // Only text and numbers are text. Objects and arrays would turn into
+  // "[object Object]" garbage, so they count as empty (R44).
+  const s = typeof raw === "string" ? raw : typeof raw === "number" && Number.isFinite(raw) ? String(raw) : "";
   const stripped = s.normalize("NFC").replace(disallowed, "").replace(/\s+/g, " ").trim();
   // Truncate by code point so a surrogate pair is never split (R25).
   const clamped = Array.from(stripped).slice(0, max).join("");

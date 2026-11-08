@@ -73,3 +73,32 @@ swatches or asset keys are dropped (`test_unknown_tint_dropped`), colors can onl
 be chosen from six fixed swatches (never free-form, so no color/attribute
 injection), and the SVG stays well-formed with every asset on and Korean text
 (checked with `xmllint`).
+
+## Round 2 (2026-11-05): costume, scene, colors, event, .ics, export size, Remix, presets
+
+Run `node docs/redteam_probe.mjs` (cases B1-B20). Two real bugs were found by the probe and fixed test-first (`tests/redteam_round2.test.js`).
+
+| # | Attack | Result |
+|---|---|---|
+| B1 | costume `__proto__`, `<x>`, `DRACULA` | all fall back to `none` |
+| B2 | scene `constructor`, `GRAVEYARD` | fall back to `sky` |
+| B3 | tints with `__proto__` key, `constructor` swatch, object value | dropped; `Object.prototype` not polluted; renders |
+| B4 | tint for an asset that is not selected | **kept** (harmless: nothing is drawn; it only rides along in the share link). Limitation. |
+| B5 | event given as a string | becomes empty fields |
+| B6 | event fields as number / object / array | **BUG found**: object became the text `object Objec`. Fixed (R44): numbers stay, objects and arrays are empty |
+| B7 | `.ics` header injection through the date (`Oct 31\r\nBEGIN:VEVENT`) | no calendar entry (date unreadable) |
+| B8 | `.ics` injection through the place (`\r\nATTENDEE:evil`) | newline stripped before it reaches the file |
+| B9 | impossible dates `Feb 30`, `13/1`, `Apr 31` | no calendar entry, no guess |
+| B10 | export format `__proto__` | **BUG found**: `formatSize` threw (inherited key is not iterable). Fixed (R43). Only reachable from code, not from a share link |
+| B11 | `renderSvg` with format `<script>` | square, no script |
+| B12 | 1 MB share param | rejected, default invitation renders |
+| B13 | share JSON with `__proto__` payload | no pollution, nickname survives |
+| B14 | share JSON with 5000 parts | whole list rejected (0 parts), safe |
+| B15 | Remix with NaN, Infinity, object, string, null seed | all render a valid SVG |
+| B16 | Remix keeps nickname, year, event | yes |
+| B17 | preset id `__proto__`, `constructor`, object | no-op |
+| B18 | RTL override and zero-width characters in nickname | stripped (`abc`) |
+| B19 | hat + horns + Dracula together | config keeps both; the renderer draws only one (R9) |
+| B20 | all assets, long Korean text, all three sizes | well-formed in every size |
+
+Not covered by this probe (needs a browser): PNG save and clipboard on Safari/Firefox/mobile. Still unverified (P16).

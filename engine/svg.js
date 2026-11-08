@@ -316,7 +316,8 @@ const SIZES = { square: [1080, 1080], story: [1080, 1920], wide: [1920, 1080] };
 
 /** @param {string} format @returns {{width:number,height:number}} */
 export function formatSize(format) {
-  const [width, height] = SIZES[format] || SIZES.square;
+  const own = typeof format === "string" && Object.hasOwn(SIZES, format);
+  const [width, height] = own ? SIZES[format] : SIZES.square;
   return { width, height };
 }
 

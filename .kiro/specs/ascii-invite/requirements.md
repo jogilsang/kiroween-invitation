@@ -114,3 +114,8 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R40** THE SYSTEM SHALL offer at least six named presets, each a complete look (mood, palette, glow, costume, scene, assets, colors). — `test_presets_exist`, `test_presets_look_different`
 - **R41** A preset SHALL change only the look. Purpose, year, nickname and event details SHALL survive unchanged. — `test_preset_keeps_user_content`
 - **R42** An unknown, empty or non-string preset id SHALL change nothing; a preset result SHALL already be normalized. — `test_unknown_preset_is_noop`, `test_preset_is_already_normalized`
+
+## Red team round 2 (added 2026-11-05, WBS block F)
+
+- **R43** THE SYSTEM SHALL treat an export format that is not one of its own keys (including `__proto__`, `constructor`, `toString`) as the square format, and never throw. — `test_format_size_ignores_prototype_keys`
+- **R44** THE SYSTEM SHALL read only text and finite numbers as user text. An object or array in a text field SHALL count as empty instead of becoming the words "object Object". — `test_event_fields_reject_non_text`, `test_nick_rejects_non_text`
