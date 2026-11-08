@@ -13,7 +13,7 @@ Suggested tags: `kiro`, `kiroween`, `webdev`, `testing`.
 
 I built a Halloween invitation generator for Kiroween 2026: pick a look, type your name and the party details,
 and get a glowing SVG invitation of a white Kiro ghost and a pumpkin that you can save, share by link or add to a
-calendar. The live demo is at https://kiroween-invitation.chogilsang.net and the code is at [GITHUB_URL]. This post is
+calendar. The live demo is at https://kiroween-invitation.chogilsang.net and the code is at https://github.com/jogilsang/kiroween-invitation. This post is
 about how I used Kiro, and the one lesson I would keep.
 
 ## Spec first made a pivot cheap
@@ -60,4 +60,4 @@ Crew App Kit; Crew was a reviewer here, not a second implementation.
 Writing the failure paths into the spec first made safe behaviour the default. But green tests only prove what I
 thought to test. A different tool, looking at the real thing in a real browser, is what found the rest.
 
-[GITHUB_URL] · Live demo: https://kiroween-invitation.chogilsang.net
+https://github.com/jogilsang/kiroween-invitation · Live demo: https://kiroween-invitation.chogilsang.net
