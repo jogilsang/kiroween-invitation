@@ -1,9 +1,11 @@
 # Tasks — Kiroween Invitation
 
+Status 2026-11-08: everything below is done except P16 (cross-browser). Phase 1 was the ASCII renderer (superseded on 2026-11-05 by SVG; its tasks are kept as history of the pivot). Later phases follow the work order: SVG pivot, customization, costumes/scenes/sizes/calendar, presets and contrast, red team and Crew review fixes, link preview, custom domain.
+
 One task at a time. Write the failing test first, make it pass, then stop.
 Each task names how it's verified. `[ ]` todo, `[x]` done.
 
-## ASCII build (done, then superseded by the SVG pivot)
+## Phase 1: ASCII build (done, then superseded by the SVG pivot)
 
 - [x] T1 Scaffold (git, MIT LICENSE, README, .gitignore, package.json).
 - [x] T2 Steering docs.
@@ -37,7 +39,7 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] P13 nick input maxlength matches NICK_MAX (24) with a visible note. — `crew_nick_maxlength_matches_engine`.
 - [x] P14 purpose radiogroup keyboard navigation (roving tabindex + arrows). — `crew_purpose_keyboard_nav` + headless-Chrome keyboard check.
 - [x] P15 tasks.md checkboxes reconciled with reality (Crew finding).
-- [ ] P16 (open, from Crew) cross-browser check (Safari/Firefox/mobile) of SVG filters and PNG export; WCAG contrast measurement; non-Latin nicknames (G1).
+- [ ] P16 (open, from Crew) cross-browser check (Safari/Firefox/mobile) of SVG filters and PNG export. Done since: WCAG contrast is tested (R39), non-Latin nicknames work (R25). Still unverified: Safari, Firefox, mobile, PNG save on Safari, calendar import into real calendar apps.
 
 ## Customization depth (2026-11-05, 1-hour block)
 
@@ -47,7 +49,7 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] Q4 share.js / scan.js: carry tints + event; scan each event field (R24).
 - [x] Q5 app: asset list with per-asset swatch select, event inputs.
 - [x] Q6 Visual check (all assets, default and tinted), xmllint well-formedness, full suite, audit, redeploy. Also found and fixed a real bug: the ghost hem ran off to the right (`test_ghost_hem_stays_under_body`).
-- [ ] Q7 (WBS, later) slots/placement, Remix button, background scenes, export sizes, .ics, costume assets (Dracula, mummy), presets.
+- [x] Q7 Remix, background scenes, export sizes, .ics, costumes and presets were done in the WBS blocks below. Free placement of assets (drag) was deliberately not built.
 
 ## WBS P1 (done 2026-11-05)
 - [x] W1.1 Costumes (R30, R32, R33): dracula, mummy, pirate, skeleton, clipped to the ghost body; 14 tests; rendered and checked by eye (found and fixed a dracula collar covering the mouth).
@@ -59,3 +61,12 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 ## WBS block E (done 2026-11-05)
 - [x] W3.1 Contrast (R39): measured first. Texts already passed; two button gradients failed (white on #b14bff 3.95, dark on #c2410c 3.74). Failing tests written, then gradients changed to #9a35e8 and #e0590e (5.19, 5.16 at the lighter stop).
 - [x] W3.2 Presets (R40-R42): `engine/presets.js`, six looks, gallery with live thumbnails in the app; checked by eye in headless Chrome.
+
+## WBS block F (done 2026-11-05)
+- [x] W4.1 Red team round 2 (B1-B20, `docs/redteam_probe.mjs`): two real bugs fixed test-first (R43 prototype format key, R44 non-text values). — `tests/redteam_round2.test.js`
+- [x] W4.2 Kiro Crew review round 2 (`docs/CREW_RESEARCH_BRIEF_R2.md` -> `docs/CREW_FINDINGS_R2.md`), verdict GO with fixes. Fixed test-first: R45 `Buffer` in the browser, R46 duplicate SVG ids, R47 scan gaps, R48 Korean dates and UTC stamp, R49 text fit, R50 first-screen layout. — `tests/crew_r2.test.js`
+
+## Link preview and domain (2026-11-08)
+- [x] W5.1 `og:image` as a 1200x630 PNG (R51), built by `deploy/make_og.mjs`. — `tests/og.test.js`
+- [x] W5.2 Custom domain through the same template (ACM certificate, CloudFront alias, Route 53 records), deployed from `deploy/deploy.sh` with `DOMAIN` and `ZONE_NAME`.
+- [x] W5.3 Product renamed from ASCII Invite to Kiroween Invitation; agents `svg-engine`, `art-tuner`, `invite-logic` rewritten to match the code; spec folder renamed.

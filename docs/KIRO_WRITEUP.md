@@ -19,7 +19,7 @@ Honest note: the conductor did the building in one CLI session. We used the four
 - test-on-save and spec-change-reminder: written in Kiro's hook format, plus Kiro CLI format twins added at the end. We have not yet seen them fire by themselves in the CLI session; we ran the same script by hand. We do not claim more than that.
 
 4. Spec-driven development, compared with vibe coding
-.kiro/specs/ascii-invite (the folder keeps the project's old name) holds requirements, design and tasks. There are 51 requirements in EARS form, with the failure paths written first: "IF the year is not an integer from 2000 to 2100, THE SYSTEM SHALL reject it and change no state." Every requirement names its test, and tasks are sized so one task is one verifiable change.
+.kiro/specs/kiroween-invitation holds requirements, design and tasks. There are 51 requirements in EARS form, with the failure paths written first: "IF the year is not an integer from 2000 to 2100, THE SYSTEM SHALL reject it and change no state." Every requirement names its test, and tasks are sized so one task is one verifiable change.
 What changed compared with vibe coding:
 - The pivot. Halfway through, the ASCII renderer could not give the grotesque, glowing look we wanted, so we switched to SVG. 18 of the 21 requirements and their tests carried over untouched; only the renderer-specific ones were replaced, and the change is in the spec's changelog. We did not have to rediscover our own rules.
 - Every later feature (costumes, scenes, export sizes, calendar file, presets) started as a numbered requirement and a failing test, then code, then a look at a real render.

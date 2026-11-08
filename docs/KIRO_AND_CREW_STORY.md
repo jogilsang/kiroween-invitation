@@ -99,7 +99,7 @@ PNG save on Safari, and calendar import into real calendar apps.
    fix carries a test name.
 3. **Closed loop**: finding, failing test, fix, render check, redeploy.
 4. **Spec stays the source of truth**: tasks P11 to P16 in
-   `.kiro/specs/ascii-invite/tasks.md` record the review and its outcomes.
+   `.kiro/specs/kiroween-invitation/tasks.md` record the review and its outcomes.
 
 ## Suggested beats for the 3-minute video
 

@@ -15,7 +15,7 @@
 
 ## Determinism
 
-- Same config in → same ASCII out, byte for byte. This is the headline claim and
+- Same config in → same SVG out, byte for byte. This is the headline claim and
   a property-based test guards it.
 
 ## Coding conventions

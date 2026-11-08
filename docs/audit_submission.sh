@@ -13,9 +13,9 @@ no(){ echo "FAIL  $1"; fail=$((fail+1)); }
 grep -qE '(^|/)\.kiro(/|$)' .gitignore 2>/dev/null && no ".kiro is in .gitignore (DISQUALIFY risk)" || ok ".kiro NOT in .gitignore"
 grep -qE '\.omc/' .gitignore 2>/dev/null && ok ".omc/ excluded in .gitignore" || no ".omc/ not excluded"
 
-[ -f .kiro/specs/ascii-invite/requirements.md ] && ok "spec: requirements.md" || no "spec: requirements.md missing"
-[ -f .kiro/specs/ascii-invite/design.md ] && ok "spec: design.md" || no "spec: design.md missing"
-[ -f .kiro/specs/ascii-invite/tasks.md ] && ok "spec: tasks.md" || no "spec: tasks.md missing"
+[ -f .kiro/specs/kiroween-invitation/requirements.md ] && ok "spec: requirements.md" || no "spec: requirements.md missing"
+[ -f .kiro/specs/kiroween-invitation/design.md ] && ok "spec: design.md" || no "spec: design.md missing"
+[ -f .kiro/specs/kiroween-invitation/tasks.md ] && ok "spec: tasks.md" || no "spec: tasks.md missing"
 [ "$(ls .kiro/steering/*.md 2>/dev/null | wc -l | tr -d ' ')" -ge 1 ] && ok "steering docs present" || no "no steering docs"
 [ "$(ls .kiro/hooks/*.kiro.hook 2>/dev/null | wc -l | tr -d ' ')" -ge 1 ] && ok "hooks present" || no "no hooks"
 [ "$(ls .kiro/agents/*.json 2>/dev/null | wc -l | tr -d ' ')" -ge 1 ] && ok "agents present" || no "no agents"

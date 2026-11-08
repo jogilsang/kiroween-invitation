@@ -10,11 +10,32 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 > dark-invert / monospace) was replaced by SVG equivalents R10-R12 below. The
 > combination-generator intent is unchanged and strengthened (mood/palette/glow
 > are new combination axes). Determinism, validation, share and safety are
-> unchanged. The project name/slug stays `ascii-invite` for continuity.
+> unchanged.
+>
+> Changelog 2026-11-08 — RENAME. The project is now "Kiroween Invitation" (it was
+> "ASCII Invite"), and this folder was renamed to match. The older wording of
+> R1-R21 is kept where it still holds; where a requirement's text predates later
+> features, the later requirement (R22 and up) extends it and does not contradict it.
+
+## Map of the requirements
+
+| Range | Topic |
+|---|---|
+| R1-R9 | generation, validation, composition rules |
+| R10-R12 | SVG look: mood, palette, glow, well-formed, dark contract |
+| R13-R21 | save, share, safety, accessibility |
+| R22-R26 | assets, colors, event details, any-script names, stable seeds |
+| R27-R29 | Remix |
+| R30-R33 | costumes and scenes |
+| R34-R35 | export sizes |
+| R36-R38, R48 | calendar file |
+| R39-R42 | contrast and preset looks |
+| R43-R50 | fixes from the red team and the Kiro Crew reviews |
+| R51 | link preview image |
 
 ## Generation
 
-- **R1** WHEN a user supplies a config (purpose, year, nickname, ghost options, mood, palette, glow), THE SYSTEM SHALL produce an SVG invitation determined solely by that config. — `test_same_config_same_output`
+- **R1** WHEN a user supplies a config (purpose, year, nickname, event details, assets and their colors, costume, scene, mood, palette, glow), THE SYSTEM SHALL produce an SVG invitation determined solely by that config. — `test_same_config_same_output`
 - **R2** WHEN the same config is passed twice, THE SYSTEM SHALL return a byte-identical SVG string (no randomness beyond a config-derived seed, no clock). — `test_deterministic_bytes`
 - **R3** THE SYSTEM SHALL apply a distinct heading/body template for each purpose (join / notice / recruit). — `test_purpose_templates`
 - **R4** WHEN the year changes, THE SYSTEM SHALL reflect it in the invitation's year text and meta banner (`KIROWEEN <year>`). — `test_year_is_variable`

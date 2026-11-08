@@ -6,8 +6,8 @@
   "when": {
     "type": "fileEdited",
     "patterns": [
-      ".kiro/specs/ascii-invite/requirements.md",
-      ".kiro/specs/ascii-invite/design.md"
+      ".kiro/specs/kiroween-invitation/requirements.md",
+      ".kiro/specs/kiroween-invitation/design.md"
     ]
   },
   "then": {
