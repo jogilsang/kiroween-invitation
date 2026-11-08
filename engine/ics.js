@@ -23,6 +23,8 @@ function readDate(text) {
   let m;
   // 2026-10-31 / 2026.10.31 / 2026/10/31
   if ((m = t.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/))) return { y: +m[1], m: +m[2], d: +m[3] };
+  // 2026년 10월 31일
+  if ((m = t.match(/^(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일?$/))) return { y: +m[1], m: +m[2], d: +m[3] };
   // 10월 31일 / 10월31일
   if ((m = t.match(/^(\d{1,2})\s*월\s*(\d{1,2})\s*일?$/))) return { m: +m[1], d: +m[2] };
   // 10/31 or 10.31  (month first; the only supported numeric order)
@@ -43,6 +45,18 @@ function readTime(text) {
     if (hh < 1 || hh > 12 || mm > 59) return null;
     if (m[3] === "am") hh = hh === 12 ? 0 : hh; else hh = hh === 12 ? 12 : hh + 12;
     return { hh, mm };
+  }
+  // 오전 9시 / 오후 7시 30분 (am/pm word required), and 19시 / 19시 30분 (24-hour)
+  if ((m = t.match(/^(오전|오후)(\d{1,2})시(?:(\d{1,2})분)?$/))) {
+    let hh = +m[2]; const mm = m[3] ? +m[3] : 0;
+    if (hh < 1 || hh > 12 || mm > 59) return null;
+    if (m[1] === "오전") hh = hh === 12 ? 0 : hh; else hh = hh === 12 ? 12 : hh + 12;
+    return { hh, mm };
+  }
+  // 13시 and later can only mean 24-hour time. "7시" alone is am or pm: not guessed.
+  if ((m = t.match(/^(\d{1,2})시(?:(\d{1,2})분)?$/)) && +m[1] >= 13) {
+    const hh = +m[1], mm = m[2] ? +m[2] : 0;
+    return hh <= 23 && mm <= 59 ? { hh, mm } : null;
   }
   if ((m = t.match(/^(\d{1,2}):(\d{2})$/))) {
     const hh = +m[1], mm = +m[2];
@@ -83,6 +97,10 @@ function esc(v) {
     .replace(/,/g, "\\,");
 }
 
+// UTF-8 length of one character. No Node-only globals: this runs in the browser too.
+const enc = new TextEncoder();
+const utf8Len = (ch) => enc.encode(ch).length;
+
 // Fold a content line at 75 OCTETS (not characters: Korean is 3 bytes per letter).
 export function foldIcsLine(line) {
   const out = [];
@@ -90,7 +108,7 @@ export function foldIcsLine(line) {
   let bytes = 0;
   let limit = 75;
   for (const ch of Array.from(line)) {
-    const b = Buffer.byteLength(ch, "utf8");
+    const b = utf8Len(ch);
     if (bytes + b > limit) { out.push(cur); cur = " "; bytes = 1; limit = 75; }
     cur += ch;
     bytes += b;
@@ -132,7 +150,8 @@ export function buildIcs(cfg) {
     end = `DTEND:${stamp(e.getUTCFullYear(), e.getUTCMonth() + 1, e.getUTCDate(), e.getUTCHours(), e.getUTCMinutes())}`;
   }
   // DTSTAMP is required; use the event start itself so the file never depends on the clock.
-  const dtstamp = `DTSTAMP:${stamp(when.y, when.m, when.d, when.hh, when.mm)}`;
+  // RFC 5545 wants DTSTAMP in UTC, so mark it with Z.
+  const dtstamp = `DTSTAMP:${stamp(when.y, when.m, when.d, when.hh, when.mm)}Z`;
 
   const lines = [
     "BEGIN:VCALENDAR",

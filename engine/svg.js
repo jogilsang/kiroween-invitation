@@ -7,8 +7,11 @@ import { skull, cat, cobweb, candle, tombstone, crow, pumpkins } from "./assets.
 import { COSTUME_DRAW } from "./costumes.js";
 import { SCENE_DRAW } from "./scenes.js";
 import { resolveParts } from "./compose.js";
+import { fitAttrs } from "./fit.js";
 
 export const CANVAS = 1080;
+// Widest a line of text may be: the frame is 1008 wide, keep a margin on both sides.
+const FIT_W = 940;
 
 export const PALETTE_COLORS = {
   deeppurple: { bg0: "#0a0416", bg1: "#2a0b52", glow: "#b14bff", accent: "#ff7a18", mist: "#7b2ff7" },
@@ -238,7 +241,7 @@ function renderSquare(cfg) {
   // Event line (R24): replaces the style footer when present.
   const details = t.meta.details;
   const detailsSVG = details
-    ? `<text data-part="details" x="${W / 2}" y="${H - 50}" text-anchor="middle" fill="#efe6ff" font-size="24" letter-spacing="1">${escapeXml(details)}</text>`
+    ? `<text data-part="details" x="${W / 2}" y="${H - 50}" text-anchor="middle" fill="#efe6ff" font-size="24" letter-spacing="1"${fitAttrs(details, 24, FIT_W, 1)}>${escapeXml(details)}</text>`
     : `<text x="${W / 2}" y="${H - 54}" text-anchor="middle" fill="#efe6ff" font-size="16" opacity="0.55" letter-spacing="3">${foot}</text>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Georgia, 'Times New Roman', serif" role="img" aria-label="${ariaTitle}">
@@ -300,8 +303,8 @@ function renderSquare(cfg) {
   <rect x="36" y="36" width="${W - 72}" height="${H - 72}" fill="none" stroke="${pal.glow}" stroke-opacity="0.45" stroke-width="2" rx="16"/>
 
   <text x="${W / 2}" y="104" text-anchor="middle" fill="${pal.accent}" font-size="28" letter-spacing="12" opacity="0.9">${banner}</text>
-  <text x="${W / 2}" y="930" text-anchor="middle" fill="#ffffff" font-size="56" letter-spacing="3" font-weight="bold" filter="url(#ghostGlow)">${title}</text>
-  <text x="${W / 2}" y="982" text-anchor="middle" fill="${pal.glow}" font-size="25">${sub}</text>
+  <text x="${W / 2}" y="930" text-anchor="middle" fill="#ffffff" font-size="56" letter-spacing="3" font-weight="bold" filter="url(#ghostGlow)"${fitAttrs(t.title, 56, FIT_W, 3)}>${title}</text>
+  <text x="${W / 2}" y="982" text-anchor="middle" fill="${pal.glow}" font-size="25"${fitAttrs(t.lines[0], 25, FIT_W)}>${sub}</text>
   ${detailsSVG}
 </svg>`;
 }

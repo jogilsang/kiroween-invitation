@@ -30,8 +30,9 @@ npm install          # installs fast-check (dev only)
 node --test tests/pbt.test.js
 
 # Serve the app
-python3 -m http.server 8137 --directory app
-# then open http://localhost:8137
+# serve the repository ROOT (app/ imports ../engine/), then open /app/
+python3 -m http.server 8137
+# then open http://localhost:8137/app/index.html
 ```
 
 ## How it works (engine / app split)

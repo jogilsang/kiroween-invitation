@@ -8,7 +8,7 @@
   "scripts": {
     "test": "node --test",
     "test:pbt": "node --test tests/pbt.test.js",
-    "serve": "node --version && python3 -m http.server 8137 --directory app"
+    "serve": "node --version && python3 -m http.server 8137"
   },
   "devDependencies": {
     "fast-check": "^3.23.1"

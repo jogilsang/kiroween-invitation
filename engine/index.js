@@ -7,3 +7,4 @@ export * from "./scan.js";
 export * from "./remix.js";
 export * from "./ics.js";
 export * from "./presets.js";
+export * from "./fit.js";

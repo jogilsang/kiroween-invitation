@@ -12,9 +12,14 @@ const SCRIPT_PATTERNS = [
 
 const PII_PATTERNS = [
   /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, // email
-  /(?:\+?\d[\s-]?){10,}/, // 10+ digit phone-like run
-  /\b(?:\d[ -]?){13,16}\b/, // card-like
+  // \p{Nd} = a decimal digit of ANY script (full-width, Arabic-Indic, ...), not just 0-9.
+  /(?:\+?\p{Nd}[\s-]?){10,}/u, // 10+ digit phone-like run
+  /(?:\p{Nd}[ -]?){13,16}/u, // card-like
 ];
+
+// Links: a free-text field is not a place for a clickable URL (a share link could
+// otherwise plant one in someone's calendar entry).
+SCRIPT_PATTERNS.push(/\b[a-z][a-z0-9+.-]*:\/\//i, /\bwww\./i);
 
 // A tiny banned-phrase list. Deliberately small and documented; extendable.
 const BANNED = ["password", "api_key", "apikey", "secret_key", "ssh-rsa"];

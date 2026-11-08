@@ -84,10 +84,15 @@ function buildPresets() {
     b.className = "preset";
     b.dataset.preset = p.id;
     b.setAttribute("aria-label", `Apply the ${p.name} look`);
+    // An <img> keeps each thumbnail's SVG ids (bg, fog, ghostGlow...) out of the page.
+    // Inlined, seven SVGs shared one set of ids and every palette looked like the first one.
     const thumb = document.createElement("span");
     thumb.className = "thumb";
-    thumb.setAttribute("aria-hidden", "true");
-    thumb.innerHTML = renderSvg(applyPreset(neutral, p.id));
+    const img = document.createElement("img");
+    img.alt = "";
+    img.setAttribute("aria-hidden", "true");
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(renderSvg(applyPreset(neutral, p.id)));
+    thumb.append(img);
     const name = document.createElement("span");
     name.className = "pname";
     name.textContent = p.name;
@@ -139,12 +144,17 @@ function render() {
   return cfg;
 }
 
+const ICS_HELP = "Calendar needs a date like Oct 31, 10/31 or 10월 31일 and a time like 7:00 PM, 19:00 or 오후 7시.";
+
 // The calendar button is enabled only when the date (and time, if given) can be read.
 function syncIcsButton(cfg) {
   const ok = buildIcs(cfg) !== null;
   const btn = $("saveIcs");
   btn.disabled = !ok;
-  btn.title = ok ? "Download a calendar entry" : "Enter a date such as Oct 31, 10/31 or 10월 31일 (and a time like 7:00 PM) to enable";
+  btn.title = ok ? "Download a calendar entry" : ICS_HELP;
+  // The tooltip never shows on a phone, so the reason is also written on the page.
+  const hasDate = cfg.event && cfg.event.date;
+  $("icsNote").textContent = ok || !hasDate ? "" : ICS_HELP;
 }
 
 let debounce;

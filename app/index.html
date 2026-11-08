@@ -23,6 +23,17 @@
     <section class="controls" aria-label="Invitation controls">
       <h1 class="brand">ASCII&nbsp;Invite <span class="sub">Kiroween 2026</span></h1>
 
+      <p class="intro">Pick a look, add your name, then save the picture or copy a link. Everything happens in your browser. The picture is a vector illustration (SVG).</p>
+      <div class="actions top">
+        <button type="button" id="remix" class="remix">Remix the look</button>
+        <button type="button" id="savePng">Save as image</button>
+        <button type="button" id="copyLink">Copy share link</button>
+        <button type="button" id="saveIcs" disabled>Add to calendar (.ics)</button>
+        <button type="button" id="saveCfg">Save config</button>
+      </div>
+      <p class="hint" id="hint" role="status" aria-live="polite"></p>
+      <p class="ics-note" id="icsNote" aria-live="polite"></p>
+
       <fieldset class="presets">
         <legend>Start from a look</legend>
         <div class="preset-grid" id="presets"><!-- built from the engine's PRESETS (see main.js) --></div>
@@ -109,14 +120,6 @@
         </select>
       </label>
 
-      <div class="actions">
-        <button type="button" id="remix" class="remix">Remix the look</button>
-        <button type="button" id="savePng">Save as image</button>
-        <button type="button" id="copyLink">Copy share link</button>
-        <button type="button" id="saveIcs" disabled>Add to calendar (.ics)</button>
-        <button type="button" id="saveCfg">Save config</button>
-      </div>
-      <p class="hint" id="hint" role="status" aria-live="polite"></p>
     </section>
 
     <section class="preview" aria-label="Invitation preview">
