@@ -1,7 +1,7 @@
 # Devpost submission text: ASCII Invite (Kiroween 2026)
 
 Every field of the Devpost form, ready to paste. Written in English because the rules require it.
-Anything in [BRACKETS] is not known yet and must be filled before submitting. Numbers were checked
+Any square-bracket placeholder (like the repo and video links) is not known yet and must be filled before submitting. Numbers were checked
 against this repo on 2026-11-08 (`node --test` = 131 tests, `docs/audit_submission.sh`).
 
 ## Fixed choices (decided, do not change without the CEO)
@@ -94,5 +94,5 @@ The link-preview image (`app/og.png`) can serve as the thumbnail.
 - [ ] Public GitHub repo created, license shown in About, `.kiro/` at the root and not in .gitignore, `.omc/` absent.
 - [ ] Video is under 3 minutes, public on YouTube, link at the top of the story.
 - [ ] Live URL opens in a private window and on a phone.
-- [ ] Every [BRACKET] above replaced. No account IDs, keys or customer names anywhere.
+- [ ] Every placeholder above replaced. No account IDs, keys or customer names anywhere.
 - [ ] Category = Costume Contest. Bonus boxes ticked only where a URL exists.
