@@ -21,7 +21,7 @@ A haunted Halloween invitation generator: pick a look, add your name and the par
 kiro, kiro-cli, kiro-crew, javascript, svg, fast-check, amazon-cloudfront, amazon-s3, aws-cloudformation, node.js
 
 ## Try it out links
-- Live app: https://d3hl6g932302kb.cloudfront.net
+- Live app: https://kiroween-invitation.chogilsang.net
 - Code: [GITHUB_URL]
 - Demo video: [YOUTUBE_URL]
 

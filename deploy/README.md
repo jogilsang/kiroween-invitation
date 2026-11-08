@@ -33,9 +33,14 @@ alongside, `../` paths rewritten to `./`). `deploy.sh` deploys the stack, syncs
 - Template structurally validated offline, then validated live against captain
   (no IAM capabilities needed).
 - `stage.mjs` verified: produces a correct flat `dist/` with rewritten paths.
-- **DEPLOYED and live:** https://d3hl6g932302kb.cloudfront.net
+- **DEPLOYED and live:** https://kiroween-invitation.chogilsang.net
   - Stack `ascii-invite` created in captain / us-east-1.
   - Bucket is private; served only via CloudFront OAC.
   - Verified in a real browser: HTTP 200, no console errors, invitation renders
     (1,311 chars, KIROWEEN banner), all engine/assets paths return 200.
   - Judges can use it with no login. Teardown anytime with `deploy/teardown.sh`.
+
+## Custom domain (added 2026-11-08)
+`DOMAIN=kiroween-invitation.<your-domain> ZONE_NAME=<your-domain> AWS_PROFILE=captain bash deploy/deploy.sh`
+creates a DNS-validated ACM certificate (the stack must be in us-east-1), adds the alias to the CloudFront distribution and
+writes A and AAAA alias records in the Route 53 hosted zone. Without `DOMAIN` the site is served on the CloudFront default domain only.

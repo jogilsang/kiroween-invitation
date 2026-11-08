@@ -6,13 +6,13 @@
 
 **Model says, code decides.** No AI or randomness is in the render path. The same settings always produce the same SVG, byte for byte. Input validation, layer rules, and the pre-share safety scan are all enforced by code constants, not by a model.
 
-> Note: the project keeps the name `ascii-invite` for continuity; it began as an ASCII-art generator and pivoted to vector SVG for a grotesque, glowing look. See `docs/KIRO_EVIDENCE.md`.
+> Note: the app is still called ASCII Invite and the repository is `kiroween-invitation`; it began as an ASCII-art generator and pivoted to vector SVG for a grotesque, glowing look. See `docs/KIRO_EVIDENCE.md`.
 
 ---
 
 ## Judge's 1-minute try
 
-**Live:** https://d3hl6g932302kb.cloudfront.net (no login needed)
+**Live:** https://kiroween-invitation.chogilsang.net (no login needed)
 
 1. Open the live URL (or run locally, below).
 2. Click one of the six **looks** (try *Pirate Crypt*), or press **Remix the look**.

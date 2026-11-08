@@ -10,8 +10,36 @@ Parameters:
   DeleteAfterTag:
     Type: String
     Default: "2026-12-31"
+  DomainName:
+    Type: String
+    Default: ""
+    Description: Optional custom domain, for example kiroween-invitation.example.com. Empty means CloudFront default domain only.
+  HostedZoneId:
+    Type: String
+    Default: ""
+    Description: Route 53 hosted zone id that owns DomainName. Required when DomainName is set.
+
+Conditions:
+  HasDomain: !Not [!Equals [!Ref DomainName, ""]]
 
 Resources:
+  # Public TLS certificate for the custom domain. Must live in us-east-1 for CloudFront;
+  # this stack is deployed there. DNS validation records are created in the hosted zone.
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Condition: HasDomain
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: project
+          Value: !Ref ProjectTag
+        - Key: delete-after
+          Value: !Ref DeleteAfterTag
+
   SiteBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
@@ -48,6 +76,13 @@ Resources:
         Comment: ASCII Invite (Kiroween 2026)
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
+        Aliases: !If [HasDomain, [!Ref DomainName], !Ref "AWS::NoValue"]
+        ViewerCertificate: !If
+          - HasDomain
+          - AcmCertificateArn: !Ref Certificate
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - !Ref "AWS::NoValue"
         Origins:
           - Id: s3origin
             DomainName: !GetAtt SiteBucket.RegionalDomainName
@@ -90,10 +125,37 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution.Id}"
 
+  # Alias records to the distribution (Z2FDTNDATAQYW2 is CloudFront's fixed hosted zone id).
+  DnsRecordA:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDomain
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+  DnsRecordAAAA:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDomain
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
 Outputs:
   BucketName:
     Value: !Ref SiteBucket
   DistributionId:
     Value: !Ref Distribution
   SiteURL:
+    Value: !If
+      - HasDomain
+      - !Sub "https://${DomainName}"
+      - !Sub "https://${Distribution.DomainName}"
+  CloudFrontDomain:
     Value: !Sub "https://${Distribution.DomainName}"

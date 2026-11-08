@@ -21,5 +21,5 @@ pick from, not a finished post**. Write it in your own voice, in your own words.
 ## Format tips
 - First characters must be `#KiroweenHackathon26`.
 - One screenshot with a one-line meaning (for example the Crew finding next to the fixed button).
-- Link the live demo https://d3hl6g932302kb.cloudfront.net.
+- Link the live demo https://kiroween-invitation.chogilsang.net.
 - Post it between now and 2026-12-04 PT, then paste the post URL into Devpost.

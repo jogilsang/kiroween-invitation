@@ -50,7 +50,7 @@ write-up, video script, red-team doc, 127 tests green, secret scan clean.
 
 These are gated by policy to the user; the agent has prepared everything up to them.
 
-1. **Deploy** — DONE (2026-11-05). Live: https://d3hl6g932302kb.cloudfront.net
+1. **Deploy** — DONE (2026-11-05). Live: https://kiroween-invitation.chogilsang.net
    Stack `ascii-invite` in captain/us-east-1, private bucket + CloudFront OAC,
    verified in a real browser (200, no console errors, renders). Teardown:
    `AWS_PROFILE=captain bash deploy/teardown.sh`.
