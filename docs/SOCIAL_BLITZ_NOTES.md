@@ -1,6 +1,7 @@
 # Social Blitz notes (write this one yourself)
 
-Rule (from the Rules tab): post on any social platform during the Submission Period, **start the post with
+Rule (from the Rules tab, re-read 2026-11-08): the post goes on a social platform "such as X, LinkedIn, IG, or TikTok" (a community site like AWS Builder Center is not named), the hashtag must come first, and the Kiro team judges "original thoughts vs AI writing", the insight about Kiro, and the post's images or video.
+Earlier summary of the same rule: post on any social platform during the Submission Period, **start the post with
 `#KiroweenHackathon26`**, share your favourite thing about Kiro and how it changed the way you approach
 development, and add the post URL to the Devpost form. It is judged on the quality of the post and its insights
 about Kiro. The rules text we read says the post should be your own writing, so these are **facts and angles to

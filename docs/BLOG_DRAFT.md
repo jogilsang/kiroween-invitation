@@ -1,6 +1,6 @@
 # Blog draft (for the Bonus Blog Prize)
 
-Where to publish: any third-party blog platform (dev.to, Medium, Hashnode, Velog). It must be public, published
+Where to publish: any third-party blog platform (dev.to, Medium, Hashnode, Velog). The rules say "third-party blog platform" without defining it. AWS Builder Center is run by AWS, the company behind Kiro, so it may not count as third-party: use dev.to or Medium for the prize URL, and cross-post to Builder Center if you like. It must be public, published
 during the Submission Period (2026-10-30 to 2026-12-04 PT) and say it was written as part of the Kiroween 2026
 hackathon. Add the post URL to the Devpost form. Edit freely: it is a draft in the author's voice.
 Suggested tags: `kiro`, `kiroween`, `webdev`, `testing`.
@@ -11,7 +11,7 @@ Suggested tags: `kiro`, `kiroween`, `webdev`, `testing`.
 
 *This post was written as part of the Kiroween 2026 hackathon.*
 
-I built a Halloween invitation generator for Kiroween 2026: pick a look, type your name and the party details,
+I built Kiroween Invitation, a Halloween invitation generator, for Kiroween 2026: pick a look, type your name and the party details,
 and get a glowing SVG invitation of a white Kiro ghost and a pumpkin that you can save, share by link or add to a
 calendar. The live demo is at https://kiroween-invitation.chogilsang.net and the code is at https://github.com/jogilsang/kiroween-invitation. This post is
 about how I used Kiro, and the one lesson I would keep.
