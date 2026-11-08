@@ -9,6 +9,8 @@ import {
   scanRaw,
   buildInviteText,
   remixConfig,
+  PRESETS,
+  applyPreset,
   buildIcs,
   formatSize,
   PARTS_ALLOW,
@@ -69,6 +71,33 @@ function buildAssetRows() {
     box.append(row);
     cb.addEventListener("change", render);
     sel.addEventListener("change", render);
+  }
+}
+
+// Preset gallery: one thumbnail per engine preset, rendered from a neutral config.
+function buildPresets() {
+  const box = $("presets");
+  const neutral = normalizeConfig({ purpose: "join", year: 2026, nick: "" }).value;
+  for (const p of PRESETS) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "preset";
+    b.dataset.preset = p.id;
+    b.setAttribute("aria-label", `Apply the ${p.name} look`);
+    const thumb = document.createElement("span");
+    thumb.className = "thumb";
+    thumb.setAttribute("aria-hidden", "true");
+    thumb.innerHTML = renderSvg(applyPreset(neutral, p.id));
+    const name = document.createElement("span");
+    name.className = "pname";
+    name.textContent = p.name;
+    b.append(thumb, name);
+    b.addEventListener("click", () => {
+      writeUi(applyPreset(readUi(), p.id));
+      render();
+      setHint(`${p.name} look applied. Your text stays as it was.`);
+    });
+    box.append(b);
   }
 }
 
@@ -214,6 +243,7 @@ function boot() {
       if (next) { e.preventDefault(); select(next, true); }
     });
   }
+  buildPresets();
   buildAssetRows();
   buildCostumeTint();
   for (const el of ["costume", "costumeTint", "scene", "format"]) $(el).addEventListener("change", render);

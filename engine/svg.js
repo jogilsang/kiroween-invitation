@@ -10,7 +10,7 @@ import { resolveParts } from "./compose.js";
 
 export const CANVAS = 1080;
 
-const PALETTES = {
+export const PALETTE_COLORS = {
   deeppurple: { bg0: "#0a0416", bg1: "#2a0b52", glow: "#b14bff", accent: "#ff7a18", mist: "#7b2ff7" },
   magenta:    { bg0: "#120318", bg1: "#4a0b40", glow: "#ff2ea0", accent: "#ff9d3c", mist: "#c13af0" },
   indigo:     { bg0: "#05031a", bg1: "#151563", glow: "#6c7bff", accent: "#ffc23c", mist: "#4b5bff" },
@@ -178,7 +178,7 @@ function moon(cx, cy, r, pal, c) {
  * @returns {string} an SVG document string
  */
 function renderSquare(cfg) {
-  const pal = PALETTES[cfg.palette] || PALETTES.magenta;
+  const pal = PALETTE_COLORS[cfg.palette] || PALETTE_COLORS.magenta;
   const strong = cfg.glow === "strong";
   // Independent seeded streams (R26): the ghost hem, the bats and the fog each
   // get their own stream derived from the stable "look" seed, so toggling any
@@ -332,7 +332,7 @@ export function renderSvg(cfg, opts = {}) {
   if (format === "square") return square;
 
   const { width: W, height: H } = formatSize(format);
-  const pal = PALETTES[cfg.palette] || PALETTES.magenta;
+  const pal = PALETTE_COLORS[cfg.palette] || PALETTE_COLORS.magenta;
   const x = (W - CANVAS) / 2;
   const y = (H - CANVAS) / 2;
   // Nested artwork keeps its own ids; the backdrop uses a "bk-" prefix so they never collide.

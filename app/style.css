@@ -62,7 +62,7 @@ input:focus, select:focus, button:focus { outline: 2px solid var(--neon2); outli
 
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .actions button {
-  flex: 1 1 auto; background: linear-gradient(180deg, var(--neon2), #7a2bd0);
+  flex: 1 1 auto; background: linear-gradient(180deg, #9a35e8, #7a2bd0);
   color: #fff; border: none; border-radius: 8px; padding: 10px; cursor: pointer; font: inherit; font-weight: 600;
 }
 .actions button:hover { filter: brightness(1.1); }
@@ -92,7 +92,16 @@ input:focus, select:focus, button:focus { outline: 2px solid var(--neon2); outli
 .preview { position: sticky; top: 18px; align-self: start; }
 @media (max-width: 760px) { .preview { position: static; } }
 
-.actions .remix { flex: 1 1 100%; background: linear-gradient(180deg, #ff7a18, #c2410c); color: #190a02; font-weight: 800; }
+.actions .remix { flex: 1 1 100%; background: linear-gradient(180deg, #ff7a18, #e0590e); color: #190a02; font-weight: 800; }
 
 .pair { display: flex; gap: 8px; }
 .pair select { flex: 1; }
+
+.presets { border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin: 0; }
+.presets legend { color: var(--muted); font-size: 12px; padding: 0 6px; }
+.preset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.preset { background: #0e0817; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 4px; cursor: pointer; font: inherit; display: flex; flex-direction: column; gap: 4px; align-items: stretch; }
+.preset:hover { border-color: var(--neon2); }
+.preset .thumb { display: block; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 5px; }
+.preset .thumb svg { width: 100%; height: 100%; display: block; }
+.preset .pname { font-size: 10px; line-height: 1.2; text-align: center; }

@@ -55,3 +55,7 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] W1.4 Remix covers costume and scene.
 - [x] W2.1 Export sizes (R34, R35): square, story 9:16, wide 16:9; artwork never cropped; edge feathered into the backdrop. Found by a real XML parser (not by the regex tests): `data-artwork` had no value, which would have broken PNG export; now guarded by `test_formats_are_valid_xml`.
 - [x] W2.2 Calendar file (R36-R38): `engine/ics.js`, reads only unambiguous dates (never guesses), RFC 5545 output with CRLF, octet folding and escaping, injection-proof. Mutation-tested: disabling the injection defense, the date validation and the folding each make a test fail. A first version of the folding test passed even with folding off (inputs never got long enough), so folding is now tested directly.
+
+## WBS block E (done 2026-11-05)
+- [x] W3.1 Contrast (R39): measured first. Texts already passed; two button gradients failed (white on #b14bff 3.95, dark on #c2410c 3.74). Failing tests written, then gradients changed to #9a35e8 and #e0590e (5.19, 5.16 at the lighter stop).
+- [x] W3.2 Presets (R40-R42): `engine/presets.js`, six looks, gallery with live thumbnails in the app; checked by eye in headless Chrome.

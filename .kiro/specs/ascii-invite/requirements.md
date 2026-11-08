@@ -105,3 +105,12 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R36** THE SYSTEM SHALL turn the event date and time into a calendar date ONLY when it can read them unambiguously: `Oct 31`, `October 31`, `31 Oct`, `10/31`, `10.31`, `2026-10-31`, `10월 31일`; times `7:00 PM`, `7 PM`, `19:00`, `7:30pm`. A missing time SHALL mean an all-day event. Anything it cannot read, or an impossible date (Feb 30, month 13), SHALL give no calendar entry rather than a guess. The year SHALL come from the config unless the date text carries its own. — `test_parse_event_date_formats`, `test_unreadable_dates_give_nothing`, `test_impossible_dates_rejected`
 - **R37** THE SYSTEM SHALL build a valid iCalendar (RFC 5545) text for a readable event: CRLF line endings, lines folded at 75 octets, `,` `;` `\` and newlines escaped in text values, a UID that is a stable function of the config (no clock, no randomness), floating local time (no time zone is invented), and a 2-hour default length. — `test_ics_structure`, `test_ics_is_deterministic`, `test_ics_line_folding`
 - **R38** THE SYSTEM SHALL NOT allow any user text to inject extra iCalendar lines (header injection). — `test_ics_cannot_be_injected`
+
+## Looks and readability (added 2026-11-05, WBS block E)
+
+> Changelog: customization looked thin next to Canva-class tools, and nobody had measured readability. Presets give a one-click start; contrast is now a tested number.
+
+- **R39** THE SYSTEM SHALL keep every text in the artwork and every button label at WCAG contrast 4.5:1 or better, for all three palettes (banner, subtitle, footer at its opacity, event line) and for both button gradients. Disabled controls are exempt. — `test_svg_text_contrast_*`, `test_action_button_contrast`, `test_remix_button_contrast`
+- **R40** THE SYSTEM SHALL offer at least six named presets, each a complete look (mood, palette, glow, costume, scene, assets, colors). — `test_presets_exist`, `test_presets_look_different`
+- **R41** A preset SHALL change only the look. Purpose, year, nickname and event details SHALL survive unchanged. — `test_preset_keeps_user_content`
+- **R42** An unknown, empty or non-string preset id SHALL change nothing; a preset result SHALL already be normalized. — `test_unknown_preset_is_noop`, `test_preset_is_already_normalized`
