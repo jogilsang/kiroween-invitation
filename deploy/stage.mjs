@@ -20,6 +20,9 @@ const indexHtml = readFileSync(join(root, "app", "index.html"), "utf8")
   .replace(/\.\/style\.css/g, "./style.css");
 writeFileSync(join(dist, "index.html"), indexHtml);
 
+// link preview image (og:image)
+writeFileSync(join(dist, "og.png"), readFileSync(join(root, "app", "og.png")));
+
 writeFileSync(join(dist, "style.css"), readFileSync(join(root, "app", "style.css"), "utf8"));
 
 const mainJs = readFileSync(join(root, "app", "main.js"), "utf8")

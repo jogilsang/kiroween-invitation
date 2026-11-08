@@ -14,10 +14,13 @@
 
 **Live:** https://d3hl6g932302kb.cloudfront.net (no login needed)
 
-1. Open the live URL — or run locally (below).
-2. Pick a purpose (**Join / Notice / Recruit**), a year, and a nickname. Decorate the ghost.
-3. Watch the SVG invitation render live in the dark neon theme.
-4. Click **Save as image** (PNG) or **Copy share link** — open the link and the exact same invitation comes back.
+1. Open the live URL (or run locally, below).
+2. Click one of the six **looks** (try *Pirate Crypt*), or press **Remix the look**.
+3. Type a name (Korean works), and fill in a date such as `Oct 31`, a time such as `7 PM`, and a place.
+4. Change the **export size** (square, story 9:16, wide 16:9), then **Save as image**.
+5. Click **Add to calendar (.ics)** to download a calendar entry, or **Copy share link**. Open the link in a new tab and the exact same invitation comes back.
+
+What you can combine: 3 purposes, 3 moods, 3 palettes, 2 glow levels, 11 Halloween assets with 6 colors each, 4 costumes, 4 backdrop scenes, 3 export sizes. Everything runs in your browser; nothing is sent to a server.
 
 ## Run locally
 

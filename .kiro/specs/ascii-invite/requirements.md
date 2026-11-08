@@ -130,3 +130,7 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R48** THE CALENDAR READER SHALL also read `2026년 10월 31일`, `오전/오후 N시 [M분]` and `13시`-`23시`. A bare `7시` (am or pm) SHALL NOT be guessed. DTSTAMP SHALL be UTC (`Z`). — `test_ics_reads_korean_dates_and_times`, `test_ics_korean_time_without_am_pm_is_not_guessed`, `test_ics_dtstamp_is_utc`
 - **R49** A line of text estimated wider than 940 px SHALL be squeezed with `textLength`; shorter lines SHALL be left alone. — `test_fit_length_only_when_text_is_too_wide`, `test_long_korean_event_line_is_squeezed_in_the_svg`, `test_short_text_is_not_squeezed`
 - **R50** THE FIRST SCREEN SHALL show the save/share buttons and a one-line explanation before the long list of controls, and SHALL say in words (not only a tooltip) why the calendar button is off. — checked by eye in headless Chrome
+
+## Link preview (added 2026-11-08, WBS 2.3)
+
+- **R51** THE APP SHALL declare an absolute `og:image` URL to a real 1200x630 PNG (crawlers do not read SVG), with width, height, alt text and a large Twitter card. `deploy/make_og.mjs` builds the PNG from the engine; the stage script ships it. — `test_og_image_is_absolute_png_url`, `test_og_png_exists_and_is_1200x630`, `test_og_declares_size_alt_and_large_twitter_card`, `test_stage_script_copies_og_png`
