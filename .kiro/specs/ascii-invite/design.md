@@ -1,4 +1,4 @@
-# Design — ASCII Invite (SVG renderer)
+# Design — Kiroween Invitation (SVG renderer)
 
 > 2026-11-05: pivoted from ASCII glyph rendering to deterministic SVG. See
 > requirements changelog. Engine/app split, determinism, and "model says, code

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Remove the ASCII Invite site: empty the bucket, then delete the stack.
+# Remove the Kiroween Invitation site: empty the bucket, then delete the stack.
 set -euo pipefail
 PROFILE="${AWS_PROFILE:-captain}"
 REGION="us-east-1"

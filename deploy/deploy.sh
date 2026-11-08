@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy ASCII Invite static site to captain / us-east-1 (S3 + CloudFront OAC).
+# Deploy Kiroween Invitation static site to captain / us-east-1 (S3 + CloudFront OAC).
 # Safe to re-run. Requires AWS profile "captain". Prints the live URL.
 #
 # Cost note: S3 (a few KB) + CloudFront PriceClass_100. For a hackathon-scale

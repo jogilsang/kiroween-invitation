@@ -1,4 +1,4 @@
-# Devpost submission text: ASCII Invite (Kiroween 2026)
+# Devpost submission text: Kiroween Invitation (Kiroween 2026)
 
 Every field of the Devpost form, ready to paste. Written in English because the rules require it.
 Any square-bracket placeholder (like the repo and video links) is not known yet and must be filled before submitting. Numbers were checked
@@ -12,7 +12,7 @@ against this repo on 2026-11-08 (`node --test` = 131 tests, `docs/audit_submissi
 - License: MIT. Team: 1 person.
 
 ## Project name
-ASCII Invite
+Kiroween Invitation
 
 ## Elevator pitch (tagline)
 A haunted Halloween invitation generator: pick a look, add your name and the party details, and get a glowing SVG invitation you can save, share by link or add to your calendar. No server, no account.
@@ -23,14 +23,14 @@ kiro, kiro-cli, kiro-crew, javascript, svg, fast-check, amazon-cloudfront, amazo
 ## Try it out links
 - Live app: https://kiroween-invitation.chogilsang.net
 - Code: https://github.com/jogilsang/kiroween-invitation
-- Demo video: https://youtu.be/AadKYAwkzdI
+- Demo video: https://youtu.be/jlC4mtg_viE
 
 ## Project story (paste into "About the project")
 
 It is 1 a.m., Mina has been coding alone for hours, and she wants to tell her friends: *I'm doing Kiroween this year, who is in?* A plain text message felt flat. In about a minute she picks the "Pirate Crypt" look, types her name in Korean, adds "Oct 31, 7 PM, Hapjeong", saves a 9:16 story image and sends a link to the group chat. Everyone who opens the link sees exactly the same invitation, and one tap adds the party to their calendar.
 
 ### What it does
-ASCII Invite turns a few choices into a polished, glowing Halloween invitation built around a white Kiro ghost and a jack-o'-lantern on a dark purple night.
+Kiroween Invitation turns a few choices into a polished, glowing Halloween invitation built around a white Kiro ghost and a jack-o'-lantern on a dark purple night.
 - Three purposes (join, notice, recruit), any year, any name (Korean and other scripts work), plus optional date, time and place.
 - Eleven drawn assets (moon, bats, cobweb, crow, cat, tombstone, skull, candle, pumpkins, hat, horns), each in one of six colors; four costumes (Dracula, mummy, pirate, skeleton); four backdrop scenes.
 - Six one-click looks and a **Remix** button that invents a whole new look.
@@ -40,7 +40,7 @@ ASCII Invite turns a few choices into a polished, glowing Halloween invitation b
 The design target for the **Costume Contest** category is a haunting interface that also does real work: the dark, glowing look is the product, and every control changes what the picture says.
 
 ### How we built it with Kiro
-We used Kiro CLI with a custom conductor agent and four scoped agents, a requirements-first spec, steering documents, three hooks and property-based tests. The full write-up is in the "How Kiro was used" field below and in `docs/KIRO_WRITEUP.md`.
+We treated Kiro like a small studio, not a chatbot. The spec was the script (51 requirements, failure paths written first). Steering was the house rules. A pre-commit hook was the night watchman. A custom conductor agent drove the build from Kiro CLI. Property-based tests were the stress test. And Kiro Crew was the studio next door: an independent reviewer that had never seen the build. The full write-up is in the Kiro usage field and in `docs/KIRO_WRITEUP.md`.
 
 The core idea is **model says, code decides**. There is no AI and no randomness in the render path: the same settings always produce the same SVG, byte for byte. Validation, layer rules (a hat and horns cannot both win), the privacy scan and the calendar-date reader are plain code with named tests.
 
@@ -66,9 +66,8 @@ Verify Safari, Firefox and mobile rendering, and import the calendar file into G
 - We did not use the Kiro Crew App Kit; Kiro Crew was used as an independent reviewer only.
 
 ## How Kiro was used (paste into the write-up field)
-Source: `docs/KIRO_WRITEUP.md` (kept in the repo, same text). Paste its sections: pivot, Kiro builds and Crew reviews (twice),
-custom conductor agent, custom agents, spec-driven vs vibe coding, hooks, property-based testing, MCP, steering,
-what we would not claim.
+Source: `docs/KIRO_WRITEUP.md` (kept in the repo, same text). It answers each question Devpost lists: IDE/CLI/Web/Crew, custom agents, hooks,
+spec-driven vs vibe coding, steering, MCP, property-based testing, powers.
 
 ## Testing instructions for judges (the form's private field, if asked)
 No login. Open the live URL. Click a look, type a name, press Save as image. Nothing is stored on a server.

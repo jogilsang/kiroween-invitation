@@ -1,5 +1,7 @@
 # Kiro usage evidence (dated)
 
+> Naming note: the project was called "ASCII Invite" until 2026-11-08 and is now "Kiroween Invitation" (the renderer became SVG on 2026-11-05, so the old name no longer fit). Entries below keep the name used at the time.
+
 This file records, with dates, how Kiro was used to build ASCII Invite. The
 Kiro usage write-up (submission) is derived from this file. No claim is made
 here that cannot be checked against the repo (`.kiro/`, commits, tests).

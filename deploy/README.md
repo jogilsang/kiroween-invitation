@@ -1,4 +1,4 @@
-# Deploy — ASCII Invite
+# Deploy — Kiroween Invitation
 
 Static site, no server. Private S3 bucket served only through CloudFront with
 Origin Access Control (OAC). Nothing is publicly readable on S3 directly.

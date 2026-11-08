@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "spec-change-reminder (Kiro CLI format)",
+      "trigger": "PostFileSave",
+      "matcher": "\\.kiro/specs/.*/(requirements|design)\\.md$",
+      "action": {
+        "type": "agent",
+        "prompt": "requirements.md or design.md changed. Check that tasks.md still matches (each requirement has a task and a named test), update it if needed, and add a dated line to docs/KIRO_EVIDENCE.md describing the spec change."
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@
 
 ## One-paragraph version
 
-Kiro built ASCII Invite from a spec: steering, EARS requirements, hooks, five
+Kiro built Kiroween Invitation from a spec: steering, EARS requirements, hooks, five
 custom agents, property-based tests. Then we handed the finished product to a
 different tool, Kiro Crew, as an **independent reviewer** that had never seen
 the code, with one rule: investigate and propose, change nothing. Crew read the

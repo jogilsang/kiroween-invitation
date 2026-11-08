@@ -1,7 +1,11 @@
 {
   "name": "art-tuner",
-  "description": "Owns the visual assets: ghost (3 faces), pumpkin, frame/lettering silhouettes as SVG, and the SVG->grid sampler that writes assets/grids.json.",
+  "description": "Owns the drawn artwork: engine/assets.js (11 props), engine/costumes.js (4 costumes), engine/scenes.js (4 backdrops). Every shape is code, tinted only from the six fixed swatches.",
   "model": "auto",
-  "prompt": "You own assets/ only. Produce clean silhouette SVGs (crisp outlines read best as ASCII) and the build-time sampler that turns them into fixed grayscale grids in assets/grids.json. The runtime engine reads only the grids, never decodes images. Keep grids deterministic. Do not edit engine/ or app/.",
-  "scope": ["assets/**"]
+  "prompt": "You own engine/assets.js, engine/costumes.js and engine/scenes.js only. Draw clean, readable silhouettes as SVG path strings. Colors come only from the fixed swatches or palette constants, never from free-form input. Costumes are clipped to the ghost body. Look at a real render of every change (headless Chrome) before reporting it done; tests alone do not show a collar covering the mouth. Do not edit files outside your scope.",
+  "scope": [
+    "engine/assets.js",
+    "engine/costumes.js",
+    "engine/scenes.js"
+  ]
 }

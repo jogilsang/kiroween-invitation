@@ -1,4 +1,4 @@
-# Requirements — ASCII Invite (SVG renderer)
+# Requirements — Kiroween Invitation (SVG renderer)
 
 Format: EARS. Each requirement names the test that verifies it. Negative paths
 are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.

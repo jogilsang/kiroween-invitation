@@ -1,4 +1,4 @@
-# ASCII Invite — a haunted SVG Halloween invitation generator
+# Kiroween Invitation — a haunted SVG Halloween invitation generator
 
 > Kiroween 2026 · Category: **Costume Contest** · Built with **Kiro**
 
@@ -6,7 +6,7 @@
 
 **Model says, code decides.** No AI or randomness is in the render path. The same settings always produce the same SVG, byte for byte. Input validation, layer rules, and the pre-share safety scan are all enforced by code constants, not by a model.
 
-> Note: the app is still called ASCII Invite and the repository is `kiroween-invitation`; it began as an ASCII-art generator and pivoted to vector SVG for a grotesque, glowing look. See `docs/KIRO_EVIDENCE.md`.
+> Note: this project was called ASCII Invite until 2026-11-08. It began as an ASCII-art generator and pivoted to vector SVG for a grotesque, glowing look, so it is now Kiroween Invitation. See `docs/KIRO_EVIDENCE.md`.
 
 ---
 

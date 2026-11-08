@@ -1,4 +1,4 @@
-# Pre-submission review — ASCII Invite (step 12)
+# Pre-submission review — Kiroween Invitation (step 12)
 
 Date: 2026-11-05 (updated after the ASCII → SVG pivot and the second Crew review). Three perspectives + the
 mechanical audit (`docs/audit_submission.sh`, 17/17 PASS). Deadline: KST

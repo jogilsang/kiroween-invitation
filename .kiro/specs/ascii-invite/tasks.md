@@ -1,4 +1,4 @@
-# Tasks — ASCII Invite
+# Tasks — Kiroween Invitation
 
 One task at a time. Write the failing test first, make it pass, then stop.
 Each task names how it's verified. `[ ]` todo, `[x]` done.

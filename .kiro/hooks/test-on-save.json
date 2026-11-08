@@ -1,0 +1,11 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "test-on-save (Kiro CLI format)",
+      "trigger": "PostFileSave",
+      "matcher": "(^|/)(engine|tests)/.*\\.js$",
+      "action": { "type": "command", "command": "bash .kiro/hooks/run_tests.sh 2>&1 | tail -12" }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  ASCII Invite (Kiroween 2026) static site. Private S3 bucket served only
+  Kiroween Invitation (Kiroween 2026) static site. Private S3 bucket served only
   through CloudFront with Origin Access Control. No public bucket access.
 
 Parameters:
@@ -73,7 +73,7 @@ Resources:
     Properties:
       DistributionConfig:
         Enabled: true
-        Comment: ASCII Invite (Kiroween 2026)
+        Comment: Kiroween Invitation (Kiroween 2026)
         DefaultRootObject: index.html
         PriceClass: PriceClass_100
         Aliases: !If [HasDomain, [!Ref DomainName], !Ref "AWS::NoValue"]

@@ -6,7 +6,7 @@
 
 ## Goal (one paragraph)
 
-ASCII Invite lets a developer decorate a white Kiro ghost and a pumpkin in a
+Kiroween Invitation lets a developer decorate a white Kiro ghost and a pumpkin in a
 dark, glowing Halloween theme and turn their settings into a polished SVG
 invitation, then save it as an image or share it by link. It serves three
 purposes (declaring you're joining, announcing an event, recruiting teammates),
