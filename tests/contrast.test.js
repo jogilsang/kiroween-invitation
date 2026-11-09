@@ -63,3 +63,10 @@ test("test_recv_focus_visible: receiver buttons and link keep a visible focus ri
   assert.match(css, /button:focus\s*\{[^}]*outline:\s*2px/);
   assert.match(css, /\.recv-actions a:focus\s*\{[^}]*outline:\s*2px/);
 });
+
+test("test_note_text_no_opacity_dim: .note stays at 4.5 on the panel (Lighthouse found 3.94 at opacity .8)", () => {
+  const body = rule("label .note");
+  const op = body.match(/opacity:\s*([\d.]+)/);
+  const eff = op ? mix("#9a7fb8", "#140c1d", parseFloat(op[1])) : "#9a7fb8";
+  assert.ok(contrast(eff, "#140c1d") >= 4.5, `effective ${eff}`);
+});
