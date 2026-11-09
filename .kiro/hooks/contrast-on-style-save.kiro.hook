@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "contrast-on-style-save",
+  "description": "Run the contrast tests when the stylesheet or the SVG engine is saved. Why: WCAG contrast (R39) depends on both files.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/style.css",
+      "engine/svg.js"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "node --test tests/contrast.test.js"
+  }
+}

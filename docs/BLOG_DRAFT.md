@@ -20,7 +20,7 @@ I like writing down what I learn at hackathons, so this is the first of a few ex
 
 - Live demo: https://kiroween-invitation.chogilsang.net
 - Code (MIT): https://github.com/jogilsang/kiroween-invitation
-- 2-minute demo: https://youtu.be/jlC4mtg_viE
+- Demo video (under 3 minutes): https://youtu.be/jlC4mtg_viE
 
 The part worth telling is how Kiro was used, and the one lesson I would keep.
 
@@ -30,7 +30,9 @@ I started with an ASCII-art renderer. Halfway through it was clear that ASCII co
 
 ## Steering and hooks did small, useful work
 
-Three steering documents shaped more code than any prompt. The most useful line: "every limit, rejection and fallback is a code constant with a test proving it." A pre-commit hook blocks AWS keys, account IDs and agent state files, because the repo is public. It blocked its own first commit, since the patterns it looks for are written in its own source. I allowlisted three files by path and wrote the trade-off down instead of weakening the patterns.
+Three steering documents shaped more code than any prompt. The most useful line: "every limit, rejection and fallback is a code constant with a test proving it." A pre-commit hook blocks AWS keys, account IDs and agent state files, because the repo is public. It blocked its own first commit, since the patterns it looks for are written in its own source. At first I skipped three files by path; later I removed those skips and let only the AWS documentation placeholder ids through, so a key planted in any file is caught.
+
+One honest result about hooks: my standalone hook files did not fire on the default Kiro CLI engine on my machine. They fired under `kiro-cli --v3`, where I saw tool-use, file-save and stop events logged and a push guard hold a `git push --dry-run`. Two of my hooks (the spec-trace check and the contrast check) I never saw fire by themselves, so I only claim that I ran their scripts by hand.
 
 ## A second Kiro tool found what 117 tests missed
 

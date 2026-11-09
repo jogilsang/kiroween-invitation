@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pre-submission mechanical audit. Checks the things that silently disqualify.
-# Run from the ascii-invite project root. Prints PASS/FAIL per check.
+# Run from the kiroween-invitation project root. Prints PASS/FAIL per check.
 set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root" || exit 1
@@ -29,7 +29,7 @@ grep -qE '\.omc/' .gitignore 2>/dev/null && ok ".omc/ excluded in .gitignore" ||
 if node --test >/tmp/audit_tests.log 2>&1; then ok "node --test passes ($(grep -E 'ℹ tests' /tmp/audit_tests.log | awk '{print $3}') tests)"; else no "node --test FAILED"; fi
 
 # no secrets / account ids in tracked project files (reuse the hook)
-if ASCII_INVITE_PREFIX="kiroween_2026/ascii-invite/" bash .kiro/hooks/secret_scan.sh >/tmp/audit_scan.log 2>&1; then ok "secret/.omc scan clean"; else no "secret/.omc scan flagged something"; cat /tmp/audit_scan.log; fi
+if ASCII_INVITE_PREFIX="kiroween_2026/kiroween-invitation/" bash .kiro/hooks/secret_scan.sh >/tmp/audit_scan.log 2>&1; then ok "secret/.omc scan clean"; else no "secret/.omc scan flagged something"; cat /tmp/audit_scan.log; fi
 
 # .omc must not be tracked anywhere in this project
 if git ls-files | grep -qE '(^|/)\.omc/'; then no ".omc/ is tracked by git"; else ok ".omc/ not tracked"; fi

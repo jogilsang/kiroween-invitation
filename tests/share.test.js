@@ -52,3 +52,20 @@ test("test_share_content_scan: unsafe nick is flagged, safe nick passes", () => 
 test("test_config_roundtrip: serialize is stable for equal configs", () => {
   assert.equal(serializeConfig(cfg()), serializeConfig(cfg()));
 });
+
+// R17 negative path — forged event field shapes are reported, not silently emptied
+const forge = (o) => encodeConfig(cfg({})).length >= 0 && Buffer.from(JSON.stringify(o)).toString("base64url");
+test("test_forged_nested_event_array_reports_invalid: nested e[0] array gives ok:false and still renders", () => {
+  const dec = decodeConfig(forge({ p: "join", e: [["Oct 31", "extra"], "7 PM", "here"] }));
+  assert.equal(dec.ok, false);
+  assert.match(dec.reason, /event/);
+  assert.ok(renderSvg(dec.value).startsWith("<svg "));
+  for (const bad of [{ a: 1 }, 5, ["x"]]) {
+    assert.equal(decodeConfig(forge({ p: "join", e: ["Oct 31", bad, "x"] })).ok, false);
+  }
+});
+test("test_forged_event_normal_links_still_ok: string/missing event fields still decode", () => {
+  assert.equal(decodeConfig(forge({ p: "join", e: ["Oct 31", "7 PM", "here"] })).ok, true);
+  assert.equal(decodeConfig(forge({ p: "join", e: ["", "", ""] })).ok, true);
+  assert.equal(decodeConfig(forge({ p: "join" })).ok, true);
+});

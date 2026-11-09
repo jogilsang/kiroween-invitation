@@ -2,10 +2,205 @@
   "name": "art-tuner",
   "description": "Owns the drawn artwork: engine/assets.js (11 props), engine/costumes.js (4 costumes), engine/scenes.js (4 backdrops). Every shape is code, tinted only from the six fixed swatches.",
   "model": "auto",
-  "prompt": "You own engine/assets.js, engine/costumes.js and engine/scenes.js only. Draw clean, readable silhouettes as SVG path strings. Colors come only from the fixed swatches or palette constants, never from free-form input. Costumes are clipped to the ghost body. Look at a real render of every change (headless Chrome) before reporting it done; tests alone do not show a collar covering the mouth. Do not edit files outside your scope.",
-  "scope": [
-    "engine/assets.js",
-    "engine/costumes.js",
-    "engine/scenes.js"
-  ]
+  "prompt": "You own engine/assets.js, engine/costumes.js and engine/scenes.js only. Draw clean, readable silhouettes as SVG path strings. Colors come only from the fixed swatches or palette constants, never from free-form input. Costumes are clipped to the ghost body. Look at a real render of every change (headless Chrome) before reporting it done; tests alone do not show a collar covering the mouth. Do not edit files outside your scope. PERMISSIONS (enforced by this file, not just a request): you may write only engine/assets.js, engine/costumes.js, engine/scenes.js, tests/assets.test.js, tests/costume_scene.test.js, tests/art_*.test.js. Everything else in the repo is denied; a new file you want to add elsewhere needs the conductor (kiroween).",
+  "tools": [
+    "read",
+    "write",
+    "shell"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "includeMcpJson": false,
+  "resources": [
+    "file://.kiro/steering/principles.md",
+    "file://.kiro/steering/product.md",
+    "file://.kiro/steering/tech.md",
+    "file://.kiro/specs/kiroween-invitation/requirements.md"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "match": [
+          ".env",
+          ".env.*",
+          ".omc/**"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "engine/assets.js",
+          "engine/costumes.js",
+          "engine/scenes.js",
+          "tests/assets.test.js",
+          "tests/costume_scene.test.js",
+          "tests/art_*.test.js"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "engine/compose.js",
+          "engine/fit.js",
+          "engine/ics.js",
+          "engine/index.js",
+          "engine/invite.js",
+          "engine/presets.js",
+          "engine/remix.js",
+          "engine/scan.js",
+          "engine/share.js",
+          "engine/svg.js",
+          "tests/compose.test.js",
+          "tests/contrast.test.js",
+          "tests/crew_findings.test.js",
+          "tests/crew_r2.test.js",
+          "tests/formats.test.js",
+          "tests/ics.test.js",
+          "tests/invite.test.js",
+          "tests/og.test.js",
+          "tests/pbt.test.js",
+          "tests/presets.test.js",
+          "tests/redteam_round2.test.js",
+          "tests/remix.test.js",
+          "tests/share.test.js",
+          "tests/svg.test.js",
+          "app/**",
+          "deploy/**",
+          "docs/**",
+          ".kiro/**",
+          "LICENSE",
+          "README.md",
+          "package.json",
+          "package-lock.json"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "node *",
+          "npm test*",
+          "npm run test*",
+          "git status*",
+          "git diff*",
+          "git log*",
+          "git show*",
+          "ls*",
+          "cat *",
+          "head *",
+          "tail *",
+          "grep *",
+          "rg *",
+          "wc *",
+          "diff *",
+          "bash .kiro/hooks/*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "git push*",
+          "git reset*",
+          "git clean*",
+          "git checkout*",
+          "git branch -D*",
+          "git commit*--no-verify*",
+          "rm -rf*",
+          "sudo *",
+          "curl *",
+          "wget *",
+          "aws *",
+          "gh *",
+          "*deploy.sh*",
+          "*make_public.sh*",
+          "*teardown.sh*"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "toolsSettings": {
+    "fs_read": {
+      "deniedPaths": [
+        ".env",
+        ".env.*",
+        ".omc/**"
+      ]
+    },
+    "fs_write": {
+      "allowedPaths": [
+        "engine/assets.js",
+        "engine/costumes.js",
+        "engine/scenes.js",
+        "tests/assets.test.js",
+        "tests/costume_scene.test.js",
+        "tests/art_*.test.js"
+      ],
+      "deniedPaths": [
+        "engine/compose.js",
+        "engine/fit.js",
+        "engine/ics.js",
+        "engine/index.js",
+        "engine/invite.js",
+        "engine/presets.js",
+        "engine/remix.js",
+        "engine/scan.js",
+        "engine/share.js",
+        "engine/svg.js",
+        "tests/compose.test.js",
+        "tests/contrast.test.js",
+        "tests/crew_findings.test.js",
+        "tests/crew_r2.test.js",
+        "tests/formats.test.js",
+        "tests/ics.test.js",
+        "tests/invite.test.js",
+        "tests/og.test.js",
+        "tests/pbt.test.js",
+        "tests/presets.test.js",
+        "tests/redteam_round2.test.js",
+        "tests/remix.test.js",
+        "tests/share.test.js",
+        "tests/svg.test.js",
+        "app/**",
+        "deploy/**",
+        "docs/**",
+        ".kiro/**",
+        "LICENSE",
+        "README.md",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "node [^&;|<>`$]*",
+        "npm (test|run test)[^&;|<>`$]*",
+        "git (status|diff|log|show)[^&;|<>`$]*",
+        "(ls|cat|head|tail|grep|rg|wc|diff)( [^&;|<>`$]*)?",
+        "bash \\.kiro/hooks/[a-z_]+\\.sh[^&;|<>`$]*"
+      ],
+      "deniedCommands": [
+        ".*git (push|reset|clean|checkout).*",
+        ".*git branch -D.*",
+        ".*--no-verify.*",
+        ".*rm -rf.*",
+        "sudo .*",
+        "(curl|wget|aws|gh) .*",
+        ".*deploy\\.sh.*",
+        ".*make_public\\.sh.*",
+        ".*teardown\\.sh.*"
+      ]
+    }
+  }
 }

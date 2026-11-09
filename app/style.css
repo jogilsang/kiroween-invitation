@@ -90,7 +90,11 @@ input:focus, select:focus, button:focus { outline: 2px solid var(--neon2); outli
 .asset select { width: 96px; padding: 4px; font-size: 12px; }
 
 .preview { position: sticky; top: 18px; align-self: start; }
-@media (max-width: 760px) { .preview { position: static; } }
+/* R67: on a phone the preview comes first and stays in view while editing */
+@media (max-width: 760px) {
+  .preview { order: -1; position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 6px 0; }
+  .preview .art { max-height: 38vh; }
+}
 
 .actions .remix { flex: 1 1 100%; background: linear-gradient(180deg, #ff7a18, #e0590e); color: #190a02; font-weight: 800; }
 
@@ -110,3 +114,29 @@ input:focus, select:focus, button:focus { outline: 2px solid var(--neon2); outli
 .ics-note { min-height: 0; margin: 0; font-size: 11px; color: var(--muted); }
 .actions.top { margin: 0 0 4px; }
 .ics-note:empty { display: none; }
+
+/* Receiver view (R60-R66) */
+.recv { max-width: 560px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.recv[hidden], .layout[hidden] { display: none; }
+.recv-title { margin: 0; font-size: 20px; color: var(--neon); letter-spacing: 1px; text-align: center; }
+.recv-title:focus { outline: none; }
+.recv-count { margin: 0; min-height: 1.2em; color: var(--ink); font-size: 14px; }
+.recv-count:empty { display: none; }
+.recv-art { max-width: 540px; }
+.recv-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; justify-content: center; }
+.recv-actions button, .recv-actions .btnlink {
+  flex: 1 1 140px; background: linear-gradient(180deg, #9a35e8, #7a2bd0); color: #fff;
+  border: none; border-radius: 8px; padding: 10px; cursor: pointer; font: inherit; font-weight: 600;
+  text-align: center; text-decoration: none;
+}
+.recv-actions .btnlink { background: linear-gradient(180deg, #ff7a18, #e0590e); color: #190a02; font-weight: 800; }
+.recv-actions .ghost { background: #0e0817; color: var(--ink); border: 1px solid var(--line); font-weight: 400; }
+.recv-actions [hidden] { display: none; }
+.recv-actions a:focus { outline: 2px solid var(--neon2); outline-offset: 1px; }
+.recv-hint { text-align: center; }
+.recv-art { animation: recv-rise 700ms ease-out both, recv-glow 3.2s ease-in-out 700ms infinite; }
+@keyframes recv-rise { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes recv-glow { 0%, 100% { box-shadow: 0 0 0 rgba(177,75,255,0); } 50% { box-shadow: 0 0 28px rgba(177,75,255,0.45); } }
+@media (prefers-reduced-motion: reduce) {
+  .recv-art { animation: none; }
+}

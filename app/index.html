@@ -27,6 +27,20 @@
     </div>
   </noscript>
 
+  <section class="recv" id="recv" hidden aria-labelledby="recvTitle">
+    <h1 class="recv-title" id="recvTitle" tabindex="-1">You are summoned</h1>
+    <p class="recv-count" id="recvCount" role="status" aria-live="polite"></p>
+    <div id="recvArt" class="art recv-art" role="img" aria-label="Halloween invitation"></div>
+    <div class="recv-actions">
+      <button type="button" id="recvCal" hidden>Add to calendar</button>
+      <button type="button" id="recvShare" hidden>Share…</button>
+      <button type="button" id="recvCopy">Copy link</button>
+      <a id="recvOwn" class="btnlink" href="./">Make your own</a>
+      <button type="button" id="recvEdit" class="ghost">Edit this invitation</button>
+    </div>
+    <p class="hint recv-hint" id="recvHint" role="status" aria-live="polite"></p>
+  </section>
+
   <main class="layout" id="app" hidden>
     <section class="controls" aria-label="Invitation controls">
       <h1 class="brand">Kiroween&nbsp;Invitation <span class="sub">Halloween invitations</span></h1>
@@ -37,7 +51,8 @@
         <button type="button" id="savePng">Save as image</button>
         <button type="button" id="copyLink">Copy share link</button>
         <button type="button" id="saveIcs" disabled>Add to calendar (.ics)</button>
-        <button type="button" id="saveCfg">Save config</button>
+        <button type="button" id="shareNative" hidden>Share…</button>
+        <button type="button" id="saveCfg" title="Remembers this setup in this browser only">Remember on this device</button>
       </div>
       <p class="hint" id="hint" role="status" aria-live="polite"></p>
       <p class="ics-note" id="icsNote" aria-live="polite"></p>

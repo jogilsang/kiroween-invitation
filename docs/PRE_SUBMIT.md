@@ -13,14 +13,14 @@ mechanical audit (`docs/audit_submission.sh`, 17/17 PASS). Deadline: KST
 
 LICENSE at root, `.kiro/` present and not gitignored, `.omc/` excluded and not
 tracked, full spec + steering + hooks + agents present, README judge-try,
-write-up, video script, red-team doc, 127 tests green, secret scan clean.
+write-up, video script, red-team doc, 166 tests green, secret scan clean.
 
 ## Perspective 1 — Judge (Costume Contest, 4 criteria × 20%)
 
 - Design: dark neon SVG, glowing grotesque ghost + pumpkin, live preview, PNG
   export, share link, noscript, aria. The haunting UI *is* the function. Strong
   (clearly stronger than the ASCII version it replaced).
-- Technological Implementation: spec + 3 hooks + 5 agents + PBT + MCP browser
+- Technological Implementation: spec + 8 hook scripts/files + 5 agents (permissions enforced at the tool level) + PBT + MCP browser
   verification + a documented render-engine pivot absorbed via the spec — all
   with dated evidence. Strong.
 - Innovation: improved by the pivot. The differentiator is the combination
@@ -40,11 +40,18 @@ write-up, video script, red-team doc, 127 tests green, secret scan clean.
 
 ## Perspective 3 — Engineer / security
 
-- Engine is pure and deterministic; ~2,000 PBT cases hold. two red-team rounds (42 inputs) all
+- Engine is pure and deterministic; 10 property-based tests, about 3,050 cases hold. two red-team rounds (42 inputs) all
   safe, including SVG tag injection via nickname. Pre-commit hook blocks
   secrets/.omc and is wired into real git.
 - No secret, account id, or customer name in tracked files (scan clean).
 - Deploy is least-privilege (private bucket, OAC, scoped bucket policy).
+
+## Changing things after submitting (caution)
+
+- Confirmed: the live app is a static site on a URL we control, so we can change it at any time.
+- Not confirmed: whether the Kiroween 2026 Rules allow or forbid changing the live app or the repo during judging. We have not found the rule text that says either. Do not assume it is allowed.
+- Suggested practice (a recommendation, not a rule we read): freeze the live app and the public repo before the deadline, and after submitting change only things outside the project (for example a typo in a social post). If a fix is truly needed, make it a small commit and note it in `docs/KIRO_EVIDENCE.md` with the date.
+- Before the freeze, run `node --test`, `bash docs/audit_submission.sh`, and check the figures listed in `docs/review_r3/DONE_kiro-docs2.md` (test counts).
 
 ## Remaining work — HUMAN ONLY (CEO decides / does)
 

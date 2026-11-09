@@ -13,7 +13,7 @@ pick from, not a finished post**. Write it in your own voice, in your own words.
 - Kiro Crew as an independent reviewer found two bugs in a real Chrome that 117 passing Node tests missed
   (`Buffer` in the browser, duplicate SVG ids).
 - A pre-commit hook blocked its own first commit; the honest fix was an allowlist plus a written reason.
-- Property-based tests: about 1,950 generated cases for "same settings, same SVG".
+- Property-based tests: 10 properties, about 3,050 generated cases for "same settings, same SVG".
 
 ## One angle to choose (pick one, do not list everything)
 - "Green tests felt safe. A second Kiro tool opened a browser and proved me wrong."

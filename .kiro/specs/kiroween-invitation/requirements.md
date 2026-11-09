@@ -12,6 +12,9 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 > are new combination axes). Determinism, validation, share and safety are
 > unchanged.
 >
+> Changelog 2026-11-09 — CLEAN-UP after the round 3 review (A-07, A-08 in `docs/review_r3/A_spec_steering_hooks.md`). No behavior changed; only wording that no longer matched the code:
+> R7 no longer lists a `face` key (it was an ASCII-era key and is not in the config). R8 now names the real render order from `engine/svg.js` and says what `LAYER_ORDER` covers. R11 says the 1080x1080 viewBox is the `square` format, so it no longer reads as a conflict with R34. The scene count is stated as "three drawn scenes plus the plain sky" everywhere (R31, design, steering). R52 and R53 were added, and the open cross-browser check (P16) is now listed in the map below.
+>
 > Changelog 2026-11-08 — RENAME. The project is now "Kiroween Invitation" (it was
 > "ASCII Invite"), and this folder was renamed to match. The older wording of
 > R1-R21 is kept where it still holds; where a requirement's text predates later
@@ -32,6 +35,8 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 | R39-R42 | contrast and preset looks |
 | R43-R50 | fixes from the red team and the Kiro Crew reviews |
 | R51 | link preview image |
+| R52-R53 | deployment, restore order on load (added 2026-11-09) |
+| open | cross-browser and mobile check (P16): NOT verified, see the end of this file |
 
 ## Generation
 
@@ -44,17 +49,17 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 
 - **R5** IF the year is not an integer in 2000..2100, THE SYSTEM SHALL reject it to a safe default with a reason and change no state. — `test_reject_invalid_year`
 - **R6** IF the nickname exceeds length (24) or contains disallowed characters, THE SYSTEM SHALL sanitize it, and SHALL NOT place raw input into the SVG or a share link (no markup injection). — `test_sanitize_nick`, `test_svg_escapes_nick`
-- **R7** IF an unknown purpose / face / mood / palette / glow key is given, THE SYSTEM SHALL fall back to a safe default and SHALL NOT branch on the unknown key. — `test_unknown_key_falls_back`
+- **R7** IF an unknown purpose / mood / palette / glow key is given, THE SYSTEM SHALL fall back to a safe default and SHALL NOT branch on the unknown key. — `test_unknown_key_falls_back`
 
 ## Composition rules (code decides)
 
-- **R8** THE SYSTEM SHALL compose layers (background, fog, moon, bats, ghost, pumpkin, frame, text) only in a fixed order. — `test_layer_order_fixed`
+- **R8** THE SYSTEM SHALL compose layers only in a fixed order. The render order in `engine/svg.js` is: background, scene, fog, moon, bats, props, ghost, costume, headwear, pumpkin, vignette and grain, frame, text. `LAYER_ORDER` in `engine/compose.js` lists the same layers in the same relative order but does not yet name scene, costume or headwear (the test checks that constant). — `test_layer_order_fixed`
 - **R9** IF mutually exclusive parts are selected (e.g. hat and horns), THE SYSTEM SHALL apply exactly one per the rule and record that decision in the result meta. — `test_mutually_exclusive_parts`
 
 ## SVG render (replaces ASCII density/invert/monospace)
 
 - **R10** THE SYSTEM SHALL support a selectable `mood` (uneasy / screaming / hollow) that changes the ghost face, and `palette` (deeppurple / magenta / indigo) and `glow` (soft / strong) that change color and glow strength — each producing a visibly different invitation. — `test_mood_variants_differ`, `test_palette_variants_differ`
-- **R11** THE SYSTEM SHALL output a well-formed SVG document: a single root `<svg>` with a fixed `viewBox` of `0 0 1080 1080`, balanced tags, and no unresolved template placeholders. — `test_svg_wellformed`
+- **R11** THE SYSTEM SHALL output a well-formed SVG document: a single root `<svg>` with a fixed `viewBox` (`0 0 1080 1080` for the default `square` format; the `story` and `wide` formats of R34 use their own fixed size), balanced tags, and no unresolved template placeholders. — `test_svg_wellformed`
 - **R12** THE SYSTEM SHALL keep the dark-fantasy contract: a dark radial background with lighter foreground subjects (white ghost, glowing pumpkin), so the subject always reads against the field. — `test_dark_background_contract`
 
 ## Save
@@ -66,7 +71,7 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 
 - **R15** WHEN the user copies a share link, THE SYSTEM SHALL encode the config into a URL parameter (no server storage). — `test_share_link_roundtrip`
 - **R16** WHEN a share link is opened, THE SYSTEM SHALL decode the config and reconstruct the identical invitation (with R2). — `test_open_shared_link_restores`
-- **R17** IF a share parameter is corrupt or forged, THE SYSTEM SHALL fall back safely to a default invitation and SHALL NOT crash or execute arbitrary input. — `test_corrupt_share_param_safe`
+- **R17** IF a share parameter is corrupt or forged, THE SYSTEM SHALL fall back safely to a default invitation and SHALL NOT crash or execute arbitrary input. — `test_corrupt_share_param_safe`; `test_forged_nested_event_array_reports_invalid`
 
 ## Safety
 
@@ -109,7 +114,7 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 > link, are covered by Remix, and cannot change the ghost's shape or the fog.
 
 - **R30** THE SYSTEM SHALL support a `costume` of none, dracula, mummy, pirate or skeleton. Exactly one costume SHALL be worn at a time; an unknown value SHALL fall back to none. A costume SHALL be clipped to the ghost's body so no part of it spills outside. — `test_costume_is_drawn`, `test_unknown_costume_falls_back`, `test_costume_is_clipped_to_body`
-- **R31** THE SYSTEM SHALL support a `scene` of sky, graveyard, house or forest, drawn behind the fog. An unknown value SHALL fall back to sky. — `test_scene_is_drawn`, `test_unknown_scene_falls_back`
+- **R31** THE SYSTEM SHALL support a `scene` of sky (the plain background, nothing extra drawn), graveyard, house or forest (three drawn scenes), drawn behind the fog. An unknown value SHALL fall back to sky. — `test_scene_is_drawn`, `test_unknown_scene_falls_back`
 - **R32** Costumes SHALL accept a color from the same six swatches (`tints` keyed by the costume id). A tint for a costume that is not worn SHALL NOT change the output. — `test_costume_tint`, `test_costume_tint_inert_when_not_worn`
 - **R33** Changing the costume or the scene SHALL NOT change the ghost body shape or the fog; both SHALL survive the share link and be chosen by Remix. — `test_costume_scene_do_not_reshape_ghost`, `test_share_roundtrip_costume_scene`, `test_remix_covers_costume_and_scene`
 
@@ -152,6 +157,40 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R49** A line of text estimated wider than 940 px SHALL be squeezed with `textLength`; shorter lines SHALL be left alone. — `test_fit_length_only_when_text_is_too_wide`, `test_long_korean_event_line_is_squeezed_in_the_svg`, `test_short_text_is_not_squeezed`
 - **R50** THE FIRST SCREEN SHALL show the save/share buttons and a one-line explanation before the long list of controls, and SHALL say in words (not only a tooltip) why the calendar button is off. — checked by eye in headless Chrome
 
+## Static checks added 2026-11-09 (tests/static_checks.test.js)
+
+> These read `app/index.html`, `app/main.js` and `deploy/template.yaml` as text. They prove the elements exist and are ordered; they do not prove how the page looks in a browser.
+
+- **R20 (check added)** — `test_noscript_explains_the_page`, `test_noscript_comes_before_the_hidden_app`
+- **R46 (check added)** — `test_preset_thumbnails_are_img_elements`, `test_index_html_has_no_inline_svg_in_the_preset_gallery`
+- **R50 (check added)** — `test_save_and_share_come_before_the_long_controls`, `test_calendar_button_has_a_written_reason_slot`
+
 ## Link preview (added 2026-11-08, WBS 2.3)
 
 - **R51** THE APP SHALL declare an absolute `og:image` URL to a real 1200x630 PNG (crawlers do not read SVG), with width, height, alt text and a large Twitter card. `deploy/make_og.mjs` builds the PNG from the engine; the stage script ships it. — `test_og_image_is_absolute_png_url`, `test_og_png_exists_and_is_1200x630`, `test_og_declares_size_alt_and_large_twitter_card`, `test_stage_script_copies_og_png`
+
+## Deployment and restore (added 2026-11-09)
+
+> Changelog: both were true and documented in `design.md` but had no requirement number.
+
+- **R52** THE DEPLOYMENT SHALL serve the app as static files from a private S3 bucket (public access blocked) through CloudFront with origin access control, with no server-side component. A custom domain (ACM certificate, CloudFront alias, Route 53 record) SHALL be optional and SHALL change nothing when no domain is given. — `test_template_keeps_bucket_private_with_oac`; the live site and the repo are also checked by `docs/audit_submission.sh`. The live-site part is a check by hand or by script, not a Node unit test.
+- **R53** ON LOAD THE APP SHALL choose the starting invitation in this order: the `?i=` share parameter, else the config saved in localStorage, else the defaults. IF the share parameter is present but corrupt, THE APP SHALL show the default invitation with a message and SHALL NOT fall back to localStorage. — `test_restore_order_share_param_before_local_storage` (order in the code); `test_corrupt_share_param_safe` (engine fallback R17). The visible behavior in a browser is a check by hand.
+
+## Receiver experience (R60-R69)
+
+> Added 2026-11-09 (review R3, finding C1/C3/C7/C8/C10). Someone who opens a share link should see an invitation they received, not a creation tool. The `?i=` link format and the engine's SVG output do not change.
+
+- **R60** WHEN the page is opened with an `i` parameter that decodes successfully, THE APP SHALL start in receiver view (card and receiver actions only). A missing `i` parameter, or one that fails to decode, SHALL start the editor; a corrupt link SHALL still show the default invitation and the "corrupt" hint. — `test_receiver_view_only_for_valid_link`, `test_corrupt_link_falls_back_to_editor`
+- **R61** THE APP SHALL let the receiver switch to the editor with the same configuration, and SHALL offer a "make your own" link that is the app URL without the `i` parameter. — `test_make_your_own_url_drops_the_param`, `test_receiver_view_has_edit_and_make_your_own`
+- **R62** WHEN in receiver view, THE APP SHALL set the page title from the normalized nickname only; with an empty nickname it SHALL use a fixed title. Raw URL text SHALL never reach the title. — `test_receiver_title_uses_normalized_nick`, `test_receiver_title_empty_nick`
+- **R63** THE RECEIVER VIEW SHALL offer the calendar download only when `buildIcs` can read the date; otherwise the button SHALL NOT be shown. — `test_receiver_calendar_only_when_date_reads`
+- **R64** WHEN the event date can be read and is today or later, THE RECEIVER VIEW SHALL show a countdown computed from an injected "today" (the engine never reads the clock). A past or unreadable date SHALL show nothing. — `test_countdown_days`, `test_countdown_today_tomorrow`, `test_countdown_hidden_for_past_or_unreadable`
+- **R65** THE APP SHALL show a native Share button only when `navigator.share` is a function; otherwise it SHALL keep the copy-link button. — `test_native_share_only_when_supported`
+- **R66** THE ENTRANCE ANIMATION SHALL be CSS only, SHALL be disabled under `prefers-reduced-motion`, and SHALL NOT change the SVG string. — `test_entrance_animation_respects_reduced_motion`, `test_render_svg_unchanged_by_receiver_work`
+- **R67** WHEN the viewport is 760 px wide or narrower, THE APP SHALL show the preview above the controls. — `test_mobile_preview_comes_first`
+- **R68** THE "Save config" button SHALL say what it does (remembers the setup on this device). — `test_save_config_label_is_explained`
+- **R69** The share-link format and existing links SHALL keep working: a config encoded before this change SHALL decode to the same config. — `test_existing_link_roundtrip_still_works`
+
+## Not verified (carried over, shown here on purpose)
+
+- **P16** Cross-browser and mobile: the SVG filters, the PNG save, and importing the `.ics` into real calendar apps were checked in Chrome only. Safari, Firefox and mobile are NOT verified. See `tasks.md` P16.

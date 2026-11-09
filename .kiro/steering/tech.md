@@ -2,6 +2,7 @@
 
 > Why: a single, boring, dependency-light stack keeps the engine testable and the app deployable as static files.
 > Effect: the agent won't reach for a framework, bundler, or server when plain ESM + node --test will do.
+> Inclusion: always (no front matter).
 > 2026-11-05: render target is deterministic SVG (pivoted from ASCII). 2026-11-08: structure updated to the built modules. The stack rules below are unchanged.
 
 ## Stack
@@ -24,7 +25,7 @@ kiroween-invitation/
     compose.js    layer order + mutual-exclusion rules
     svg.js        config (+ export size) -> deterministic SVG string
     fit.js        squeeze lines that would leave the frame
-    assets.js     11 drawn props          costumes.js  4 costumes          scenes.js  3 backdrops
+    assets.js     11 drawn props          costumes.js  4 costumes          scenes.js  3 drawn scenes (+ plain sky)
     share.js      config <-> URL param encode/decode/validate
     scan.js       pre-share safety scan (raw text)
     remix.js      new look from a caller-supplied seed
@@ -40,7 +41,4 @@ kiroween-invitation/
 
 ## Hard rules
 
-- `engine/` must import nothing from `app/` and must not touch `window`, `document`, `fetch`, `localStorage`, nor Node-only globals such as `Buffer` or `process` (it runs in the browser; a `Buffer` call once left the calendar button dead).
-- Determinism: given the same config object, every engine function returns the same output, byte for byte. If jitter is needed (fog/bats), derive a seed from the config; never call `Math.random()` or read the clock.
-- Every dynamic value placed into the SVG (nickname, year, purpose text) must be XML-escaped. The engine never emits unescaped user input.
-- Node is already installed; the app is static, so "build" means "copy files".
+Moved on 2026-11-09 to `engine-purity.md` (loaded when engine files are in context). The rule that matters everywhere: the engine imports nothing from `app/`, and the app calls the engine only.

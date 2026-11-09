@@ -2,6 +2,7 @@
 
 > Why: the project's whole credibility rests on "model says, code decides"; this doc makes that enforceable.
 > Effect: the agent writes limits and refusals as code constants with tests, not as prose or model behavior.
+> Inclusion: always (no front matter). Kept short on purpose.
 
 ## Model says, code decides
 
@@ -18,14 +19,9 @@
 - Same config in → same SVG out, byte for byte. This is the headline claim and
   a property-based test guards it.
 
-## Coding conventions
+## Where the detailed rules went
 
-- Small pure functions in `engine/`. One responsibility each.
-- Validation returns a result (`{ ok, value, reason }` style), never throws for
-  expected bad input. Throwing is for programmer error only.
-- Tests cover: 2 happy paths, 2 edge/negative paths, 1 error path per feature
-  (repo-wide testing rule).
-- Behaviour tests, not implementation tests. Independent of execution order.
+> Split on 2026-11-09 so each rule is loaded where it applies: coding conventions are in `engine-purity.md` (engine files), test rules in `testing.md` (test files), the release routine in `release-check.md` (manual).
 
 ## Security
 

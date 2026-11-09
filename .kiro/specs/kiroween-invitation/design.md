@@ -38,7 +38,7 @@ InviteConfig {
 | `fit.js` | `fitLength` / `fitAttrs`: squeeze a line that is estimated wider than 940 px (R49) |
 | `assets.js` | 11 drawn props (moon, bats, cobweb, crow, cat, tombstone, skull, candle, pumpkins, hat, horns) |
 | `costumes.js` | 4 costumes, clipped to the ghost body (R30, R32) |
-| `scenes.js` | 3 backdrops behind the fog (R31) |
+| `scenes.js` | 3 drawn scenes (graveyard, house, forest) behind the fog; the 4th choice, `sky`, draws nothing extra (R31) |
 | `share.js` | `encodeConfig` / `decodeConfig`: base64url of compact JSON, schema-validated (R15-R17) |
 | `scan.js` | `scanText`, `scanConfig`, `scanRaw`: script-like content, PII of any script's digits, links, banned phrases (R18, R47) |
 | `remix.js` | `remixConfig(cfg, seed)`: a new look from a seed; the caller supplies the seed (R27-R29) |
@@ -100,9 +100,26 @@ deploys the stack and invalidates the cache.
 - A corrupt share parameter yields the default invitation and never throws (R17).
 - `renderSvg` never throws on a normalized config.
 
+## Correctness properties
+
+These are the properties the property-based tests (fast-check) already check; this section only names them and ties them to requirements. Run counts are the `numRuns` in each test file (see `docs/KIRO_EVIDENCE.md` for the sum).
+
+| # | Property | Validates | Test |
+|---|---|---|---|
+| P1 | For any raw config, rendering twice gives byte-identical SVG. | R1, R2 | `tests/pbt.test.js` "same config renders identical SVG" |
+| P2 | For any raw config, the SVG is well-formed. | R11 | `tests/pbt.test.js` "rendered SVG is always well-formed" |
+| P3 | For any junk value, `normalizeConfig` never throws and returns values inside every allow-list and range. | R5, R6, R7, R44 | `tests/pbt.test.js` "junk input never throws" |
+| P4 | For any string, `decodeConfig` never throws and the result renders. | R17 | `tests/pbt.test.js` "decodeConfig never throws" |
+| P5 | `decode(encode(config))` equals the normalized config. | R15, R16 | `tests/pbt.test.js` "encode -> decode is identity" |
+| P6 | No unescaped `<` from the nickname reaches the SVG. | R6 | `tests/pbt.test.js` "no unescaped < from nick" |
+| P7 | Any costume and scene string is safe: unknown values fall back, output stays valid. | R30, R31 | `tests/costume_scene.test.js` "pbt: any costume and scene string is safe" |
+| P8 | Any format value renders a clean SVG. | R34, R43 | `tests/formats.test.js` "pbt: any format value and config renders a clean svg" |
+| P9 | For any event text, the calendar result is either null or a clean calendar. | R36, R37, R38 | `tests/ics.test.js` "pbt: ics for any event text is null or a clean calendar" |
+| P10 | For any integer seed, Remix returns a valid config that renders. | R27, R28 | `tests/remix.test.js` "pbt: remix is valid and well-formed for any integer seed" |
+
 ## Testing strategy
 
-- Every requirement names its test. Failing test first, then code, then a look at a
+- Every requirement names its test or its browser check (a few, such as R46 or R50, also have a text-level check in `tests/static_checks.test.js`; the visual result itself is looked at in a real browser). Failing test first, then code, then a look at a
   real render (headless Chrome). Node tests prove the engine; browser-only defects
   (R45, R46) were found by an independent Kiro Crew review and by looking at the
   real page, so those are checked in a browser.

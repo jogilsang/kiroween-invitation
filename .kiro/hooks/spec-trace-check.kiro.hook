@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "spec-trace-check",
+  "description": "When requirements or tasks change, check that named tests exist and cited R numbers are defined. Why: the EARS<->task<->test chain must stay checkable by code, not by memory.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".kiro/specs/kiroween-invitation/requirements.md",
+      ".kiro/specs/kiroween-invitation/tasks.md"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "bash .kiro/hooks/spec_trace_check.sh"
+  }
+}

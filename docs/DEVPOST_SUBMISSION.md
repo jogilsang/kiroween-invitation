@@ -2,7 +2,7 @@
 
 Every field of the Devpost form, ready to paste. Written in English because the rules require it.
 Any square-bracket placeholder (like the repo and video links) is not known yet and must be filled before submitting. Numbers were checked
-against this repo on 2026-11-08 (`node --test` = 131 tests, `docs/audit_submission.sh`).
+against this repo on 2026-11-08 (`node --test` = 131 tests on that date; 139 after 8 static checks; 158 on 2026-11-09 in the kiro-docs2 worktree after the receiver-view tests; `docs/audit_submission.sh`).
 
 ## Fixed choices (decided, do not change without the CEO)
 - Category: **Costume Contest**
@@ -27,7 +27,9 @@ kiro, kiro-cli, kiro-crew, javascript, svg, fast-check, amazon-cloudfront, amazo
 
 ## Project story (paste into "About the project")
 
-It is 1 a.m., Mina has been coding alone for hours, and she wants to tell her friends: *I'm doing Kiroween this year, who is in?* A plain text message felt flat. In about a minute she picks the "Pirate Crypt" look, types her name in Korean, adds "Oct 31, 7 PM, Hapjeong", saves a 9:16 story image and sends a link to the group chat. Everyone who opens the link sees exactly the same invitation, and one tap adds the party to their calendar.
+The point, in one sentence: one link opens the exact same invitation for anyone, with no server, no account and no AI behind it, so nothing can change or expire after you send it.
+
+It is 1 a.m., Mina has been coding alone for hours, and she wants to tell her friends: *I'm doing Kiroween this year, who is in?* A plain text message felt flat. In about a minute she picks the "Pirate Crypt" look, types her name in Korean, adds "Oct 31, 7 PM, Hapjeong", saves a 9:16 story image and sends a link to the group chat. Everyone who opens the link lands on the invitation itself, not on an editor: they see the same card, a countdown, and one tap adds the party to their calendar. Anyone can press "Edit this invitation" or "Make your own".
 
 ### What it does
 Kiroween Invitation turns a few choices into a polished, glowing Halloween invitation built around a white Kiro ghost and a jack-o'-lantern on a dark purple night.
@@ -35,12 +37,13 @@ Kiroween Invitation turns a few choices into a polished, glowing Halloween invit
 - Eleven drawn assets (moon, bats, cobweb, crow, cat, tombstone, skull, candle, pumpkins, hat, horns), each in one of six colors; four costumes (Dracula, mummy, pirate, skeleton); four backdrop scenes.
 - Six one-click looks and a **Remix** button that invents a whole new look.
 - Three export sizes (square, story 9:16, wide 16:9) saved as PNG, a share link that stores the whole invitation in the URL, and a calendar file (.ics) when the date can be read.
+- A receiver view: opening a share link shows the invitation with a days-to-go countdown (computed from today's date, only for dates that read and are not past), Add to calendar, a native Share button where the browser has one (otherwise Copy link), Edit, and Make your own. The page title becomes "<name>'s invitation". On phones the preview comes first, and the entrance animation turns off under `prefers-reduced-motion`.
 - Keyboard-navigable, with text alternatives, and a `noscript` explanation.
 
 The design target for the **Costume Contest** category is a haunting interface that also does real work: the dark, glowing look is the product, and every control changes what the picture says.
 
 ### How we built it with Kiro
-We treated Kiro like a small studio, not a chatbot. The spec was the script (51 requirements, failure paths written first). Steering was the house rules. A pre-commit hook was the night watchman. A custom conductor agent drove the build from Kiro CLI. Property-based tests were the stress test. And Kiro Crew was the studio next door: an independent reviewer that had never seen the build. The full write-up is in the Kiro usage field and in `docs/KIRO_WRITEUP.md`.
+We treated Kiro like a small studio, not a chatbot. The spec was the script (63 requirements, failure paths written first). Steering was the house rules. Hooks were the night watchman (a pre-commit secret scan guarded every commit; the other hooks fire under `kiro-cli --v3`, see the write-up for what we did and did not see). A custom conductor agent drove the build from Kiro CLI, and the other four agents carry tool-level write permissions that we checked by really running the red-team agent (3 of 3 out-of-scope writes refused). Property-based tests were the stress test. And Kiro Crew was the studio next door: an independent reviewer that had never seen the build. The full write-up is in the Kiro usage field and in `docs/KIRO_WRITEUP.md`.
 
 The core idea is **model says, code decides**. There is no AI and no randomness in the render path: the same settings always produce the same SVG, byte for byte. Validation, layer rules (a hat and horns cannot both win), the privacy scan and the calendar-date reader are plain code with named tests.
 
@@ -50,7 +53,7 @@ The core idea is **model says, code decides**. There is no AI and no randomness 
 - **Text that does not fit.** Long Korean lines left the frame. The engine has no font measuring, so it estimates text width and squeezes only lines that are too wide.
 
 ### Accomplishments we are proud of
-- 131 passing tests, including property-based tests (about 1,950 generated cases) for determinism and share-link round trips.
+- 166 passing tests, including 10 property-based tests (about 3,050 generated cases) for determinism and share-link round trips.
 - Two red-team rounds (42 deceptive inputs). Every one is rejected, sanitized or safely defaulted; the second round found two real bugs, fixed test-first.
 - An honest limits list: we say what we did not verify.
 
@@ -70,7 +73,7 @@ Source: `docs/KIRO_WRITEUP.md` (kept in the repo, same text). It answers each qu
 spec-driven vs vibe coding, steering, MCP, property-based testing, powers.
 
 ## Testing instructions for judges (the form's private field, if asked)
-No login. Open the live URL. Click a look, type a name, press Save as image. Nothing is stored on a server.
+No login. Open the live URL. Click a look, type a name, press Save as image. Then press Copy share link and open the link in a new tab: this is the screen the person who got the link sees (a receiver view with a countdown, Add to calendar, Make your own, and Edit this invitation). Nothing is stored on a server.
 To run locally: serve the repository root (for example `python3 -m http.server 8137`) and open `/app/index.html`.
 Tests: `node --test` (Node 22.12 or newer).
 
@@ -78,9 +81,9 @@ Tests: `node --test` (Node 22.12 or newer).
 1. Default invitation (square): "The default invitation: white Kiro ghost, jack-o'-lantern, dark purple night."
 2. Look gallery: "Six one-click looks, each with a live thumbnail."
 3. Pirate Crypt, story size: "The same settings in the 9:16 story size."
-4. Share link round trip: "Open the link and the same invitation comes back."
+4. Share link round trip: "Open the link and the same invitation comes back, in a receiver view with a countdown."
 5. Crew review (docs/CREW_FINDINGS_R2.md): "An independent review found two browser-only bugs."
-6. Test run: "131 tests green."
+6. Test run: "166 tests green."
 7. `.kiro/` tree: "Specs, steering, hooks and agents."
 The link-preview image (`app/og.png`) can serve as the thumbnail.
 

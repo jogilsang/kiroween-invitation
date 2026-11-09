@@ -47,3 +47,19 @@ test("test_remix_button_contrast: dark label on every remix gradient stop reache
   assert.ok(stops.length >= 2);
   for (const s of stops) assert.ok(contrast("#190a02", s) >= 4.5, `dark on ${s}`);
 });
+
+test("test_recv_button_contrast: receiver-view buttons reach 4.5 (primary, link, ghost)", () => {
+  const prim = hexes(rule(".recv-actions button, .recv-actions .btnlink").split("color:")[0]);
+  assert.ok(prim.length >= 2);
+  for (const s of prim) assert.ok(contrast("#ffffff", s) >= 4.5, `white on ${s}`);
+  const link = hexes(css.match(/\n\.recv-actions \.btnlink\s*\{([^}]*)\}/)[1].split("color:")[0]);
+  assert.ok(link.length >= 2);
+  for (const s of link) assert.ok(contrast("#190a02", s) >= 4.5, `dark on ${s}`);
+  const ghost = hexes(rule(".recv-actions .ghost"));
+  assert.ok(contrast("#e9d7ff", ghost[0]) >= 4.5, "ghost label");
+  assert.ok(contrast("#e9d7ff", "#140c1d") >= 4.5, "count text");
+});
+test("test_recv_focus_visible: receiver buttons and link keep a visible focus ring", () => {
+  assert.match(css, /button:focus\s*\{[^}]*outline:\s*2px/);
+  assert.match(css, /\.recv-actions a:focus\s*\{[^}]*outline:\s*2px/);
+});

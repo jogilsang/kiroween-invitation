@@ -41,24 +41,26 @@ fi
 # 2) scan text files for secret-like patterns
 #    High-signal patterns block outright. The bare 12-digit (AWS account id)
 #    pattern only blocks when an account/aws/acct word is on the same line.
-high='AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[baprs]-[0-9A-Za-z-]+|ghp_[0-9A-Za-z]{30,}|aws_secret_access_key'
+high='AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[baprs]-[0-9A-Za-z-]+|ghp_[0-9A-Za-z]{30,}|aws_secret_access_ke[y]'
 acct='(account|acct|aws)[^0-9]{0,20}[0-9]{12}'
+# Narrow allowances instead of excluding whole files (2026-11-09):
+#  - the AWS documentation placeholder ids 123456789012 and 000000000000
+#  - a line that carries the marker "scan-allow" (use for a deliberate example)
+# Real-looking ids and keys in the same files are still caught.
+allow='123456789012|000000000000|scan-allow'
 
 while IFS= read -r f; do
   [ -z "$f" ] && continue
   case "$f" in
     *.png|*.jpg|*.jpeg|*.gif|*.pdf|*.ico|*.woff*|*/node_modules/*|node_modules/*) continue;;
-    # The scanner defines the patterns, and the evidence doc documents a planted
-    # example; both would self-trip. They carry no real secret.
-    */.kiro/hooks/secret_scan.sh|*/docs/KIRO_EVIDENCE.md|*/docs/RED_TEAM.md) continue;;
   esac
   [ -f "$f" ] || continue
-  if grep -EnI "$high" "$f" >/dev/null 2>&1; then
+  if grep -EnI "$high" "$f" 2>/dev/null | grep -Ev 'scan-allow' | grep -q .; then
     echo "BLOCK: possible secret in $f" >&2
-    grep -EnI "$high" "$f" 2>/dev/null | head -3 >&2
+    grep -EnI "$high" "$f" 2>/dev/null | grep -Ev 'scan-allow' | head -3 >&2
     fail=1
   fi
-  if grep -EniI "$acct" "$f" >/dev/null 2>&1; then
+  if grep -EniI "$acct" "$f" 2>/dev/null | grep -Ev "$allow" | grep -q .; then
     echo "BLOCK: possible AWS account id in $f" >&2
     fail=1
   fi

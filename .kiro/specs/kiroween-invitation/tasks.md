@@ -5,22 +5,9 @@ Status 2026-11-08: everything below is done except P16 (cross-browser). Phase 1 
 One task at a time. Write the failing test first, make it pass, then stop.
 Each task names how it's verified. `[ ]` todo, `[x]` done.
 
-## Phase 1: ASCII build (done, then superseded by the SVG pivot)
+## Phase 1: ASCII build (history, folded 2026-11-09)
 
-- [x] T1 Scaffold (git, MIT LICENSE, README, .gitignore, package.json).
-- [x] T2 Steering docs.
-- [x] T3 Spec (requirements/design/tasks).
-- [x] T4 engine/invite.js (validation + templates).
-- [x] T5 engine/compose.js (layer order + mutual exclusion).
-- [x] T6 assets grids (ASCII) — removed in pivot.
-- [x] T7 engine/ascii.js — removed in pivot.
-- [x] T8 engine/share.js + scan.js.
-- [x] T9 app (ASCII) — replaced in pivot.
-- [x] T10 save + PNG export (ASCII) — replaced in pivot.
-- [x] T11 PBT (ASCII) — replaced in pivot.
-- [x] T12 hooks (test-on-save, secret scan, spec-change).
-- [x] T13 red team (ASCII) — re-run for SVG in P8.
-- [x] T14 deploy pipeline (S3 + CloudFront OAC) — re-run in P9.
+T1-T14 built the first version with an ASCII renderer: scaffold, steering, spec, validation and composition modules, share and scan, the app, save and PNG export, property tests, hooks, red team and the S3 + CloudFront deploy. On 2026-11-05 the renderer was replaced by SVG (see the next block). Kept from Phase 1 and still in use: `invite.js`, `compose.js`, `share.js`, `scan.js`, the hooks and the deploy pipeline. Removed: the ASCII renderer (`ascii.js`), its glyph grids and the old ASCII tests (T6, T7, T9-T11 were replaced in the pivot).
 
 ## SVG pivot (2026-11-05)
 
@@ -66,7 +53,18 @@ Each task names how it's verified. `[ ]` todo, `[x]` done.
 - [x] W4.1 Red team round 2 (B1-B20, `docs/redteam_probe.mjs`): two real bugs fixed test-first (R43 prototype format key, R44 non-text values). — `tests/redteam_round2.test.js`
 - [x] W4.2 Kiro Crew review round 2 (`docs/CREW_RESEARCH_BRIEF_R2.md` -> `docs/CREW_FINDINGS_R2.md`), verdict GO with fixes. Fixed test-first: R45 `Buffer` in the browser, R46 duplicate SVG ids, R47 scan gaps, R48 Korean dates and UTC stamp, R49 text fit, R50 first-screen layout. — `tests/crew_r2.test.js`
 
+## Static checks and R52/R53 (2026-11-09)
+- [x] W6.1 Static checks for R20, R46, R50 and the load order R53, plus the deploy template check R52. — `tests/static_checks.test.js`
+- [ ] P16 stays open (see above). Not verified: Safari, Firefox, mobile.
+
 ## Link preview and domain (2026-11-08)
 - [x] W5.1 `og:image` as a 1200x630 PNG (R51), built by `deploy/make_og.mjs`. — `tests/og.test.js`
 - [x] W5.2 Custom domain through the same template (ACM certificate, CloudFront alias, Route 53 records), deployed from `deploy/deploy.sh` with `DOMAIN` and `ZONE_NAME`.
 - [x] W5.3 Product renamed from ASCII Invite to Kiroween Invitation; agents `svg-engine`, `art-tuner`, `invite-logic` rewritten to match the code; spec folder renamed.
+
+## Receiver experience (R60-R69)
+Status 2026-11-09. Test first, then code. Verified by `tests/recv_view.test.js` and `tests/recv_static.test.js`.
+- [x] RC1 Pure helpers in `engine/recv.js` (view decision, title, countdown, make-your-own URL, share support). (R60-R65, R69)
+- [x] RC2 Receiver view in the app (card, calendar, share/copy, make your own, edit, title). (R60-R63, R65)
+- [x] RC3 Countdown line and entrance animation, reduced-motion safe. (R64, R66)
+- [x] RC4 Mobile order and "Save config" label. (R67, R68)

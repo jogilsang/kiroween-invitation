@@ -27,6 +27,7 @@ const rawConfigArb = fc.record({
 });
 
 // Property 1 — determinism
+// Validates: R1, R2
 test("pbt: same config renders identical SVG (determinism)", () => {
   fc.assert(fc.property(rawConfigArb, (raw) => {
     const c = normalizeConfig(raw).value;
@@ -35,6 +36,7 @@ test("pbt: same config renders identical SVG (determinism)", () => {
 });
 
 // Property 1b — SVG is always well-formed for any config
+// Validates: R11
 test("pbt: rendered SVG is always well-formed", () => {
   fc.assert(fc.property(rawConfigArb, (raw) => {
     const out = renderSvg(normalizeConfig(raw).value);
@@ -45,6 +47,7 @@ test("pbt: rendered SVG is always well-formed", () => {
 });
 
 // Property 2 — junk never throws; always a safe config
+// Validates: R5, R6, R7, R44
 test("pbt: junk input never throws; normalizeConfig yields a safe config", () => {
   fc.assert(fc.property(fc.anything(), (junk) => {
     const v = normalizeConfig(junk).value;
@@ -57,6 +60,7 @@ test("pbt: junk input never throws; normalizeConfig yields a safe config", () =>
 });
 
 // Property 2b — any string decodes to a safe, renderable config
+// Validates: R17
 test("pbt: decodeConfig never throws; result always renders", () => {
   fc.assert(fc.property(fc.string(), (s) => {
     const v = decodeConfig(s).value;
@@ -65,6 +69,7 @@ test("pbt: decodeConfig never throws; result always renders", () => {
 });
 
 // Property 3 — encode -> decode identity for valid configs
+// Validates: R15, R16
 test("pbt: encode -> decode is identity for valid configs", () => {
   fc.assert(fc.property(rawConfigArb, (raw) => {
     const c = normalizeConfig(raw).value;
@@ -73,6 +78,7 @@ test("pbt: encode -> decode is identity for valid configs", () => {
 });
 
 // Property 4 — nick never injects raw markup into the SVG
+// Validates: R6
 test("pbt: no unescaped < from nick reaches the SVG", () => {
   fc.assert(fc.property(fc.string({ maxLength: 60 }), (nick) => {
     const c = normalizeConfig({ purpose: "join", year: 2026, nick }).value;

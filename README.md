@@ -18,9 +18,12 @@
 2. Click one of the six **looks** (try *Pirate Crypt*), or press **Remix the look**.
 3. Type a name (Korean works), and fill in a date such as `Oct 31`, a time such as `7 PM`, and a place.
 4. Change the **export size** (square, story 9:16, wide 16:9), then **Save as image**.
-5. Click **Add to calendar (.ics)** to download a calendar entry, or **Copy share link**. Open the link in a new tab and the exact same invitation comes back.
+5. Click **Add to calendar (.ics)** to download a calendar entry, or **Copy share link** (or **Share** where your browser has a share sheet).
+6. Open the link in a new tab: you see what the person who received it sees, the **receiver view**. It shows the exact same invitation, a days-to-go countdown, Add to calendar, Make your own, and Edit this invitation (which opens the editor with the same settings).
 
 What you can combine: 3 purposes, 3 moods, 3 palettes, 2 glow levels, 11 Halloween assets with 6 colors each, 4 costumes, 4 backdrop scenes, 3 export sizes. Everything runs in your browser; nothing is sent to a server.
+
+Receiver view details: it appears only when the link decodes; the countdown shows only for a readable date that is today or later; the page title becomes "<name>'s invitation"; on a narrow screen (760 px or less) the preview comes first; the entrance animation is CSS only and is off under `prefers-reduced-motion`. Opening it on a real phone, Safari and Firefox is not verified.
 
 ## Run locally
 
@@ -46,7 +49,7 @@ python3 -m http.server 8137
 
 ## Kiro usage
 
-Built with Kiro (spec, steering, hooks, custom agents, property-based tests) and independently reviewed by Kiro Crew; its findings and how they were closed are in `docs/KIRO_AND_CREW_STORY.md`.
+Built with Kiro (spec, steering, hooks, custom agents, property-based tests; hooks fire under `kiro-cli --v3`, not on the default 2.x CLI engine we tested, and custom agents have write permissions enforced at the tool level; see `docs/KIRO_EVIDENCE.md` for what was and was not observed) and independently reviewed by Kiro Crew; its findings and how they were closed are in `docs/KIRO_AND_CREW_STORY.md`.
 
 See `docs/KIRO_EVIDENCE.md` for dated evidence of specs, hooks, steering, custom agents, and property-based testing.
 

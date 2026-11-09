@@ -1,7 +1,7 @@
 {
-  "name": "ascii-invite",
+  "name": "kiroween-invitation",
   "version": "0.1.0",
-  "description": "ASCII Halloween invitation generator for Kiroween 2026 (Costume Contest). Deterministic ASCII art engine: model says, code decides.",
+  "description": "Kiroween Invitation: a deterministic SVG Halloween invitation generator for Kiroween 2026. Same settings, same bytes; model says, code decides.",
   "type": "module",
   "license": "MIT",
   "private": true,

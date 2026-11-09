@@ -1,9 +1,180 @@
 {
   "name": "red-team",
-  "description": "Independent adversary. Produces deceptive inputs and checks defenses. Writes docs/RED_TEAM.md only; never edits engine/ or app/ (independent-verification pattern).",
-  "model": "auto",
-  "prompt": "You try to break Kiroween Invitation: prompt-injection-style free text, forged/oversized share params, out-of-range years, prototype keys, non-text values in text fields, calendar-file header injection, unicode that breaks layout, banned phrases, PII-looking strings. For each, state the expected result and the actual result. Record everything in docs/RED_TEAM.md, including what you could NOT block. You must not modify engine/ or app/ code; report findings to kiroween and give a GO / NO-GO.",
-  "scope": [
-    "docs/RED_TEAM.md"
-  ]
+  "description": "Independent adversary. Produces deceptive inputs and checks defenses. Writes only docs/RED_TEAM.md and docs/redteam_probe.mjs (enforced by permissions); never edits engine/, app/ or tests/ (independent-verification pattern).",
+  "model": "claude-sonnet-4.6",
+  "prompt": "You try to break Kiroween Invitation: prompt-injection-style free text, forged/oversized share params, out-of-range years, prototype keys, non-text values in text fields, calendar-file header injection, unicode that breaks layout, banned phrases, PII-looking strings. For each, state the expected result and the actual result. Record everything in docs/RED_TEAM.md, including what you could NOT block. You must not modify engine/ or app/ code; report findings to kiroween and give a GO / NO-GO. PERMISSIONS (enforced): you may write only docs/RED_TEAM.md and docs/redteam_probe.mjs; engine/, app/, tests/, deploy/, .kiro/ and every other doc are denied. Shell runs without asking only for whole commands like `node ...`, `npm test`, read-only git and ls/cat/grep with no chaining (&&, ;, |) and no redirection (<, >); anything else asks the user or is denied (git push/reset/checkout, rm -rf, curl, aws, gh, deploy scripts). A failing defense is reported to kiroween with a proposed test name; you never fix it yourself. Your model is pinned to claude-sonnet-4.6 so the reviewer is not the builder's auto-routed session.",
+  "tools": [
+    "read",
+    "write",
+    "shell"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob"
+  ],
+  "includeMcpJson": false,
+  "resources": [
+    "file://.kiro/steering/principles.md",
+    "file://.kiro/steering/product.md",
+    "file://.kiro/steering/tech.md",
+    "file://.kiro/specs/kiroween-invitation/requirements.md"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "match": [
+          ".env",
+          ".env.*",
+          ".omc/**"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "docs/RED_TEAM.md",
+          "docs/redteam_probe.mjs"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "engine/**",
+          "app/**",
+          "tests/**",
+          "deploy/**",
+          ".kiro/**",
+          "docs/review_r3/**",
+          "docs/video/**",
+          "LICENSE",
+          "README.md",
+          "package.json",
+          "package-lock.json",
+          "docs/BLOG_DRAFT.md",
+          "docs/CREW_FINDINGS.md",
+          "docs/CREW_FINDINGS_R2.md",
+          "docs/CREW_RESEARCH_BRIEF.md",
+          "docs/CREW_RESEARCH_BRIEF_R2.md",
+          "docs/DEVPOST_SUBMISSION.md",
+          "docs/KIRO_AND_CREW_STORY.md",
+          "docs/KIRO_EVIDENCE.md",
+          "docs/KIRO_WRITEUP.md",
+          "docs/PRE_SUBMIT.md",
+          "docs/SOCIAL_BLITZ_NOTES.md",
+          "docs/audit_submission.sh"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "node *",
+          "npm test*",
+          "npm run test*",
+          "git status*",
+          "git diff*",
+          "git log*",
+          "git show*",
+          "ls*",
+          "cat *",
+          "head *",
+          "tail *",
+          "grep *",
+          "rg *",
+          "wc *",
+          "diff *",
+          "bash .kiro/hooks/*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "git push*",
+          "git reset*",
+          "git clean*",
+          "git checkout*",
+          "git branch -D*",
+          "git commit*--no-verify*",
+          "rm -rf*",
+          "sudo *",
+          "curl *",
+          "wget *",
+          "aws *",
+          "gh *",
+          "*deploy.sh*",
+          "*make_public.sh*",
+          "*teardown.sh*"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "toolsSettings": {
+    "fs_read": {
+      "deniedPaths": [
+        ".env",
+        ".env.*",
+        ".omc/**"
+      ]
+    },
+    "fs_write": {
+      "allowedPaths": [
+        "docs/RED_TEAM.md",
+        "docs/redteam_probe.mjs"
+      ],
+      "deniedPaths": [
+        "engine/**",
+        "app/**",
+        "tests/**",
+        "deploy/**",
+        ".kiro/**",
+        "docs/review_r3/**",
+        "docs/video/**",
+        "LICENSE",
+        "README.md",
+        "package.json",
+        "package-lock.json",
+        "docs/BLOG_DRAFT.md",
+        "docs/CREW_FINDINGS.md",
+        "docs/CREW_FINDINGS_R2.md",
+        "docs/CREW_RESEARCH_BRIEF.md",
+        "docs/CREW_RESEARCH_BRIEF_R2.md",
+        "docs/DEVPOST_SUBMISSION.md",
+        "docs/KIRO_AND_CREW_STORY.md",
+        "docs/KIRO_EVIDENCE.md",
+        "docs/KIRO_WRITEUP.md",
+        "docs/PRE_SUBMIT.md",
+        "docs/SOCIAL_BLITZ_NOTES.md",
+        "docs/audit_submission.sh"
+      ]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "node [^&;|<>`$]*",
+        "npm (test|run test)[^&;|<>`$]*",
+        "git (status|diff|log|show)[^&;|<>`$]*",
+        "(ls|cat|head|tail|grep|rg|wc|diff)( [^&;|<>`$]*)?",
+        "bash \\.kiro/hooks/[a-z_]+\\.sh[^&;|<>`$]*"
+      ],
+      "deniedCommands": [
+        ".*git (push|reset|clean|checkout).*",
+        ".*git branch -D.*",
+        ".*--no-verify.*",
+        ".*rm -rf.*",
+        "sudo .*",
+        "(curl|wget|aws|gh) .*",
+        ".*deploy\\.sh.*",
+        ".*make_public\\.sh.*",
+        ".*teardown\\.sh.*"
+      ]
+    }
+  }
 }

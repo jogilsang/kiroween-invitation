@@ -88,6 +88,12 @@ export function serializeConfig(config) {
  */
 function deserializeRaw(json) {
   const o = JSON.parse(json);
+  // R17: a forged event field of the wrong shape is reported, not silently emptied.
+  if (Array.isArray(o && o.e)) {
+    for (const v of o.e.slice(0, 3)) {
+      if (v !== undefined && v !== null && typeof v !== "string") throw new Error("invalid event field");
+    }
+  }
   return {
     purpose: o.p,
     year: o.y,

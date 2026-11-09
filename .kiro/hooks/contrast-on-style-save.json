@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "contrast-on-style-save (Kiro CLI format)",
+      "description": "Why: WCAG contrast (R39) depends on app/style.css and the palette colors in engine/svg.js. Effect: saving either runs only the contrast tests so a failing ratio shows up at save time.",
+      "trigger": "PostFileSave",
+      "matcher": "(^|/)(app/style\\.css|engine/svg\\.js)$",
+      "action": { "type": "command", "command": "node --test tests/contrast.test.js 2>&1 | tail -30" }
+    }
+  ]
+}

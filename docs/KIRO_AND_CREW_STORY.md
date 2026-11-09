@@ -77,6 +77,7 @@ PNG save on Safari, and calendar import into real calendar apps.
 
 ## The honest parts (kept in the story on purpose)
 
+- **Scope of the Crew claim:** Crew was used as an outside, independent reviewer. We did not build a Kiro Crew App Kit app and do not submit one for the Crew App prize.
 - **Kiro's own gap:** hat/horns existed in the spec and the UI but not in the
   renderer. That was our miss; the independent review is what exposed it.
 - **Still open after Crew's review (P16):** Safari / Firefox / mobile rendering
@@ -113,9 +114,9 @@ PNG save on Safari, and calendar import into real calendar apps.
 
 ## Submission mapping (Kiro usage write-up)
 
-- Custom agents: `.kiro/agents/*` (builder-side) plus Crew as an external
+- Custom agents: `.kiro/agents/*` (builder-side; write permissions enforced at the tool level since 2026-11-09, checked by really running the red-team agent) plus Crew as an external
   independent reviewer.
 - Spec-driven development: requirements to tests; review outcomes recorded as tasks.
-- Hooks: pre-commit secret scan guarded every commit of the fixes.
+- Hooks: pre-commit secret scan guarded every commit of the fixes. (Later, 2026-11-09: standalone hook files fire under `kiro-cli --v3` but not on the default 2.x CLI engine we tested; see `docs/KIRO_EVIDENCE.md`.)
 - Property-based testing: unchanged, still green after the fixes.
 - Kiro vs Kiro Crew: the roles table above (builder vs independent reviewer).

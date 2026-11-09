@@ -14,6 +14,13 @@ import {
   buildIcs,
   formatSize,
   PARTS_ALLOW,
+  receiverView,
+  receiverTitle,
+  receiverActions,
+  makeYourOwnUrl,
+  countdownInfo,
+  canNativeShare,
+  shareText,
   SWATCHES,
   CANVAS,
 } from "../engine/index.js";
@@ -232,8 +239,60 @@ function initialConfig() {
   return normalizeConfig({ purpose: "join", year: 2026, nick: "" }).value;
 }
 
+// ---- Receiver view (R60-R65): someone who opened a share link sees the card, not the tool ----
+const BASE_TITLE = document.title;
+
+function shareUrl(cfg) { return `${location.origin}${location.pathname}?i=${encodeConfig(cfg)}`; }
+
+async function nativeShare(cfg, hintEl) {
+  try { await navigator.share({ title: shareText(cfg), text: shareText(cfg), url: shareUrl(cfg) }); }
+  catch (e) { if (!e || e.name !== "AbortError") hintEl.textContent = "Sharing did not work here. Use Copy link."; }
+}
+
+function showReceiver(cfg) {
+  const now = new Date();
+  const info = countdownInfo(cfg, { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() });
+  const acts = receiverActions(cfg);
+  const hint = $("recvHint");
+  document.title = receiverTitle(cfg);
+  $("recvTitle").textContent = cfg.nick ? `${cfg.nick} invites you` : "You are summoned";
+  $("recvCount").textContent = info ? info.text : "";
+  const meta = buildInviteText(cfg).meta;
+  $("recvArt").innerHTML = renderSvg(cfg, { format: "square" });
+  $("recvArt").setAttribute("aria-label", `${meta.purpose} invitation, ${meta.banner}${cfg.nick ? ", " + cfg.nick : ""}`);
+  $("recvOwn").href = makeYourOwnUrl(location.origin, location.pathname);
+  $("recvCal").hidden = !acts.calendar;
+  $("recvShare").hidden = !canNativeShare(navigator);
+  $("recvCal").addEventListener("click", () => {
+    const text = buildIcs(cfg);
+    if (!text) { hint.textContent = "Could not read that date."; return; }
+    const url = URL.createObjectURL(new Blob([text], { type: "text/calendar;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = `kiroween-${cfg.year}.ics`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    hint.textContent = "Calendar file saved.";
+  });
+  $("recvShare").addEventListener("click", () => nativeShare(cfg, hint));
+  $("recvCopy").addEventListener("click", async () => {
+    const link = shareUrl(cfg);
+    try { await navigator.clipboard.writeText(link); hint.textContent = "Link copied."; }
+    catch { hint.textContent = "Copy this link: " + link; }
+  });
+  $("recvEdit").addEventListener("click", () => {
+    $("recv").hidden = true;
+    $("app").hidden = false;
+    document.title = BASE_TITLE;
+    render();
+    $("nick").focus(); // keyboard users land in the editor, not on a removed button
+  });
+  $("recv").hidden = false;
+  $("recvTitle").focus({ preventScroll: true });
+}
+
 function boot() {
-  $("app").hidden = false;
+  const view = receiverView(location.search);
+  $("app").hidden = view.mode === "receiver";
+  if ($("shareNative")) $("shareNative").hidden = !canNativeShare(navigator);
   const radios = [...document.querySelectorAll("#purpose button")];
   const select = (b, focus) => {
     for (const o of radios) { o.setAttribute("aria-checked", "false"); o.setAttribute("tabindex", "-1"); }
@@ -264,8 +323,11 @@ function boot() {
   $("saveIcs").addEventListener("click", saveIcs);
   $("remix").addEventListener("click", remix);
 
+  $("shareNative").addEventListener("click", () => nativeShare(readUi(), $("hint")));
+
   writeUi(initialConfig());
-  render();
+  const cfgNow = render();
+  if (view.mode === "receiver") showReceiver(cfgNow);
 }
 
 boot();

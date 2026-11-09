@@ -8,7 +8,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="${1:-$HOME/kiroween_public_staging/ascii-invite}"
+OUT="${1:-$HOME/kiroween_public_staging/kiroween-invitation}"
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
@@ -35,12 +35,12 @@ chk "no node_modules"                   "[ ! -e '$OUT/node_modules' ]"
 
 # Secret / account-id scan over the staged copy (patterns kept in the hook script).
 SCAN_HITS=$(grep -rEIl 'AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|ghp_[0-9A-Za-z]{30,}|xox[baprs]-[0-9A-Za-z-]+' "$OUT" 2>/dev/null \
-  | grep -vE '/\.kiro/hooks/secret_scan\.sh$|/docs/(KIRO_EVIDENCE|RED_TEAM)\.md$' || true)
+  | grep -vE '/\.kiro/hooks/(secret_scan|selftest)\.sh$|/docs/(KIRO_EVIDENCE|RED_TEAM)\.md$' || true)
 chk "no secret-like strings"            "[ -z '$SCAN_HITS' ]"
 
 # 12-digit AWS account ids next to an aws/account word (same rule as the hook).
 ACCT_HITS=$(grep -rEiIl '(account|acct|aws)[^0-9]{0,20}[0-9]{12}' "$OUT" 2>/dev/null \
-  | grep -vE '/\.kiro/hooks/secret_scan\.sh$|/docs/(KIRO_EVIDENCE|RED_TEAM)\.md$' || true)
+  | grep -vE '/\.kiro/hooks/(secret_scan|selftest)\.sh$|/docs/(KIRO_EVIDENCE|RED_TEAM)\.md$' || true)
 chk "no AWS account ids"                "[ -z '$ACCT_HITS' ]"
 
 # Tests must pass on the staged copy, not just in the monorepo.

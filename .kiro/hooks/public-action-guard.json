@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "public-action-guard",
+      "description": "Why: publishing, pushing and deploying need a human yes (project policy). Effect: before a shell command containing git push, repo visibility change, aws s3 sync --delete or deploy.sh, ask the user. Commits and everything else pass silently.",
+      "trigger": "PreToolUse",
+      "matcher": "shell",
+      "action": { "type": "command", "command": "bash .kiro/hooks/public_action_guard.sh" }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "spec-trace-check (Kiro CLI format)",
+      "description": "Why: the requirement -> task -> test chain breaks silently when a name or R number goes stale. Effect: saving requirements.md or tasks.md runs a deterministic check and prints every mismatch.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.kiro/specs/.*/(requirements|tasks)\\.md$",
+      "action": { "type": "command", "command": "bash .kiro/hooks/spec_trace_check.sh" }
+    }
+  ]
+}
