@@ -1,7 +1,7 @@
 // deploy/stage.mjs — build a flat dist/ for static hosting.
 // index.html at root; engine/ and assets/ alongside; rewrite ../ paths to ./.
 // Deterministic, no deps. Run: node deploy/stage.mjs
-import { mkdirSync, rmSync, cpSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, cpSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -29,6 +29,19 @@ const mainJs = readFileSync(join(root, "app", "main.js"), "utf8")
   .replace(/\.\.\/engine\//g, "./engine/")
   .replace(/\.\.\/assets\//g, "./assets/");
 writeFileSync(join(dist, "main.js"), mainJs);
+
+// optional modules added in the production week: copied with the same path rewrite as main.js
+for (const f of ["audio.js", "gif_worker.js", "motion.js"]) {
+  const src = join(root, "app", f);
+  if (!existsSync(src)) continue;
+  writeFileSync(join(dist, f), readFileSync(src, "utf8")
+    .replace(/\.\.\/engine\//g, "./engine/")
+    .replace(/\.\.\/assets\//g, "./assets/"));
+}
+// music files (CC0, listed in LICENSES.md); loaded by the browser only when sound is turned on
+if (existsSync(join(root, "assets", "audio"))) {
+  cpSync(join(root, "assets", "audio"), join(dist, "assets", "audio"), { recursive: true });
+}
 
 // robots.txt / llms.txt: without them the SPA fallback would serve index.html for these paths.
 writeFileSync(join(dist, "robots.txt"), "User-agent: *\nAllow: /\n");

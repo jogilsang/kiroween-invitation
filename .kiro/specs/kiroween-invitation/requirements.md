@@ -191,6 +191,37 @@ are first-class. "THE SYSTEM" = the engine (pure code), unless it names the app.
 - **R68** THE "Save config" button SHALL say what it does (remembers the setup on this device). — `test_save_config_label_is_explained`
 - **R69** The share-link format and existing links SHALL keep working: a config encoded before this change SHALL decode to the same config. — `test_existing_link_roundtrip_still_works`
 
+## Living ghost, music and GIF (R70-R89)
+
+> Added 2026-11-10 (production week plan, `PLAN_PRODUCTION_WEEK.md`). Goal: the Kiro-style ghost moves like a soft jelly, can be styled by touch, plays optional music, and can be saved as an animated GIF. Rule of the whole block: **motion, GIF bytes and sound scheduling are decided by pure functions of (config, time); the browser only draws and plays.** Named tests are written first; a name appears in backticks only after the test exists, so the trace hook stays honest.
+
+### Motion
+- **R70** THE ENGINE SHALL expose a pure `pose(t, cfg)` that returns the ghost's transform parameters (bob, squash and stretch, tail wave, blink, glow pulse) for a time `t` in seconds. The same `t` and config SHALL give the same numbers. — `test_pose_is_deterministic`, `test_pose_is_always_finite`, `test_pose_preserves_volume`
+- **R71** `pose` SHALL be periodic: for the loop length `LOOP_SECONDS`, `pose(0)` and `pose(LOOP_SECONDS)` SHALL be equal in every field, so a GIF loops without a jump. — `test_pose_loops_seamlessly` (property-based)
+- **R72** THE SVG renderer SHALL accept an optional pose and apply it to named groups with stable unique ids (`ghostRig`, `ghostEyes`, `ghostTail`, `ghostGlowLayer`, `ghostBody`), and WITHOUT a pose it SHALL stay deterministic and carry no `data-pose` attribute. — `test_render_without_pose_is_unchanged`, `test_pose_groups_have_stable_unique_ids`, `test_pose_changes_render_and_is_deterministic`, `test_ghost_path_d_matches_render_and_waves_with_pose`
+  > Changelog 2026-11-10: the first draft said "same bytes as before when no pose is passed". That cannot hold together with the ghost redraw requested in the same week (found by the motion tab). Decision: byte-identity with the OLD ghost is dropped; determinism and the absence of pose data are kept. Tests that pinned old ghost bytes were updated by the motion tab.
+- **R73** WHILE `prefers-reduced-motion` is set, THE APP SHALL NOT animate the ghost and SHALL show the rest pose. (tests planned: test_reduced_motion_shows_rest_pose)
+- **R74** WHEN the user presses or drags the ghost, THE APP SHALL feed a damped spring (pure function, fixed constants) so the ghost squashes and wobbles back. The spring SHALL be deterministic for the same input sequence and SHALL settle within a fixed time. — `test_spring_is_deterministic`, `test_spring_settles`, `test_spring_clamps_dt_and_input`, `test_spring_squashes_the_ghost`
+
+### Styling by touch
+- **R75** WHEN the user taps the ghost's head, face or hand area, THE APP SHALL cycle the matching option (costume, expression, prop) to the next valid value, through the same normalizer as the form controls. (tests planned)
+- **R76** THE ENGINE SHALL offer at least eight expressions. An unknown expression key SHALL fall back to the default (as R7 does). (tests planned)
+
+### GIF
+- **R77** THE ENGINE SHALL contain a pure GIF encoder: RGBA frames in, bytes out, with a global palette built from all frames, a loop-forever header and a fixed frame delay. No DOM, no clock, no randomness. — `test_gif_has_valid_structure`, `test_gif_roundtrip_pixels`
+- **R78** THE SAME frames SHALL produce the same GIF bytes. — `test_gif_is_deterministic`
+- **R79** THE ENCODER SHALL reject input that is empty, has mismatched frame sizes, or exceeds a fixed pixel budget, and SHALL NOT allocate before checking. — `test_gif_rejects_bad_input`
+- **R80** THE APP SHALL build the frames from `pose(t)` at evenly spaced times over one loop, encode in a Web Worker, show progress, and stay under a fixed size budget; IF the result is over the budget THE APP SHALL lower the frame size and try once more, then say so. — `test_plan_gif_size_shrinks_when_over_budget`, `test_gif_worker_message_validation`
+
+### Sound
+- **R81** THE APP SHALL NOT make any sound until the user taps something that turns music or the opening reveal on. Music SHALL be off by default and SHALL remember the choice. — `test_music_off_by_default`, `test_saved_on_does_not_autoplay`, `test_corrupt_saved_state_falls_back`
+- **R82** EVERY audio file under `assets/audio/` SHALL have a row in `assets/audio/LICENSES.md` naming its source page, license and original hash. THE `audio-license-guard` hook and a test SHALL fail when a file has no row. — `test_audio_files_have_license_rows`, `test_audio_guard_flags_unlisted_file`
+- **R83** AUDIO FILES SHALL load only when the user turns sound on, never on page load. — `test_no_fetch_before_enable`, `test_enable_fetches_once_and_plays_loop`, `test_audio_is_not_loaded_on_page_load`
+- **R84** SOUND EFFECTS (squish, pop, creak) SHALL be synthesized in code from fixed parameters in a pure module, with no sample files. — `test_sfx_plan_is_deterministic`, `test_sfx_unknown_name_is_empty`, `test_sfx_gain_is_capped`
+
+### Share link v2
+- **R85** THE SHARE LINK SHALL carry a version, keep every v1 link working (R69), cap the number of stickers and the link length in code constants, and reject anything over the cap instead of truncating. (tests planned)
+
 ## Not verified (carried over, shown here on purpose)
 
 - **P16** Cross-browser and mobile: the SVG filters, the PNG save, and importing the `.ics` into real calendar apps were checked in Chrome only. Safari, Firefox and mobile are NOT verified. See `tasks.md` P16.

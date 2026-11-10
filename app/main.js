@@ -23,13 +23,43 @@ import {
   shareText,
   SWATCHES,
   CANVAS,
+  pose,
+  LOOP_SECONDS,
+  planGifSize,
 } from "../engine/index.js";
+import { createMotion } from "./motion.js";
+import { createAudioController } from "./audio.js";
 
 const LS_KEY = "ascii-invite:config";
 const $ = (id) => document.getElementById(id);
 
 // The raw (not yet sanitized) text the user typed. Scanned BEFORE sanitizing so
 // an email or markup is blocked instead of being silently rewritten.
+// ---- Living ghost (R70-R74) and sound (R81-R84): the app owns the clock and the audio; the engine decides the numbers ----
+const audio = createAudioController({ now: () => performance.now() / 1000 });
+const motion = createMotion({ getCfg: () => readUi(), onPress: () => audio.playSfx("squish") });
+const reducedQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+motion.setReduced(!!(reducedQuery && reducedQuery.matches));
+if (reducedQuery && reducedQuery.addEventListener) reducedQuery.addEventListener("change", (e) => motion.setReduced(e.matches));
+
+function syncSound() {
+  const on = audio.isOn();
+  for (const id of ["soundToggle", "recvSound"]) {
+    const b = $(id);
+    if (!b) continue;
+    b.textContent = on ? "Music: on" : "Music: off";
+    b.setAttribute("aria-pressed", String(on));
+  }
+}
+async function toggleSound(hintEl) {
+  if (audio.isOn()) await audio.disable();
+  else if (!(await audio.enable())) hintEl.textContent = "Could not start the music here.";
+  syncSound();
+}
+function savedTrack() {
+  try { const o = JSON.parse(localStorage.getItem("kw:sound") || "null"); return o && typeof o.track === "string" ? o.track : null; } catch { return null; }
+}
+
 function readRaw() {
   return { nick: $("nick").value, date: $("evDate").value, time: $("evTime").value, place: $("evPlace").value };
 }
@@ -145,6 +175,7 @@ function render() {
   $("art").style.aspectRatio = `${width} / ${height}`;
   $("art").style.maxWidth = format === "story" ? "304px" : format === "wide" ? "760px" : "540px";
   $("art").innerHTML = renderSvg(cfg, { format });
+  motion.attach($("art"));
   const meta = buildInviteText(cfg).meta;
   $("art").setAttribute("aria-label", `${meta.purpose} invitation, ${meta.banner}${cfg.nick ? ", " + cfg.nick : ""}`);
   syncIcsButton(cfg);
@@ -191,6 +222,88 @@ function savePng() {
   };
   img.onerror = () => { URL.revokeObjectURL(url); setHint("Could not rasterize image."); };
   img.src = url;
+}
+
+
+// ---- GIF export (R77-R80): frames from pose(t) over exactly one loop, encoded in a worker ----
+const GIF_BUDGET = 2.5 * 1024 * 1024;
+const GIF_FRAMES = 40;
+const GIF_MAX_SIDE = 720;
+const GIF_DELAY_CS = Math.round((LOOP_SECONDS * 100) / GIF_FRAMES); // 40 frames x 10 cs = one 4 s loop
+
+function rasterFrame(svg, w, h, ctx) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(ctx.getImageData(0, 0, w, h).data.buffer.slice(0));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("could not draw a frame")); };
+    img.src = url;
+  });
+}
+
+function encodeInWorker(width, height, frames, onProgress) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("./gif_worker.js", { type: "module" });
+    worker.onmessage = (e) => {
+      const m = e.data;
+      if (m.type === "progress") onProgress(m.done, m.total);
+      else if (m.type === "done") { worker.terminate(); resolve(m.bytes); }
+      else if (m.type === "error") { worker.terminate(); reject(new Error(m.message)); }
+    };
+    worker.onerror = () => { worker.terminate(); reject(new Error("the GIF worker failed")); };
+    worker.postMessage({ type: "encode", width, height, frames, delayCs: GIF_DELAY_CS }, frames);
+  });
+}
+
+async function buildGif(cfg, format, width, height, progress) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const frames = [];
+  for (let k = 0; k < GIF_FRAMES; k++) {
+    progress(`Drawing frames ${k + 1}/${GIF_FRAMES}`);
+    const p = pose((k * LOOP_SECONDS) / GIF_FRAMES, cfg);
+    frames.push(await rasterFrame(renderSvg(cfg, { format, pose: p }), width, height, ctx));
+  }
+  return encodeInWorker(width, height, frames, (d, t) => progress(`Encoding ${d}/${t}`));
+}
+
+async function saveGif() {
+  const cfg = readUi();
+  if (!scanRaw(readRaw()).ok) { setHint("Blocked: the text contains an email, phone number or unsafe content."); return; }
+  const btn = $("saveGif");
+  btn.disabled = true;
+  const progress = (msg) => setHint(msg);
+  try {
+    const format = $("format").value;
+    const full = formatSize(format);
+    // 720 px on the long side is plenty for chat apps and keeps frames quick to draw
+    const k = Math.min(1, GIF_MAX_SIDE / Math.max(full.width, full.height));
+    let size = planGifSize(Math.round(full.width * k), Math.round(full.height * k), GIF_FRAMES, GIF_BUDGET);
+    let bytes = await buildGif(cfg, format, size.width, size.height, progress);
+    let note = "";
+    if (bytes.length > GIF_BUDGET) { // R80: one retry at a smaller size, then say so
+      const w = Math.max(64, Math.floor(size.width * 0.75)), h = Math.max(64, Math.floor(size.height * 0.75));
+      bytes = await buildGif(cfg, format, w, h, progress);
+      size = { width: w, height: h };
+      if (bytes.length > GIF_BUDGET) note = " It is larger than 2.5 MB; some apps may refuse it.";
+    }
+    const url = URL.createObjectURL(new Blob([bytes], { type: "image/gif" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = `kiroween-${cfg.year}-${cfg.purpose}-${format}.gif`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setHint(`Saved GIF (${size.width}x${size.height}, ${(bytes.length / 1048576).toFixed(1)} MB).${note}`);
+    audio.playSfx("pop");
+  } catch (e) {
+    setHint("Could not make the GIF here: " + (e && e.message ? e.message : "unknown error"));
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function copyLink() {
@@ -259,6 +372,7 @@ function showReceiver(cfg) {
   $("recvCount").textContent = info ? info.text : "";
   const meta = buildInviteText(cfg).meta;
   $("recvArt").innerHTML = renderSvg(cfg, { format: "square" });
+  motion.attach($("recvArt"));
   $("recvArt").setAttribute("aria-label", `${meta.purpose} invitation, ${meta.banner}${cfg.nick ? ", " + cfg.nick : ""}`);
   $("recvOwn").href = makeYourOwnUrl(location.origin, location.pathname);
   $("recvCal").hidden = !acts.calendar;
@@ -318,6 +432,12 @@ function boot() {
   for (const el of ["costume", "costumeTint", "scene", "format"]) $(el).addEventListener("change", render);
   for (const el of ["year", "nick", "evDate", "evTime", "evPlace", "mood", "palette", "glow"]) $(el).addEventListener("input", onInput);
   $("savePng").addEventListener("click", savePng);
+  $("saveGif").addEventListener("click", saveGif);
+  $("soundToggle").addEventListener("click", () => toggleSound($("hint")));
+  $("trackSel").addEventListener("change", () => audio.setTrack($("trackSel").value));
+  const st = savedTrack();
+  if (st && [...$("trackSel").options].some((o) => o.value === st)) $("trackSel").value = st;
+  if ($("recvSound")) $("recvSound").addEventListener("click", () => toggleSound($("recvHint")));
   $("copyLink").addEventListener("click", copyLink);
   $("saveCfg").addEventListener("click", saveCfg);
   $("saveIcs").addEventListener("click", saveIcs);

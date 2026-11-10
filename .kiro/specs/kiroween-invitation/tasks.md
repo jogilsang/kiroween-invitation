@@ -68,3 +68,14 @@ Status 2026-11-09. Test first, then code. Verified by `tests/recv_view.test.js` 
 - [x] RC2 Receiver view in the app (card, calendar, share/copy, make your own, edit, title). (R60-R63, R65)
 - [x] RC3 Countdown line and entrance animation, reduced-motion safe. (R64, R66)
 - [x] RC4 Mobile order and "Save config" label. (R67, R68)
+
+## Production week (2026-11-10 to 11-16), plan in `PLAN_PRODUCTION_WEEK.md`
+Status 2026-11-10. Test first, then code.
+- [x] PW1 Steering: `motion.md`, `audio-license.md`, `media-pipeline.md`; agent `media-lab`; hook `audio-license-guard`. (R82)
+- [x] PW2 Audio assets: three CC0 tracks, normalized, listed in `assets/audio/LICENSES.md`. (R82)
+- [x] PW3 `engine/pose.js` and renderer hook-up, ghost redraw. (R70-R72)
+- [ ] PW4 App animation loop, reduced motion, spring on press. (R73, R74)
+- [~] PW5 `engine/gif.js` and worker merged (R77-R79, tests green, Pillow decode checked); export button and size retry still open. (R80)
+- [~] PW6 `app/audio.js` and `engine/sfx.js` merged with fakes; mute control, wiring and opening reveal still open. (R81-R84)
+- [ ] PW7 Touch styling and expressions. (R75, R76)
+- [ ] PW8 Share link v2. (R85)

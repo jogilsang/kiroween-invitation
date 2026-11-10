@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "audio-license-guard",
+      "description": "Why: the Kiroween rules forbid third-party copyrighted music, and an unlisted audio file is the easiest way to break that. Effect: when a file is created or saved under assets/audio/, check that every audio file has a CC0 row with a source page in LICENSES.md; a mismatch is reported to the agent (exit 2). The same rule runs in tests/audio_license.test.js.",
+      "trigger": "PostFileCreate",
+      "matcher": "assets/audio/",
+      "action": { "type": "command", "command": "bash .kiro/hooks/audio_license_check.sh" }
+    },
+    {
+      "name": "audio-license-guard-save",
+      "description": "Same check when LICENSES.md or an audio file is saved.",
+      "trigger": "PostFileSave",
+      "matcher": "assets/audio/",
+      "action": { "type": "command", "command": "bash .kiro/hooks/audio_license_check.sh" }
+    }
+  ]
+}

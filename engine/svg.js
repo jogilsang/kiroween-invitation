@@ -58,55 +58,148 @@ function hexChan(h, ch) {
   return ([(n >> 16) & 255, (n >> 8) & 255, n & 255][ch] / 255).toFixed(3);
 }
 
-// --- White Kiro ghost: elongated body, gaunt angular eyes, mood-driven maw ---
-function ghost(cx, cy, s, rand, mood) {
+// --- Round, plump white ghost with a flat, wavy skirt (drawn here, not copied) ---
+// Geometry only. `tail` are three hem sway offsets in px (all 0 at rest); they move
+// only the CONTROL points of each hem wave, never the corners, so the path always
+// closes at the left hem corner and stays under the body.
+function ghostGeometry(cx, cy, s, rand, tail) {
   const top = cy - 250 * s;
-  const halfW = 112 * s;
-  const hemY = cy + 110 * s;
+  const halfW = 118 * s;
+  const hemY = cy + 100 * s;
   const shoulderY = cy - 40 * s;
   const shoulderW = 122 * s;
   const drips = 5;
   const step = (halfW * 2) / drips;
   let hem = "";
   for (let i = 0; i < drips; i++) {
-    const d = (48 + rand() * 70) * s;
+    const d = (14 + rand() * 12) * s;
+    const w = tail[i % 3] * s;
     // The body path arrives at the RIGHT hem corner, so the hem must run back
     // LEFT (negative dx) and end exactly at the left corner, where Z closes it.
-    hem += ` q ${-step * 0.25} ${d} ${-step * 0.5} ${d * 0.45} q ${-step * 0.25} ${-d} ${-step * 0.5} ${-d * 0.45}`;
+    hem += ` q ${-step * 0.25 + w} ${d} ${-step * 0.5} ${d * 0.45} q ${-step * 0.25 - w} ${-d} ${-step * 0.5} ${-d * 0.45}`;
   }
+  const f = (n) => Number(n.toFixed(3));
   const body = `
-    M ${cx - halfW} ${hemY}
-    L ${cx - shoulderW} ${shoulderY}
-    C ${cx - shoulderW - 10 * s} ${top + 40 * s}, ${cx - 70 * s} ${top}, ${cx} ${top}
-    C ${cx + 70 * s} ${top}, ${cx + shoulderW + 10 * s} ${top + 40 * s}, ${cx + shoulderW} ${shoulderY}
-    L ${cx + halfW} ${hemY}
+    M ${f(cx - halfW)} ${f(hemY)}
+    C ${f(cx - halfW - 20 * s)} ${f(hemY - 60 * s)}, ${f(cx - shoulderW - 8 * s)} ${f(shoulderY + 50 * s)}, ${f(cx - shoulderW)} ${f(shoulderY)}
+    C ${f(cx - shoulderW - 14 * s)} ${f(top + 20 * s)}, ${f(cx - 66 * s)} ${f(top)}, ${f(cx)} ${f(top)}
+    C ${f(cx + 66 * s)} ${f(top)}, ${f(cx + shoulderW + 14 * s)} ${f(top + 20 * s)}, ${f(cx + shoulderW)} ${f(shoulderY)}
+    C ${f(cx + shoulderW + 8 * s)} ${f(shoulderY + 50 * s)}, ${f(cx + halfW + 20 * s)} ${f(hemY - 60 * s)}, ${f(cx + halfW)} ${f(hemY)}
     ${hem} Z`;
+  const rim = `M ${f(cx + halfW)} ${f(hemY)} ${hem}`;
+  return { body, rim };
+}
 
-  const eyeY = cy - 150 * s;
-  const eye = (ex, w, h, tilt) => `
+// --- Safe, clamped numbers from a caller-supplied pose / spring (R72, R74) ---
+const num = (v, d, lo, hi) => (typeof v === "number" && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d);
+const r3 = (n) => Number(n.toFixed(3));
+function cleanMotion(opts) {
+  const has = opts && (opts.pose || opts.spring);
+  if (!has) return null;
+  const p = opts.pose && typeof opts.pose === "object" ? opts.pose : {};
+  const sp = opts.spring && typeof opts.spring === "object" ? opts.spring : {};
+  const press = num(sp.x, 0, -1.5, 1.5);
+  // Pressing squashes (shorter, wider) and keeps volume: scaleX * scaleY stays the pose's.
+  const squash = 1 - 0.18 * press;
+  const scaleY = Math.max(0.6, Math.min(1.5, num(p.scaleY, 1, 0.7, 1.4) * squash));
+  const scaleX = Math.max(0.6, Math.min(1.5, num(p.scaleX, 1, 0.7, 1.4) / squash));
+  const tw = Array.isArray(p.tailWave) ? p.tailWave : [];
+  return {
+    bobY: num(p.bobY, 0, -40, 40),
+    scaleX, scaleY,
+    tail: [0, 1, 2].map((i) => num(tw[i], 0, -30, 30)),
+    blink: num(p.blink, 0, 0, 1),
+    glow: num(p.glow, 1, 0.5, 1.5),
+    eyeShiftX: num(p.eyeShiftX, 0, -10, 10),
+  };
+}
+const REST_TAIL = [0, 0, 0];
+const GHOST_CX = CANVAS / 2, GHOST_CY = 430, GHOST_S = 1.05;
+
+/**
+ * The ghost body outline for a pose. A live preview can set this as the `d` of
+ * #ghostBody (and #ghostClipBody) instead of rebuilding the whole SVG.
+ * @param {object} cfg normalized config
+ * @param {object} [p] pose from engine/pose.js
+ * @returns {string} SVG path data
+ */
+export function ghostPathD(cfg, p) {
+  const m = cleanMotion({ pose: p || {} });
+  return ghostGeometry(GHOST_CX, GHOST_CY, GHOST_S, rng(baseSeed(cfg) ^ 0x1111), m ? m.tail : REST_TAIL).body;
+}
+
+const rigTransform = (m, cx, hemY) =>
+  `translate(0 ${r3(m.bobY)}) translate(${cx} ${hemY}) scale(${r3(m.scaleX)} ${r3(m.scaleY)}) translate(${-cx} ${-hemY})`;
+const eyesTransform = (m, eyeY) =>
+  `translate(${r3(m.eyeShiftX)} ${r3(eyeY * m.blink * 0.92)}) scale(1 ${r3(1 - 0.92 * m.blink)})`;
+
+/**
+ * The attributes a live preview sets on the already-rendered ghost, one call per frame,
+ * instead of rebuilding the whole SVG. Same numbers as renderSvg(cfg, {pose, spring}). (R72)
+ * @param {object} cfg normalized config
+ * @param {object} p pose from engine/pose.js
+ * @param {object} [sp] spring state from engine/spring.js
+ * @returns {{rig:string, eyes:string, haloOpacity:number, bodyD:string, rimD:string}}
+ */
+export function poseAttrs(cfg, p, sp) {
+  const m = cleanMotion({ pose: p || {}, spring: sp || {} });
+  const s = GHOST_S, cy = GHOST_CY, cx = GHOST_CX;
+  const g = ghostGeometry(cx, cy, s, rng(baseSeed(cfg) ^ 0x1111), m.tail);
+  return {
+    rig: rigTransform(m, cx, cy + 100 * s),
+    eyes: eyesTransform(m, cy - 140 * s),
+    haloOpacity: r3(Math.min(1, 0.8 * m.glow)),
+    bodyD: g.body,
+    rimD: g.rim,
+  };
+}
+
+function ghost(cx, cy, s, rand, mood, m, pal) {
+  const { body, rim } = ghostGeometry(cx, cy, s, rand, m ? m.tail : REST_TAIL);
+  const top = cy - 250 * s;
+  const hemY = cy + 100 * s;
+
+  // Two tall oval eyes; the mood only tilts and stretches them.
+  const eyeY = cy - 140 * s;
+  const ry = mood === "screaming" ? 34 : mood === "hollow" ? 24 : 28;
+  const eye = (ex, tilt) => `
     <g transform="rotate(${tilt} ${ex} ${eyeY})">
-      <path d="M ${ex - w} ${eyeY - h * 0.5} L ${ex + w * 0.3} ${eyeY - h * 0.7}
-               L ${ex + w} ${eyeY + h * 0.4} L ${ex - w * 0.2} ${eyeY + h * 0.7} Z" fill="#050208"/>
-      <ellipse cx="${ex}" cy="${eyeY + h * 0.1}" rx="${3 * s}" ry="${7 * s}" fill="#d9b8ff" opacity="0.4"/>
+      <ellipse cx="${ex}" cy="${eyeY}" rx="${15 * s}" ry="${ry * s}" fill="#050208"/>
+      <ellipse cx="${ex - 4 * s}" cy="${eyeY - ry * 0.4 * s}" rx="${4.5 * s}" ry="${7 * s}" fill="#ffffff" opacity="0.8"/>
     </g>`;
+  const eyeT = m
+    ? ` data-pose="eyes" transform="${eyesTransform(m, eyeY)}"`
+    : "";
 
-  const mawY = cy - 70 * s;
+  const mawY = cy - 72 * s;
   let maw;
   if (mood === "screaming") {
-    maw = `<ellipse cx="${cx}" cy="${mawY}" rx="${24 * s}" ry="${46 * s}" fill="#050208"/>`;
+    maw = `<ellipse cx="${cx}" cy="${mawY + 10 * s}" rx="${22 * s}" ry="${40 * s}" fill="#050208"/>`;
   } else if (mood === "hollow") {
-    maw = `<path d="M ${cx - 24 * s} ${mawY - 16 * s} q ${24 * s} ${-10 * s} ${48 * s} 0
-             q ${-6 * s} ${30 * s} ${-24 * s} ${30 * s} q ${-18 * s} 0 ${-24 * s} ${-30 * s} Z" fill="#050208"/>`;
+    maw = `<path d="M ${cx - 22 * s} ${mawY - 12 * s} q ${22 * s} ${-9 * s} ${44 * s} 0
+             q ${-6 * s} ${28 * s} ${-22 * s} ${28 * s} q ${-16 * s} 0 ${-22 * s} ${-28 * s} Z" fill="#050208"/>`;
   } else {
-    maw = `<path d="M ${cx - 30 * s} ${mawY - 2 * s}
-             q ${20 * s} ${26 * s} ${36 * s} ${6 * s} q ${12 * s} ${-13 * s} ${24 * s} ${4 * s}
-             q ${-10 * s} ${28 * s} ${-28 * s} ${28 * s} q ${-22 * s} 0 ${-32 * s} ${-38 * s} Z" fill="#050208"/>`;
+    maw = `<path d="M ${cx - 28 * s} ${mawY - 2 * s}
+             q ${19 * s} ${24 * s} ${34 * s} ${6 * s} q ${11 * s} ${-12 * s} ${22 * s} ${4 * s}
+             q ${-10 * s} ${26 * s} ${-26 * s} ${26 * s} q ${-20 * s} 0 ${-30 * s} ${-36 * s} Z" fill="#050208"/>`;
   }
+
+  const haloA = m ? Math.min(1, 0.8 * m.glow) : 0.8;
+  const rig = m
+    ? ` data-pose="rig" transform="${rigTransform(m, cx, hemY)}"`
+    : "";
   const svg = `
+    <g id="ghostRig"${rig}>
+    <ellipse id="ghostGlowLayer" cx="${cx}" cy="${cy - 50 * s}" rx="${200 * s}" ry="${250 * s}" fill="url(#ghostHalo)" opacity="${r3(haloA)}"/>
     <g filter="url(#ghostGlow)">
       <path id="ghostBody" d="${body}" fill="url(#ghostFill)" stroke="#efe6ff" stroke-opacity="0.28" stroke-width="2"/>
-      ${eye(cx - 42 * s, 17 * s, 46 * s, -10)}
-      ${eye(cx + 42 * s, 15 * s, 40 * s, 12)}
+      <path id="ghostRimStroke" d="${body}" fill="none" stroke="url(#ghostRim)" stroke-width="5"/>
+      <path id="ghostTail" d="${rim}" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="${cx - 58 * s}" cy="${top + 62 * s}" rx="${36 * s}" ry="${20 * s}" transform="rotate(-32 ${cx - 58 * s} ${top + 62 * s})" fill="url(#ghostGloss)"/>
+      <g id="ghostEyes"${eyeT}>
+      ${eye(cx - 40 * s, -6)}
+      ${eye(cx + 40 * s, 6)}
+      </g>
       ${maw}
     </g>`;
   return { svg, body };
@@ -180,7 +273,7 @@ function moon(cx, cy, r, pal, c) {
  * @param {object} cfg normalized config (from normalizeConfig().value)
  * @returns {string} an SVG document string
  */
-function renderSquare(cfg) {
+function renderSquare(cfg, motion) {
   const pal = PALETTE_COLORS[cfg.palette] || PALETTE_COLORS.magenta;
   const strong = cfg.glow === "strong";
   // Independent seeded streams (R26): the ghost hem, the bats and the fog each
@@ -214,7 +307,7 @@ function renderSquare(cfg) {
     : has("horns") ? horns(W / 2, headTopY, pal, col("horns")) : "";
 
   // Ghost first: we need its body path for the costume clip (R30).
-  const ghostParts = ghost(W / 2, ghostCy, ghostS, hemRand, cfg.mood);
+  const ghostParts = ghost(W / 2, ghostCy, ghostS, hemRand, cfg.mood, motion, pal);
   const costumeId = cfg.costume && cfg.costume !== "none" ? cfg.costume : null;
   const costumeSVG = costumeId
     ? COSTUME_DRAW[costumeId](W / 2, ghostCy, ghostS, (tints[costumeId] && SWATCHES[tints[costumeId]]) || COSTUME_COLOR[costumeId])
@@ -253,6 +346,15 @@ function renderSquare(cfg) {
     <radialGradient id="ghostFill" cx="50%" cy="38%" r="72%">
       <stop offset="0%" stop-color="#ffffff"/><stop offset="62%" stop-color="#e9ddff"/><stop offset="100%" stop-color="#9f86d8"/>
     </radialGradient>
+    <radialGradient id="ghostHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${pal.glow}" stop-opacity="0.32"/><stop offset="100%" stop-color="${pal.glow}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ghostGloss" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ghostRim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="55%" stop-color="#d9c4ff" stop-opacity="0"/><stop offset="100%" stop-color="#d9c4ff" stop-opacity="0.85"/>
+    </linearGradient>
     <radialGradient id="pumpkinFill" cx="46%" cy="36%" r="74%">
       <stop offset="0%" stop-color="${pal.accent}"/><stop offset="100%" stop-color="#8f3608"/>
     </radialGradient>
@@ -272,7 +374,7 @@ function renderSquare(cfg) {
       <feColorMatrix in="b" type="matrix" values="0 0 0 0 1  0 0 0 0 0.5  0 0 0 0 0.08  0 0 0 0.95 0" result="g"/>
       <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    ${costumeId ? `<clipPath id="ghostClip"><path d="${ghostParts.body}"/></clipPath>` : ""}
+    ${costumeId ? `<clipPath id="ghostClip"><path id="ghostClipBody" d="${ghostParts.body}"/></clipPath>` : ""}
     <filter id="propGlow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="${strong ? 9 : 5}" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
@@ -297,6 +399,7 @@ function renderSquare(cfg) {
   ${ghostParts.svg}
   ${costumeSVG}
   ${headwearSVG}
+  </g>
   ${pumpkin(W / 2, 760, 1.05)}
   <rect width="${W}" height="${H}" fill="url(#vignette)"/>
   <rect width="${W}" height="${H}" filter="url(#grain)" opacity="0.5"/>
@@ -327,11 +430,13 @@ export function formatSize(format) {
 /**
  * Render the invitation as a deterministic SVG string.
  * @param {object} cfg normalized config
- * @param {{format?: string}} [opts] format: square (default) | story | wide
+ * @param {{format?: string, pose?: object, spring?: {x:number,v:number}}} [opts]
+ *   format: square (default) | story | wide. pose (engine/pose.js) and spring
+ *   (engine/spring.js) are optional; without them the output has no motion transforms.
  * @returns {string}
  */
 export function renderSvg(cfg, opts = {}) {
-  const square = renderSquare(cfg);
+  const square = renderSquare(cfg, cleanMotion(opts));
   const format = opts && FORMATS.includes(opts.format) ? opts.format : "square";
   if (format === "square") return square;
 

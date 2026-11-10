@@ -35,6 +35,7 @@
       <button type="button" id="recvCal" hidden>Add to calendar</button>
       <button type="button" id="recvShare" hidden>Share…</button>
       <button type="button" id="recvCopy">Copy link</button>
+      <button type="button" id="recvSound" aria-pressed="false">Music: off</button>
       <a id="recvOwn" class="btnlink" href="./">Make your own</a>
       <button type="button" id="recvEdit" class="ghost">Edit this invitation</button>
     </div>
@@ -49,6 +50,7 @@
       <div class="actions top">
         <button type="button" id="remix" class="remix">Remix the look</button>
         <button type="button" id="savePng">Save as image</button>
+        <button type="button" id="saveGif">Save as GIF</button>
         <button type="button" id="copyLink">Copy share link</button>
         <button type="button" id="saveIcs" disabled>Add to calendar (.ics)</button>
         <button type="button" id="shareNative" hidden>Share…</button>
@@ -147,6 +149,14 @@
 
     <section class="preview" aria-label="Invitation preview">
       <div id="art" class="art" role="img" aria-label="Halloween invitation"></div>
+      <div class="sound" role="group" aria-label="Music">
+        <button type="button" id="soundToggle" aria-pressed="false">Music: off</button>
+        <select id="trackSel" aria-label="Music track">
+          <option value="spooky-waltz">Spooky waltz</option>
+          <option value="cute-tune">Cute tune</option>
+          <option value="creepy-ambient">Creepy ambient</option>
+        </select>
+      </div>
     </section>
   </main>
 

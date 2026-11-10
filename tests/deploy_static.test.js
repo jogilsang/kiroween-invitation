@@ -18,3 +18,23 @@ test("test_llms_txt_has_h1: staged llms.txt is markdown with a single H1", () =>
   assert.equal((t.match(/^# /gm) || []).length, 1);
   assert.ok(!/<html/i.test(t));
 });
+
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+test("test_staged_imports_all_resolve: every relative import and worker URL in dist/ points at a staged file", () => {
+  const distDir = new URL("../dist/", import.meta.url).pathname;
+  const walk = (d) => readdirSync(d).flatMap((n) => (statSync(join(d, n)).isDirectory() ? walk(join(d, n)) : [join(d, n)]));
+  const js = walk(distDir).filter((f) => f.endsWith(".js"));
+  assert.ok(js.length > 5);
+  const missing = [];
+  for (const f of js) {
+    const src = readFileSync(f, "utf8");
+    for (const m of src.matchAll(/(?:from\s+|import\s*\(\s*|new Worker\(\s*)["'](\.{1,2}\/[^"']+)["']/g)) {
+      if (!existsSync(join(dirname(f), m[1]))) missing.push(`${f.replace(distDir, "")} -> ${m[1]}`);
+    }
+  }
+  const html = readFileSync(join(distDir, "index.html"), "utf8");
+  for (const m of html.matchAll(/(?:src|href)="(\.\/[^"]+)"/g)) if (!existsSync(join(distDir, m[1]))) missing.push(`index.html -> ${m[1]}`);
+  assert.deepEqual(missing, []);
+});

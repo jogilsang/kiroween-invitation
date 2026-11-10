@@ -140,3 +140,12 @@ input:focus, select:focus, button:focus { outline: 2px solid var(--neon2); outli
 @media (prefers-reduced-motion: reduce) {
   .recv-art { animation: none; }
 }
+
+/* Sound control (R81): a plain button; nothing plays until it is pressed */
+.sound { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px; }
+.sound button, .recv-actions #recvSound { background: #0e0817; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; }
+.sound button[aria-pressed="true"], .recv-actions #recvSound[aria-pressed="true"] { border-color: var(--neon2); box-shadow: 0 0 12px rgba(177,75,255,0.45); }
+.sound select { background: #0e0817; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; font: inherit; }
+.sound button:focus, .sound select:focus, .recv-actions #recvSound:focus { outline: 2px solid var(--neon); outline-offset: 2px; }
+.art svg { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.gif-progress { font-size: 12px; color: var(--muted); }

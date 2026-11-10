@@ -1,206 +1,214 @@
 {
-  "name": "svg-engine",
-  "description": "Owns the deterministic SVG render: engine/svg.js, engine/compose.js, engine/fit.js. Layout, glow, fog, layer order, export sizes, text fitting. (Renamed from ascii-engine after the 2026-11-05 pivot from ASCII to SVG.)",
-  "model": "auto",
-  "prompt": "You own engine/svg.js, engine/compose.js and engine/fit.js only. Pure functions: no DOM, no network, no Math.random, no Date.now in the render path. Guarantee determinism (same config -> byte-identical SVG), a well-formed SVG for any input, and that long text is squeezed instead of leaving the frame. Write the failing test first. Do not edit files outside your scope; hand boundary changes to kiroween. PERMISSIONS (enforced by this file, not just a request): you may write only engine/svg.js, engine/compose.js, engine/fit.js, tests/svg.test.js, tests/compose.test.js, tests/formats.test.js, tests/contrast.test.js, tests/svg_*.test.js. Everything else in the repo is denied; a new file you want to add elsewhere needs the conductor (kiroween).",
-  "tools": [
-    "read",
-    "write",
-    "shell"
-  ],
-  "allowedTools": [
-    "fs_read",
-    "grep",
-    "glob"
-  ],
-  "includeMcpJson": false,
-  "resources": [
-    "file://.kiro/steering/principles.md",
-    "file://.kiro/steering/product.md",
-    "file://.kiro/steering/tech.md",
-    "file://.kiro/specs/kiroween-invitation/requirements.md"
-  ],
-  "permissions": {
-    "rules": [
-      {
-        "capability": "fs_read",
-        "effect": "allow"
-      },
-      {
-        "capability": "fs_read",
-        "match": [
-          ".env",
-          ".env.*",
-          ".omc/**"
-        ],
-        "effect": "deny"
-      },
-      {
-        "capability": "fs_write",
-        "match": [
-          "engine/svg.js",
-          "engine/compose.js",
-          "engine/fit.js",
-          "tests/svg.test.js",
-          "tests/compose.test.js",
-          "tests/formats.test.js",
-          "tests/contrast.test.js",
-          "tests/svg_*.test.js"
-        ],
-        "effect": "allow"
-      },
-      {
-        "capability": "fs_write",
-        "match": [
-          "engine/assets.js",
-          "engine/costumes.js",
-          "engine/ics.js",
-          "engine/index.js",
-          "engine/invite.js",
-          "engine/presets.js",
-          "engine/remix.js",
-          "engine/scan.js",
-          "engine/scenes.js",
-          "engine/share.js",
-          "tests/assets.test.js",
-          "tests/costume_scene.test.js",
-          "tests/crew_findings.test.js",
-          "tests/crew_r2.test.js",
-          "tests/ics.test.js",
-          "tests/invite.test.js",
-          "tests/og.test.js",
-          "tests/pbt.test.js",
-          "tests/presets.test.js",
-          "tests/redteam_round2.test.js",
-          "tests/remix.test.js",
-          "tests/share.test.js",
-          "app/**",
-          "deploy/**",
-          "docs/**",
-          ".kiro/**",
-          "LICENSE",
-          "README.md",
-          "package.json",
-          "package-lock.json"
-        ],
-        "effect": "deny"
-      },
-      {
-        "capability": "shell",
-        "match": [
-          "node *",
-          "npm test*",
-          "npm run test*",
-          "git status*",
-          "git diff*",
-          "git log*",
-          "git show*",
-          "ls*",
-          "cat *",
-          "head *",
-          "tail *",
-          "grep *",
-          "rg *",
-          "wc *",
-          "diff *",
-          "bash .kiro/hooks/*"
-        ],
-        "effect": "allow"
-      },
-      {
-        "capability": "shell",
-        "match": [
-          "git push*",
-          "git reset*",
-          "git clean*",
-          "git checkout*",
-          "git branch -D*",
-          "git commit*--no-verify*",
-          "rm -rf*",
-          "sudo *",
-          "curl *",
-          "wget *",
-          "aws *",
-          "gh *",
-          "*deploy.sh*",
-          "*make_public.sh*",
-          "*teardown.sh*"
-        ],
-        "effect": "deny"
-      }
-    ]
+ "name": "svg-engine",
+ "description": "Owns the deterministic SVG render: engine/svg.js, engine/compose.js, engine/fit.js. Layout, glow, fog, layer order, export sizes, text fitting. (Renamed from ascii-engine after the 2026-11-05 pivot from ASCII to SVG.). Also owns engine/pose.js and engine/spring.js (pure motion).",
+ "model": "auto",
+ "prompt": "You own engine/svg.js, engine/compose.js and engine/fit.js only. Pure functions: no DOM, no network, no Math.random, no Date.now in the render path. Guarantee determinism (same config -> byte-identical SVG), a well-formed SVG for any input, and that long text is squeezed instead of leaving the frame. Write the failing test first. Do not edit files outside your scope; hand boundary changes to kiroween. PERMISSIONS (enforced by this file, not just a request): you may write only engine/svg.js, engine/compose.js, engine/fit.js, tests/svg.test.js, tests/compose.test.js, tests/formats.test.js, tests/contrast.test.js, tests/svg_*.test.js. Everything else in the repo is denied; a new file you want to add elsewhere needs the conductor (kiroween).",
+ "tools": [
+  "read",
+  "write",
+  "shell"
+ ],
+ "allowedTools": [
+  "fs_read",
+  "grep",
+  "glob"
+ ],
+ "includeMcpJson": false,
+ "resources": [
+  "file://.kiro/steering/principles.md",
+  "file://.kiro/steering/product.md",
+  "file://.kiro/steering/tech.md",
+  "file://.kiro/specs/kiroween-invitation/requirements.md"
+ ],
+ "permissions": {
+  "rules": [
+   {
+    "capability": "fs_read",
+    "effect": "allow"
+   },
+   {
+    "capability": "fs_read",
+    "match": [
+     ".env",
+     ".env.*",
+     ".omc/**"
+    ],
+    "effect": "deny"
+   },
+   {
+    "capability": "fs_write",
+    "match": [
+     "engine/svg.js",
+     "engine/compose.js",
+     "engine/fit.js",
+     "tests/svg.test.js",
+     "tests/compose.test.js",
+     "tests/formats.test.js",
+     "tests/contrast.test.js",
+     "tests/svg_*.test.js",
+     "engine/pose.js",
+     "engine/spring.js",
+     "tests/pose*.test.js",
+     "tests/spring*.test.js"
+    ],
+    "effect": "allow"
+   },
+   {
+    "capability": "fs_write",
+    "match": [
+     "engine/assets.js",
+     "engine/costumes.js",
+     "engine/ics.js",
+     "engine/index.js",
+     "engine/invite.js",
+     "engine/presets.js",
+     "engine/remix.js",
+     "engine/scan.js",
+     "engine/scenes.js",
+     "engine/share.js",
+     "tests/assets.test.js",
+     "tests/costume_scene.test.js",
+     "tests/crew_findings.test.js",
+     "tests/crew_r2.test.js",
+     "tests/ics.test.js",
+     "tests/invite.test.js",
+     "tests/og.test.js",
+     "tests/pbt.test.js",
+     "tests/presets.test.js",
+     "tests/redteam_round2.test.js",
+     "tests/remix.test.js",
+     "tests/share.test.js",
+     "app/**",
+     "deploy/**",
+     "docs/**",
+     ".kiro/**",
+     "LICENSE",
+     "README.md",
+     "package.json",
+     "package-lock.json"
+    ],
+    "effect": "deny"
+   },
+   {
+    "capability": "shell",
+    "match": [
+     "node *",
+     "npm test*",
+     "npm run test*",
+     "git status*",
+     "git diff*",
+     "git log*",
+     "git show*",
+     "ls*",
+     "cat *",
+     "head *",
+     "tail *",
+     "grep *",
+     "rg *",
+     "wc *",
+     "diff *",
+     "bash .kiro/hooks/*"
+    ],
+    "effect": "allow"
+   },
+   {
+    "capability": "shell",
+    "match": [
+     "git push*",
+     "git reset*",
+     "git clean*",
+     "git checkout*",
+     "git branch -D*",
+     "git commit*--no-verify*",
+     "rm -rf*",
+     "sudo *",
+     "curl *",
+     "wget *",
+     "aws *",
+     "gh *",
+     "*deploy.sh*",
+     "*make_public.sh*",
+     "*teardown.sh*"
+    ],
+    "effect": "deny"
+   }
+  ]
+ },
+ "toolsSettings": {
+  "fs_read": {
+   "deniedPaths": [
+    ".env",
+    ".env.*",
+    ".omc/**"
+   ]
   },
-  "toolsSettings": {
-    "fs_read": {
-      "deniedPaths": [
-        ".env",
-        ".env.*",
-        ".omc/**"
-      ]
-    },
-    "fs_write": {
-      "allowedPaths": [
-        "engine/svg.js",
-        "engine/compose.js",
-        "engine/fit.js",
-        "tests/svg.test.js",
-        "tests/compose.test.js",
-        "tests/formats.test.js",
-        "tests/contrast.test.js",
-        "tests/svg_*.test.js"
-      ],
-      "deniedPaths": [
-        "engine/assets.js",
-        "engine/costumes.js",
-        "engine/ics.js",
-        "engine/index.js",
-        "engine/invite.js",
-        "engine/presets.js",
-        "engine/remix.js",
-        "engine/scan.js",
-        "engine/scenes.js",
-        "engine/share.js",
-        "tests/assets.test.js",
-        "tests/costume_scene.test.js",
-        "tests/crew_findings.test.js",
-        "tests/crew_r2.test.js",
-        "tests/ics.test.js",
-        "tests/invite.test.js",
-        "tests/og.test.js",
-        "tests/pbt.test.js",
-        "tests/presets.test.js",
-        "tests/redteam_round2.test.js",
-        "tests/remix.test.js",
-        "tests/share.test.js",
-        "app/**",
-        "deploy/**",
-        "docs/**",
-        ".kiro/**",
-        "LICENSE",
-        "README.md",
-        "package.json",
-        "package-lock.json"
-      ]
-    },
-    "execute_bash": {
-      "allowedCommands": [
-        "node [^&;|<>`$]*",
-        "npm (test|run test)[^&;|<>`$]*",
-        "git (status|diff|log|show)[^&;|<>`$]*",
-        "(ls|cat|head|tail|grep|rg|wc|diff)( [^&;|<>`$]*)?",
-        "bash \\.kiro/hooks/[a-z_]+\\.sh[^&;|<>`$]*"
-      ],
-      "deniedCommands": [
-        ".*git (push|reset|clean|checkout).*",
-        ".*git branch -D.*",
-        ".*--no-verify.*",
-        ".*rm -rf.*",
-        "sudo .*",
-        "(curl|wget|aws|gh) .*",
-        ".*deploy\\.sh.*",
-        ".*make_public\\.sh.*",
-        ".*teardown\\.sh.*"
-      ]
-    }
+  "fs_write": {
+   "allowedPaths": [
+    "engine/svg.js",
+    "engine/compose.js",
+    "engine/fit.js",
+    "tests/svg.test.js",
+    "tests/compose.test.js",
+    "tests/formats.test.js",
+    "tests/contrast.test.js",
+    "tests/svg_*.test.js",
+    "engine/pose.js",
+    "engine/spring.js",
+    "tests/pose*.test.js",
+    "tests/spring*.test.js"
+   ],
+   "deniedPaths": [
+    "engine/assets.js",
+    "engine/costumes.js",
+    "engine/ics.js",
+    "engine/index.js",
+    "engine/invite.js",
+    "engine/presets.js",
+    "engine/remix.js",
+    "engine/scan.js",
+    "engine/scenes.js",
+    "engine/share.js",
+    "tests/assets.test.js",
+    "tests/costume_scene.test.js",
+    "tests/crew_findings.test.js",
+    "tests/crew_r2.test.js",
+    "tests/ics.test.js",
+    "tests/invite.test.js",
+    "tests/og.test.js",
+    "tests/pbt.test.js",
+    "tests/presets.test.js",
+    "tests/redteam_round2.test.js",
+    "tests/remix.test.js",
+    "tests/share.test.js",
+    "app/**",
+    "deploy/**",
+    "docs/**",
+    ".kiro/**",
+    "LICENSE",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+   ]
+  },
+  "execute_bash": {
+   "allowedCommands": [
+    "node [^&;|<>`$]*",
+    "npm (test|run test)[^&;|<>`$]*",
+    "git (status|diff|log|show)[^&;|<>`$]*",
+    "(ls|cat|head|tail|grep|rg|wc|diff)( [^&;|<>`$]*)?",
+    "bash \\.kiro/hooks/[a-z_]+\\.sh[^&;|<>`$]*"
+   ],
+   "deniedCommands": [
+    ".*git (push|reset|clean|checkout).*",
+    ".*git branch -D.*",
+    ".*--no-verify.*",
+    ".*rm -rf.*",
+    "sudo .*",
+    "(curl|wget|aws|gh) .*",
+    ".*deploy\\.sh.*",
+    ".*make_public\\.sh.*",
+    ".*teardown\\.sh.*"
+   ]
   }
+ }
 }

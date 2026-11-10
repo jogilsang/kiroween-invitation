@@ -1,0 +1,201 @@
+{
+ "name": "media-lab",
+ "description": "Owns motion-adjacent media: engine/gif.js (pure GIF encoder), engine/sfx.js (synthesized effects), app/gif_worker.js, app/audio.js and the audio license list. Never fetches audio; never touches the ghost drawing.",
+ "model": "auto",
+ "prompt": "You own engine/gif.js, engine/sfx.js, app/gif_worker.js and app/audio.js. gif.js is a pure encoder: RGBA frames in, bytes out, no DOM, no clock, no randomness; validate sizes before allocating. sfx.js holds sound-effect parameters as data. audio.js only plays; it makes no sound before a user gesture. You never download or add audio files (the conductor does, after checking the license page). Check GIF output with an independent decoder before reporting it done. PERMISSIONS (enforced by this file, not just a request): you may write only engine/gif.js, engine/sfx.js, app/gif_worker.js, app/audio.js, tests/gif*.test.js, tests/audio*.test.js, tests/sfx*.test.js, assets/audio/LICENSES.md. Everything else is denied; anything you need elsewhere goes to the conductor (kiroween) as a request in your report.",
+ "tools": [
+  "read",
+  "write",
+  "shell"
+ ],
+ "allowedTools": [
+  "fs_read",
+  "grep",
+  "glob"
+ ],
+ "includeMcpJson": false,
+ "resources": [
+  "file://.kiro/steering/principles.md",
+  "file://.kiro/steering/product.md",
+  "file://.kiro/steering/tech.md",
+  "file://.kiro/steering/media-pipeline.md",
+  "file://.kiro/steering/audio-license.md",
+  "file://.kiro/steering/engine-purity.md",
+  "file://.kiro/specs/kiroween-invitation/requirements.md"
+ ],
+ "permissions": {
+  "rules": [
+   {
+    "capability": "fs_read",
+    "effect": "allow"
+   },
+   {
+    "capability": "fs_read",
+    "match": [
+     ".env",
+     ".env.*",
+     ".omc/**"
+    ],
+    "effect": "deny"
+   },
+   {
+    "capability": "fs_write",
+    "match": [
+     "engine/gif.js",
+     "engine/sfx.js",
+     "app/gif_worker.js",
+     "app/audio.js",
+     "tests/gif*.test.js",
+     "tests/audio*.test.js",
+     "tests/sfx*.test.js",
+     "assets/audio/LICENSES.md"
+    ],
+    "effect": "allow"
+   },
+   {
+    "capability": "fs_write",
+    "match": [
+     "engine/svg.js",
+     "engine/pose.js",
+     "engine/spring.js",
+     "engine/assets.js",
+     "engine/costumes.js",
+     "engine/scenes.js",
+     "engine/compose.js",
+     "engine/fit.js",
+     "engine/ics.js",
+     "engine/index.js",
+     "engine/invite.js",
+     "engine/presets.js",
+     "engine/remix.js",
+     "engine/scan.js",
+     "engine/share.js",
+     "app/main.js",
+     "app/index.html",
+     "app/style.css",
+     "deploy/**",
+     "docs/**",
+     ".kiro/**",
+     "LICENSE",
+     "README.md",
+     "package.json",
+     "package-lock.json",
+     "assets/audio/*.m4a"
+    ],
+    "effect": "deny"
+   },
+   {
+    "capability": "shell",
+    "match": [
+     "node *",
+     "npm test*",
+     "npm run test*",
+     "git status*",
+     "git diff*",
+     "git log*",
+     "git show*",
+     "ls*",
+     "cat *",
+     "head *",
+     "tail *",
+     "grep *",
+     "rg *",
+     "wc *",
+     "diff *",
+     "bash .kiro/hooks/*"
+    ],
+    "effect": "allow"
+   },
+   {
+    "capability": "shell",
+    "match": [
+     "git push*",
+     "git reset*",
+     "git clean*",
+     "git checkout*",
+     "git branch -D*",
+     "git commit*--no-verify*",
+     "rm -rf*",
+     "sudo *",
+     "curl *",
+     "wget *",
+     "aws *",
+     "gh *",
+     "*deploy.sh*",
+     "*make_public.sh*",
+     "*teardown.sh*"
+    ],
+    "effect": "deny"
+   }
+  ]
+ },
+ "toolsSettings": {
+  "fs_read": {
+   "deniedPaths": [
+    ".env",
+    ".env.*",
+    ".omc/**"
+   ]
+  },
+  "fs_write": {
+   "allowedPaths": [
+    "engine/gif.js",
+    "engine/sfx.js",
+    "app/gif_worker.js",
+    "app/audio.js",
+    "tests/gif*.test.js",
+    "tests/audio*.test.js",
+    "tests/sfx*.test.js",
+    "assets/audio/LICENSES.md"
+   ],
+   "deniedPaths": [
+    "engine/svg.js",
+    "engine/pose.js",
+    "engine/spring.js",
+    "engine/assets.js",
+    "engine/costumes.js",
+    "engine/scenes.js",
+    "engine/compose.js",
+    "engine/fit.js",
+    "engine/ics.js",
+    "engine/index.js",
+    "engine/invite.js",
+    "engine/presets.js",
+    "engine/remix.js",
+    "engine/scan.js",
+    "engine/share.js",
+    "app/main.js",
+    "app/index.html",
+    "app/style.css",
+    "deploy/**",
+    "docs/**",
+    ".kiro/**",
+    "LICENSE",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    "assets/audio/*.m4a"
+   ]
+  },
+  "execute_bash": {
+   "allowedCommands": [
+    "node [^&;|<>`$]*",
+    "npm (test|run test)[^&;|<>`$]*",
+    "git (status|diff|log|show)[^&;|<>`$]*",
+    "(ls|cat|head|tail|grep|rg|wc|diff)( [^&;|<>`$]*)?",
+    "bash \\.kiro/hooks/[a-z_]+\\.sh[^&;|<>`$]*"
+   ],
+   "deniedCommands": [
+    ".*git (push|reset|clean|checkout).*",
+    ".*git branch -D.*",
+    ".*--no-verify.*",
+    ".*rm -rf.*",
+    "sudo .*",
+    "(curl|wget|aws|gh) .*",
+    ".*deploy\\.sh.*",
+    ".*make_public\\.sh.*",
+    ".*teardown\\.sh.*"
+   ]
+  }
+ }
+}
