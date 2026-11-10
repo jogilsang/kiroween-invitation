@@ -171,9 +171,46 @@ function ghost(cx, cy, s, rand, mood, m, pal) {
     ? ` data-pose="eyes" transform="${eyesTransform(m, eyeY)}"`
     : "";
 
+  // Moods 4-8: closed arcs, lids, round eyes. Paths only, no text.
+  const ink = "#050208";
+  const arc = (ex, w) => `
+    <path d="M ${ex - 15 * s} ${eyeY + 6 * s} q ${15 * s} ${-26 * s} ${30 * s} 0" fill="none" stroke="${ink}" stroke-width="${w * s}" stroke-linecap="round"/>`;
+  const lidded = (ex) => `
+    <path d="M ${ex - 15 * s} ${eyeY} a ${15 * s} ${15 * s} 0 0 0 ${30 * s} 0 Z" fill="${ink}"/>
+    <path d="M ${ex - 17 * s} ${eyeY} h ${34 * s}" stroke="${ink}" stroke-width="${4 * s}" stroke-linecap="round"/>
+    <ellipse cx="${ex - 4 * s}" cy="${eyeY + 7 * s}" rx="${3 * s}" ry="${3.5 * s}" fill="#ffffff" opacity="0.7"/>`;
+  const round = (ex) => `
+    <ellipse cx="${ex}" cy="${eyeY}" rx="${19 * s}" ry="${34 * s}" fill="${ink}"/>
+    <ellipse cx="${ex - 5 * s}" cy="${eyeY - 13 * s}" rx="${6 * s}" ry="${9 * s}" fill="#ffffff" opacity="0.85"/>`;
+  const eyePair = {
+    wink: () => `${eye(cx - 40 * s, -6)}${arc(cx + 40 * s, 5)}`,
+    sleepy: () => `${lidded(cx - 40 * s)}${lidded(cx + 40 * s)}`,
+    surprised: () => `${round(cx - 40 * s)}${round(cx + 40 * s)}`,
+    joy: () => `${arc(cx - 40 * s, 6)}${arc(cx + 40 * s, 6)}`,
+  }[mood];
+  const eyesInner = eyePair
+    ? eyePair()
+    : `${eye(cx - 40 * s, -6)}
+      ${eye(cx + 40 * s, 6)}`;
+  const cheeks = mood === "blush"
+    ? `<g data-feature="cheeks">
+      <ellipse cx="${cx - 66 * s}" cy="${eyeY + 46 * s}" rx="${19 * s}" ry="${10 * s}" fill="#ff5fa2" opacity="0.5"/>
+      <ellipse cx="${cx + 66 * s}" cy="${eyeY + 46 * s}" rx="${19 * s}" ry="${10 * s}" fill="#ff5fa2" opacity="0.5"/>
+      </g>`
+    : "";
+
   const mawY = cy - 72 * s;
+  const mawNew = {
+    wink: `<path d="M ${cx - 24 * s} ${mawY + 2 * s} q ${22 * s} ${30 * s} ${48 * s} ${-12 * s} q ${-24 * s} ${12 * s} ${-48 * s} ${12 * s} Z" fill="${ink}"/>`,
+    sleepy: `<ellipse cx="${cx}" cy="${mawY + 8 * s}" rx="${9 * s}" ry="${6 * s}" fill="${ink}"/>`,
+    surprised: `<ellipse cx="${cx}" cy="${mawY + 10 * s}" rx="${12 * s}" ry="${13 * s}" fill="${ink}"/>`,
+    blush: `<path d="M ${cx - 18 * s} ${mawY + 2 * s} q ${18 * s} ${22 * s} ${36 * s} 0 q ${-18 * s} ${8 * s} ${-36 * s} 0 Z" fill="${ink}"/>`,
+    joy: `<path d="M ${cx - 36 * s} ${mawY - 6 * s} h ${72 * s} q 0 ${40 * s} ${-36 * s} ${40 * s} q ${-36 * s} 0 ${-36 * s} ${-40 * s} Z" fill="${ink}"/>`,
+  }[mood];
   let maw;
-  if (mood === "screaming") {
+  if (mawNew) {
+    maw = mawNew;
+  } else if (mood === "screaming") {
     maw = `<ellipse cx="${cx}" cy="${mawY + 10 * s}" rx="${22 * s}" ry="${40 * s}" fill="#050208"/>`;
   } else if (mood === "hollow") {
     maw = `<path d="M ${cx - 22 * s} ${mawY - 12 * s} q ${22 * s} ${-9 * s} ${44 * s} 0
@@ -197,10 +234,9 @@ function ghost(cx, cy, s, rand, mood, m, pal) {
       <path id="ghostTail" d="${rim}" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round"/>
       <ellipse cx="${cx - 58 * s}" cy="${top + 62 * s}" rx="${36 * s}" ry="${20 * s}" transform="rotate(-32 ${cx - 58 * s} ${top + 62 * s})" fill="url(#ghostGloss)"/>
       <g id="ghostEyes"${eyeT}>
-      ${eye(cx - 40 * s, -6)}
-      ${eye(cx + 40 * s, 6)}
+      ${eyesInner}
       </g>
-      ${maw}
+      ${cheeks}${maw}
     </g>`;
   return { svg, body };
 }

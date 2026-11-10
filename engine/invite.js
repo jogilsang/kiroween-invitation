@@ -3,7 +3,7 @@
 // Model says, code decides.
 
 export const PURPOSES = ["join", "notice", "recruit"];
-export const MOODS = ["uneasy", "screaming", "hollow"];
+export const MOODS = ["uneasy", "screaming", "hollow", "wink", "sleepy", "surprised", "blush", "joy"];
 export const PALETTES = ["deeppurple", "magenta", "indigo"];
 export const GLOWS = ["soft", "strong"];
 // One costume at a time (R30) and one backdrop scene (R31).

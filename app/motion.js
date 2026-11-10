@@ -32,7 +32,8 @@ export function createMotion({ getCfg, onPress }) {
     const p = pose(ts / 1000, cfg);
     for (const [el, st] of targets) {
       if (!el.isConnected) continue;
-      const input = ts < st.pressUntil || st.held ? 1 : 0;
+      // pressed: squash (1); dragging down squashes more, dragging up stretches (-1..1)
+      const input = st.held ? Math.max(-1, Math.min(1, 0.6 + st.dy / 120)) : ts < st.pressUntil ? 1 : 0;
       // the engine clamps dt to 1/30 per call, so a slow frame is stepped in pieces
       let n = Math.max(1, Math.ceil(dt * 30));
       for (let i = 0; i < n; i++) st.spring = stepSpring(st.spring, input, dt / n);
@@ -51,23 +52,27 @@ export function createMotion({ getCfg, onPress }) {
 
   function attach(el) {
     const prev = targets.get(el);
-    const st = prev || { nodes: {}, spring: createSpring(), held: false, pressUntil: 0 };
+    const st = prev || { nodes: {}, spring: createSpring(), held: false, pressUntil: 0, dy: 0, y0: 0 };
     st.nodes = read(el); // the SVG is rebuilt on every render, so look the nodes up again
     if (!prev) {
       const down = (e) => {
         if (!e.target.closest || !e.target.closest("#ghostRig")) return;
         st.held = true;
+        st.y0 = e.clientY; st.dy = 0;
         st.pressUntil = performance.now() + PRESS_MIN_MS;
         if (onPress) onPress();
         if (typeof navigator.vibrate === "function") navigator.vibrate(10);
       };
-      const up = () => { st.held = false; };
+      const move = (e) => { if (st.held) st.dy = e.clientY - st.y0; };
+      const up = () => { st.held = false; st.dy = 0; };
       el.addEventListener("pointerdown", down);
+      el.addEventListener("pointermove", move);
       el.addEventListener("pointerup", up);
       el.addEventListener("pointerleave", up);
       el.addEventListener("pointercancel", up);
       st.cleanup = () => {
         el.removeEventListener("pointerdown", down);
+        el.removeEventListener("pointermove", move);
         el.removeEventListener("pointerup", up);
         el.removeEventListener("pointerleave", up);
         el.removeEventListener("pointercancel", up);
